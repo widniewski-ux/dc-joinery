@@ -1,26 +1,42 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+.input {
+  width: 100%;
+  border: 1px solid #d4d4d4;
+  border-radius: 12px;
+  padding: 14px 16px;
+  outline: none;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+.input:focus {
+  border-color: #f59e0b;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+@keyframes heroFade {
+  0% { opacity: 0; }
+  5% { opacity: 1; }
+  25% { opacity: 1; }
+  30% { opacity: 0; }
+  100% { opacity: 0; }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+.hero-image {
+  opacity: 0;
+  animation: heroFade 24s infinite;
+}
+
+.hero-delay-0 {
+  animation-delay: 0s;
+}
+
+.hero-delay-1 {
+  animation-delay: 6s;
+}
+
+.hero-delay-2 {
+  animation-delay: 12s;
+}
+
+.hero-delay-3 {
+  animation-delay: 18s;
 }
