@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { sendKitchenFittingForm } from "../actions";
 
 export default function KitchenFittingPage() {
   return (
@@ -9,9 +10,7 @@ export default function KitchenFittingPage() {
             ← Back to home
           </Link>
 
-          <p className="text-sm text-neutral-400">
-            DC Joinery
-          </p>
+          <p className="text-sm text-neutral-400">DC Joinery</p>
         </div>
       </section>
 
@@ -29,15 +28,15 @@ export default function KitchenFittingPage() {
             Please complete the form below and upload your kitchen design and technical drawings with measurements. This helps us prepare an accurate fitting quote.
           </p>
 
-          <form className="grid gap-8 bg-white text-black rounded-3xl p-8 md:p-10">
+          <form action={sendKitchenFittingForm} className="grid gap-8 bg-white text-black rounded-3xl p-8 md:p-10">
             <div>
               <h2 className="text-2xl font-bold mb-5">Contact Details</h2>
 
               <div className="grid gap-5">
-                <input className="input" placeholder="Full name" />
-                <input className="input" placeholder="Address" />
-                <input className="input" placeholder="Phone number" />
-                <input className="input" placeholder="Email address" type="email" />
+                <input name="name" className="input" placeholder="Full name" required />
+                <input name="address" className="input" placeholder="Address" required />
+                <input name="phone" className="input" placeholder="Phone number" required />
+                <input name="email" className="input" placeholder="Email address" type="email" required />
               </div>
             </div>
 
@@ -45,26 +44,28 @@ export default function KitchenFittingPage() {
               <h2 className="text-2xl font-bold mb-5">Kitchen Details</h2>
 
               <div className="grid gap-5">
-                <select className="input">
-                  <option>Kitchen type</option>
+                <select name="kitchenType" className="input" required>
+                  <option value="">Kitchen type</option>
                   <option>Pre-built kitchen</option>
                   <option>Flat pack kitchen</option>
                 </select>
 
-                <select className="input">
-                  <option>Flat pack waste removal?</option>
+                <select name="wasteRemoval" className="input" required>
+                  <option value="">Flat pack waste removal?</option>
                   <option>Yes, remove packaging and waste (£80 additional service)</option>
                   <option>No, I will dispose of waste myself</option>
                   <option>Not applicable</option>
                 </select>
 
                 <input
+                  name="supplier"
                   className="input"
                   placeholder="Supplier, for example Wren, Howdens, B&Q, IKEA"
+                  required
                 />
 
-                <select className="input">
-                  <option>Worktop type</option>
+                <select name="worktop" className="input" required>
+                  <option value="">Worktop type</option>
                   <option>Laminate</option>
                   <option>Solid wood</option>
                   <option>Stone / Quartz</option>
@@ -73,6 +74,7 @@ export default function KitchenFittingPage() {
                 </select>
 
                 <input
+                  name="otherWorktop"
                   className="input"
                   placeholder="If other, please describe the worktop"
                 />
@@ -87,6 +89,7 @@ export default function KitchenFittingPage() {
               </label>
 
               <input
+                name="documents"
                 className="block w-full border border-neutral-300 rounded-xl p-4"
                 type="file"
                 multiple
@@ -101,8 +104,10 @@ export default function KitchenFittingPage() {
               <h2 className="text-2xl font-bold mb-5">Installation Date</h2>
 
               <input
+                name="installationDate"
                 className="input"
                 placeholder="When will the kitchen be ready for installation?"
+                required
               />
             </div>
 
