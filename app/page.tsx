@@ -2,19 +2,18 @@ import Image from "next/image";
 import Link from "next/link";
 
 const heroImages = [
+  "/projects/kitchen25.jpeg",
   "/projects/kitchen1.jpg",
   "/projects/kitchen5.jpg",
   "/projects/kitchen10.jpg",
-  "/projects/kitchen13.jpeg",
-  "/projects/kitchen25.jpeg",
   "/projects/kitchen33.jpeg",
 ];
 
-const featuredProjects = [
+const recentProjects = [
   "/projects/kitchen1.jpg",
   "/projects/kitchen5.jpg",
-  "/projects/kitchen10.jpg",
   "/projects/kitchen25.jpeg",
+  "/projects/kitchen33.jpeg",
 ];
 
 export default function Home() {
@@ -26,30 +25,33 @@ export default function Home() {
             <Image
               key={image}
               src={image}
-              alt="DC Joinery project"
+              alt="DC Joinery kitchen project"
               fill
               priority={index === 0}
               className={`object-cover hero-slide hero-slide-${index + 1}`}
             />
           ))}
 
-          <div className="absolute inset-0 bg-black/80" />
-          <div className="absolute inset-0 bg-gradient-to-r from-black via-black/80 to-black/60" />
+          <div className="absolute inset-0 bg-black/35" />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/65 via-black/35 to-black/10" />
         </div>
 
-        <nav className="relative z-20 px-6 py-6 border-b border-white/10 bg-black/40 backdrop-blur">
+        <nav className="relative z-20 px-6 py-6">
           <div className="max-w-7xl mx-auto flex items-center justify-between">
-            <Link href="/" className="flex items-center gap-3">
+            <Link href="/">
               <Image
                 src="/logo.png"
                 alt="DC Joinery Logo"
                 width={110}
-                height={60}
+                height={65}
                 className="h-12 w-auto"
               />
             </Link>
 
-            <div className="hidden md:flex items-center gap-8 text-sm font-semibold">
+            <div className="hidden lg:flex items-center gap-8 text-sm font-semibold">
+              <Link href="/" className="text-amber-400 border-b border-amber-400 pb-2">
+                Home
+              </Link>
               <Link href="/kitchen-fitting" className="hover:text-amber-400 transition">
                 Kitchen Fitting
               </Link>
@@ -62,119 +64,132 @@ export default function Home() {
               <Link href="/contact" className="hover:text-amber-400 transition">
                 Contact
               </Link>
-            </div>
 
-            <Link
-              href="/contact"
-              className="hidden md:inline-block bg-amber-400 text-black px-6 py-3 rounded-full font-bold hover:bg-amber-300 transition"
-            >
-              Get a Quote
-            </Link>
-          </div>
-        </nav>
-
-        <div className="relative z-10 px-6 py-20 md:py-28">
-          <div className="max-w-7xl mx-auto">
-            <p className="uppercase tracking-[0.45em] text-amber-400 text-sm mb-6">
-              Northern Ireland
-            </p>
-
-            <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold leading-[0.95] max-w-5xl mb-8">
-              Kitchens. Bedrooms. Bespoke Joinery.
-            </h1>
-
-            <p className="text-neutral-200 text-lg md:text-xl max-w-2xl mb-10 leading-relaxed">
-              Professional kitchen fitting, supply & installation, fitted bedrooms and bespoke joinery across Northern Ireland.
-            </p>
-
-            <div className="flex flex-col sm:flex-row gap-4 mb-16">
-              <Link
-                href="/kitchen-fitting"
-                className="bg-amber-400 text-black px-8 py-4 rounded-full font-bold text-center hover:bg-amber-300 transition"
-              >
-                Kitchen Fitting Quote
-              </Link>
-
-              <Link
-                href="/fit-and-supply"
-                className="bg-white text-black px-8 py-4 rounded-full font-bold text-center hover:bg-neutral-200 transition"
-              >
-                Fit & Supply
-              </Link>
-
-              <Link
-                href="/projects"
-                className="border border-white/40 px-8 py-4 rounded-full font-bold text-center hover:bg-white hover:text-black transition"
-              >
-                View Projects
-              </Link>
-            </div>
-
-            <div className="flex flex-wrap gap-6 text-sm text-neutral-300">
               <a href="https://facebook.com" target="_blank" className="hover:text-amber-400 transition">
                 Facebook
               </a>
               <a href="https://instagram.com" target="_blank" className="hover:text-amber-400 transition">
                 Instagram
               </a>
-              <a href="tel:07500779126" className="hover:text-amber-400 transition">
-                07500 779126
+
+              <Link
+                href="/contact"
+                className="bg-amber-400 text-black px-7 py-3 rounded-xl font-bold hover:bg-amber-300 transition"
+              >
+                Get a Quote
+              </Link>
+            </div>
+          </div>
+        </nav>
+
+        <div className="relative z-10 px-6 pt-14 pb-14">
+          <div className="max-w-7xl mx-auto">
+            <p className="uppercase tracking-[0.5em] text-amber-400 text-sm mb-7">
+              Northern Ireland
+            </p>
+
+            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold leading-[1] max-w-3xl mb-8">
+              KITCHENS.<br />
+              BEDROOMS.<br />
+              BESPOKE JOINERY.
+            </h1>
+
+            <p className="text-neutral-100 text-lg md:text-xl max-w-2xl mb-10 leading-relaxed">
+              From kitchen fitting to full supply and installation, one point of contact from first idea to final finish.
+            </p>
+
+            <div className="flex flex-col sm:flex-row gap-5 mb-14">
+              <Link href="/kitchen-fitting" className="bg-amber-400 text-black px-8 py-4 rounded-full font-bold text-center hover:bg-amber-300 transition">
+                Kitchen Fitting Quote
+              </Link>
+              <Link href="/fit-and-supply" className="border border-white/40 px-8 py-4 rounded-full font-bold text-center hover:bg-white hover:text-black transition">
+                Fit & Supply
+              </Link>
+              <Link href="/projects" className="border border-white/40 px-8 py-4 rounded-full font-bold text-center hover:bg-white hover:text-black transition">
+                View Projects
+              </Link>
+            </div>
+
+            <div className="flex items-center gap-8 text-sm text-neutral-200">
+              <span className="uppercase tracking-[0.4em] text-xs text-neutral-300">Follow us</span>
+              <a href="https://facebook.com" target="_blank" className="hover:text-amber-400 transition">
+                Facebook
+              </a>
+              <a href="https://instagram.com" target="_blank" className="hover:text-amber-400 transition">
+                Instagram
               </a>
             </div>
           </div>
         </div>
       </section>
 
-      <section className="px-6 py-16 border-y border-white/10 bg-neutral-950">
+      <section className="px-6 py-12 bg-neutral-950 border-y border-white/10">
         <div className="max-w-7xl mx-auto grid md:grid-cols-4 gap-8">
           {[
             ["Professional Installation", "High quality fitting with attention to detail."],
-            ["Reliable Service", "Clean, dependable and organised work."],
-            ["One Point of Contact", "From first idea to final finish."],
-            ["NI Based", "Local joinery services across Northern Ireland."],
+            ["Reliable Service", "Clean, dependable and on time, every time."],
+            ["One Point Of Contact", "From first idea to final finish, we manage it all."],
+            ["Northern Ireland Based", "Local, trusted and proud of our work."],
           ].map(([title, text]) => (
-            <div key={title} className="border border-white/10 rounded-3xl p-6 bg-white/[0.03]">
-              <h3 className="text-xl font-bold mb-3">{title}</h3>
+            <div key={title} className="text-center border-r border-white/10 last:border-r-0 px-6">
+              <div className="text-amber-400 text-3xl mb-5">◆</div>
+              <h3 className="uppercase text-lg font-semibold tracking-wide mb-4">{title}</h3>
               <p className="text-neutral-400">{text}</p>
             </div>
           ))}
         </div>
       </section>
 
-      <section className="px-6 py-20 bg-black">
+      <section className="px-6 py-16 bg-black">
         <div className="max-w-7xl mx-auto">
-          <div className="flex items-end justify-between gap-6 mb-10">
-            <div>
-              <p className="uppercase tracking-[0.35em] text-sm text-amber-400 mb-4">
-                Portfolio
-              </p>
-              <h2 className="text-4xl md:text-5xl font-bold">
-                Recent Projects
-              </h2>
-            </div>
+          <div className="flex items-center justify-between mb-10">
+            <h2 className="text-3xl md:text-4xl font-semibold tracking-wide">
+              RECENT PROJECTS
+            </h2>
 
-            <Link href="/projects" className="hidden md:block text-amber-400 font-bold hover:text-amber-300 transition">
+            <Link href="/projects" className="text-amber-400 font-semibold hover:text-amber-300 transition">
               View all projects →
             </Link>
           </div>
 
           <div className="grid md:grid-cols-4 gap-5">
-            {featuredProjects.map((image) => (
-              <Link
-                key={image}
-                href="/projects"
-                className="relative aspect-[4/3] rounded-3xl overflow-hidden border border-white/10 group"
-              >
+            {recentProjects.map((image) => (
+              <Link key={image} href="/projects" className="relative aspect-[4/3] rounded-xl overflow-hidden group">
                 <Image
                   src={image}
-                  alt="DC Joinery project"
+                  alt="Recent DC Joinery project"
                   fill
                   className="object-cover group-hover:scale-110 transition duration-700"
                 />
-                <div className="absolute inset-0 bg-black/20 group-hover:bg-black/5 transition" />
+                <div className="absolute inset-0 bg-black/15 group-hover:bg-black/0 transition" />
               </Link>
             ))}
           </div>
+        </div>
+      </section>
+
+      <section className="px-6 py-12 bg-neutral-950 border-t border-white/10">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+          <div>
+            <p className="text-sm uppercase tracking-[0.35em] text-amber-400 mb-3">
+              Quick contact
+            </p>
+            <h2 className="text-3xl md:text-4xl font-bold">
+              Want to discuss your project?
+            </h2>
+            <p className="text-neutral-400 mt-3">
+              Send a message on WhatsApp and I’ll get back to you as soon as possible.
+            </p>
+          </div>
+
+          <a
+            href="https://wa.me/447500779126"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="bg-amber-400 text-black px-8 py-4 rounded-full font-bold text-center hover:bg-amber-300 transition"
+          >
+            Message on WhatsApp
+          </a>
         </div>
       </section>
     </main>

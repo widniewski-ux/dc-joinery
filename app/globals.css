@@ -59,3 +59,21 @@
   30% { opacity: 0; transform: scale(1); }
   100% { opacity: 0; }
 }
+.hero-slide {
+  opacity: 0;
+  animation: heroFade 35s infinite;
+}
+
+.hero-slide-1 { animation-delay: 0s; }
+.hero-slide-2 { animation-delay: 7s; }
+.hero-slide-3 { animation-delay: 14s; }
+.hero-slide-4 { animation-delay: 21s; }
+.hero-slide-5 { animation-delay: 28s; }
+
+@keyframes heroFade {
+  0% { opacity: 0; transform: scale(1.05); }
+  8% { opacity: 1; }
+  28% { opacity: 1; }
+  36% { opacity: 0; transform: scale(1); }
+  100% { opacity: 0; }
+}
