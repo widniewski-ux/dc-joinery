@@ -40,3 +40,22 @@
 .hero-delay-3 {
   animation-delay: 18s;
 }
+.hero-slide {
+  opacity: 0;
+  animation: heroFade 36s infinite;
+}
+
+.hero-slide-1 { animation-delay: 0s; }
+.hero-slide-2 { animation-delay: 6s; }
+.hero-slide-3 { animation-delay: 12s; }
+.hero-slide-4 { animation-delay: 18s; }
+.hero-slide-5 { animation-delay: 24s; }
+.hero-slide-6 { animation-delay: 30s; }
+
+@keyframes heroFade {
+  0% { opacity: 0; transform: scale(1.04); }
+  6% { opacity: 1; }
+  24% { opacity: 1; }
+  30% { opacity: 0; transform: scale(1); }
+  100% { opacity: 0; }
+}
