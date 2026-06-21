@@ -13,7 +13,10 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "DC Joinery | Kitchen Fitting & Bespoke Joinery Northern Ireland",
+  title: {
+    default: "DC Joinery | Kitchen Fitting & Bespoke Joinery Northern Ireland",
+    template: "%s | DC Joinery",
+  },
   description:
     "Professional kitchen fitting, kitchen supply and installation, fitted bedrooms, wardrobes and bespoke joinery across Northern Ireland.",
   keywords: [
@@ -29,6 +32,10 @@ export const metadata: Metadata = {
     "Fitted bedrooms Northern Ireland",
     "Bespoke joinery Northern Ireland",
   ],
+  icons: {
+    icon: "/icon.png",
+    apple: "/apple-icon.png",
+  },
   openGraph: {
     title: "DC Joinery | Kitchen Fitting Northern Ireland",
     description:
