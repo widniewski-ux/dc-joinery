@@ -22,6 +22,11 @@ export const metadata: Metadata = {
   },
   description:
     "Professional kitchen fitting, kitchen supply and installation, fitted bedrooms, wardrobes and bespoke joinery across Northern Ireland.",
+
+  verification: {
+    google: "hyUv2x_MicAMsMar7uTGKXwRzHZrC8NulgJylGxhiQo",
+  },
+
   keywords: [
     "DC Joinery",
     "Kitchen fitter Northern Ireland",
