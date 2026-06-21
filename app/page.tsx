@@ -35,11 +35,11 @@ const trustPoints = [
 ];
 
 const suppliers = [
-  { name: "Wren", mark: "W" },
-  { name: "Howdens", mark: "H" },
-  { name: "IKEA", mark: "I" },
-  { name: "B&Q", mark: "B&Q" },
-  { name: "Bespoke Joinery", mark: "DC" },
+  { name: "Wren", logo: "/logos/Wren.jpeg" },
+  { name: "Howdens", logo: "/logos/Howdens.png" },
+  { name: "IKEA", logo: "/logos/Ikea.svg" },
+  { name: "B&Q", logo: "/logos/bq.png" },
+  { name: "Bespoke Joinery", logo: "/logo.png" },
 ];
 
 const reviews = [
@@ -64,8 +64,15 @@ export default function Home() {
         href={whatsappUrl}
         target="_blank"
         rel="noopener noreferrer"
-        className="fixed bottom-5 right-5 z-50 bg-amber-400 text-black px-5 py-4 rounded-full font-bold shadow-2xl hover:bg-amber-300 transition"
+        className="fixed bottom-5 right-5 z-50 flex items-center gap-3 bg-amber-400 text-black px-5 py-3 rounded-full font-bold shadow-2xl hover:bg-amber-300 transition"
       >
+        <Image
+          src="/logos/Whatsapp.png"
+          alt="WhatsApp"
+          width={26}
+          height={26}
+          className="h-6 w-6 object-contain"
+        />
         WhatsApp
       </a>
 
@@ -102,24 +109,41 @@ export default function Home() {
               <Link href="/" className="text-amber-400 border-b border-amber-400 pb-2">
                 Home
               </Link>
+
               <Link href="/kitchen-fitting" className="hover:text-amber-400 transition">
                 Kitchen Fitting
               </Link>
+
               <Link href="/fit-and-supply" className="hover:text-amber-400 transition">
                 Fit & Supply
               </Link>
+
               <Link href="/projects" className="hover:text-amber-400 transition">
                 Projects
               </Link>
+
               <Link href="/contact" className="hover:text-amber-400 transition">
                 Contact
               </Link>
 
-              <a href={facebookUrl} target="_blank" rel="noopener noreferrer" className="hover:text-amber-400 transition">
-                Facebook
+              <a href={facebookUrl} target="_blank" rel="noopener noreferrer">
+                <Image
+                  src="/logos/Facebook.png"
+                  alt="Facebook"
+                  width={28}
+                  height={28}
+                  className="h-7 w-7 object-contain hover:scale-110 transition"
+                />
               </a>
-              <a href={instagramUrl} target="_blank" rel="noopener noreferrer" className="hover:text-amber-400 transition">
-                Instagram
+
+              <a href={instagramUrl} target="_blank" rel="noopener noreferrer">
+                <Image
+                  src="/logos/Instagram.png"
+                  alt="Instagram"
+                  width={28}
+                  height={28}
+                  className="h-7 w-7 object-contain hover:scale-110 transition"
+                />
               </a>
 
               <Link
@@ -152,21 +176,39 @@ export default function Home() {
               <Link href="/kitchen-fitting" className="bg-amber-400 text-black px-8 py-4 rounded-full font-bold text-center hover:bg-amber-300 transition">
                 Kitchen Fitting Quote
               </Link>
+
               <Link href="/fit-and-supply" className="border border-white/40 px-8 py-4 rounded-full font-bold text-center hover:bg-white hover:text-black transition">
                 Fit & Supply
               </Link>
+
               <Link href="/projects" className="border border-white/40 px-8 py-4 rounded-full font-bold text-center hover:bg-white hover:text-black transition">
                 View Projects
               </Link>
             </div>
 
-            <div className="flex items-center gap-8 text-sm text-neutral-200">
-              <span className="uppercase tracking-[0.4em] text-xs text-neutral-300">Follow us</span>
-              <a href={facebookUrl} target="_blank" rel="noopener noreferrer" className="hover:text-amber-400 transition">
-                Facebook
+            <div className="flex items-center gap-6 text-sm text-neutral-200">
+              <span className="uppercase tracking-[0.4em] text-xs text-neutral-300">
+                Follow us
+              </span>
+
+              <a href={facebookUrl} target="_blank" rel="noopener noreferrer">
+                <Image
+                  src="/logos/Facebook.png"
+                  alt="Facebook"
+                  width={30}
+                  height={30}
+                  className="h-7 w-7 object-contain hover:scale-110 transition"
+                />
               </a>
-              <a href={instagramUrl} target="_blank" rel="noopener noreferrer" className="hover:text-amber-400 transition">
-                Instagram
+
+              <a href={instagramUrl} target="_blank" rel="noopener noreferrer">
+                <Image
+                  src="/logos/Instagram.png"
+                  alt="Instagram"
+                  width={30}
+                  height={30}
+                  className="h-7 w-7 object-contain hover:scale-110 transition"
+                />
               </a>
             </div>
           </div>
@@ -206,9 +248,11 @@ export default function Home() {
             <p className="uppercase tracking-[0.35em] text-sm text-amber-400 mb-4">
               Suppliers
             </p>
+
             <h2 className="text-3xl md:text-4xl font-bold">
               Experienced With Leading Kitchen Suppliers
             </h2>
+
             <p className="text-neutral-400 mt-4 max-w-3xl">
               From popular high street kitchen brands to bespoke local joinery, DC Joinery can fit and coordinate the right solution for your project.
             </p>
@@ -220,9 +264,15 @@ export default function Home() {
                 key={supplier.name}
                 className="rounded-2xl border border-white/10 bg-white/[0.04] px-5 py-6 text-center hover:border-amber-400/60 transition"
               >
-                <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full border border-amber-400/60 bg-amber-400/10 text-amber-400 font-bold">
-                  {supplier.mark}
+                <div className="relative mx-auto mb-4 h-16 w-32">
+                  <Image
+                    src={supplier.logo}
+                    alt={`${supplier.name} logo`}
+                    fill
+                    className="object-contain"
+                  />
                 </div>
+
                 <p className="font-bold text-lg">{supplier.name}</p>
               </div>
             ))}
@@ -237,6 +287,7 @@ export default function Home() {
               <p className="uppercase tracking-[0.35em] text-sm text-amber-400 mb-4">
                 Portfolio
               </p>
+
               <h2 className="text-3xl md:text-4xl font-semibold tracking-wide">
                 RECENT PROJECTS
               </h2>
@@ -270,6 +321,7 @@ export default function Home() {
               <p className="uppercase tracking-[0.35em] text-sm text-amber-400 mb-4">
                 Facebook Reviews
               </p>
+
               <h2 className="text-3xl md:text-4xl font-bold">
                 Recommended By Clients
               </h2>
@@ -306,9 +358,11 @@ export default function Home() {
             <p className="text-sm uppercase tracking-[0.35em] text-amber-400 mb-3">
               Quick contact
             </p>
+
             <h2 className="text-3xl md:text-4xl font-bold">
               Want to discuss your project?
             </h2>
+
             <p className="text-neutral-400 mt-3">
               Send a message on WhatsApp and I’ll get back to you as soon as possible.
             </p>
@@ -319,8 +373,15 @@ export default function Home() {
               href={whatsappUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="bg-amber-400 text-black px-8 py-4 rounded-full font-bold text-center hover:bg-amber-300 transition"
+              className="flex items-center justify-center gap-3 bg-amber-400 text-black px-8 py-4 rounded-full font-bold text-center hover:bg-amber-300 transition"
             >
+              <Image
+                src="/logos/Whatsapp.png"
+                alt="WhatsApp"
+                width={24}
+                height={24}
+                className="h-6 w-6 object-contain"
+              />
               Message on WhatsApp
             </a>
 
@@ -331,6 +392,25 @@ export default function Home() {
               Contact Form
             </Link>
           </div>
+        </div>
+      </section>
+
+      <section className="px-6 py-16 bg-neutral-950 border-t border-white/10">
+        <div className="max-w-7xl mx-auto">
+          <p className="uppercase tracking-[0.35em] text-sm text-amber-400 mb-4">
+            Areas We Cover
+          </p>
+
+          <h2 className="text-3xl md:text-4xl font-bold mb-6">
+            Kitchen Fitting Across Northern Ireland
+          </h2>
+
+          <p className="text-neutral-300 text-lg leading-8 max-w-4xl">
+            DC Joinery provides kitchen fitting, kitchen supply & installation,
+            fitted bedrooms and bespoke joinery services across Belfast,
+            Craigavon, Lurgan, Portadown, Banbridge, Lisburn, Armagh, Newry and
+            throughout Northern Ireland.
+          </p>
         </div>
       </section>
     </main>
