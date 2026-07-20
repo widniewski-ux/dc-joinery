@@ -32,7 +32,10 @@ export default function ContactPage() {
           <div className="bg-white/[0.04] border border-white/10 rounded-3xl p-6 mb-10">
             <h2 className="text-2xl font-bold mb-4">A little about me</h2>
             <p className="text-neutral-600 leading-relaxed">
-              I trained as a furniture joiner in Poland and worked in furniture production and installation. After ten years as a production manager, I returned to my true passion: kitchen fitting and full project coordination.
+              I trained as a furniture joiner in Poland and worked in production and installation. After moving abroad, I built my experience step by step and returned to my real passion: kitchen fitting and full project coordination.
+            </p>
+            <p className="text-neutral-600 leading-relaxed mt-4">
+              I have over 10 years of experience and more than 100 kitchens installed. I offer kitchen fitting and full project logistics from design and orders to electric, plumbing, gas and tiling coordination.
             </p>
           </div>
 

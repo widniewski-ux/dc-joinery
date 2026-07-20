@@ -170,7 +170,6 @@ export default function Home() {
 
             <p className="text-neutral-100 text-lg md:text-xl max-w-2xl mb-10 leading-relaxed">
               From kitchen fitting to full supply and installation, one point of contact from first idea to final finish. Personal service with trade coordination for electric, plumbing, gas and tiling.
-              Personal service with trade coordination for electric, plumbing, gas and tiling.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-5 mb-14">
@@ -243,6 +242,41 @@ export default function Home() {
         </div>
       </section>
 
+      <section className="px-6 py-16 bg-neutral-950 border-b border-white/10">
+        <div className="max-w-7xl mx-auto text-center mb-12">
+          <p className="uppercase tracking-[0.35em] text-sm text-amber-400 mb-4">
+            How it works
+          </p>
+          <h2 className="text-3xl md:text-4xl font-bold">
+            Simple steps from quote to finished kitchen
+          </h2>
+        </div>
+
+        <div className="max-w-7xl mx-auto grid gap-6 md:grid-cols-3">
+          <div className="rounded-3xl border border-white/10 bg-black/70 p-8 text-center">
+            <p className="text-amber-400 text-4xl font-bold mb-4">01</p>
+            <h3 className="font-semibold text-xl mb-3">Book your quote</h3>
+            <p className="text-neutral-400 leading-relaxed">
+              Send a message or use the contact form to share your project details and arrange a free estimate.
+            </p>
+          </div>
+          <div className="rounded-3xl border border-white/10 bg-black/70 p-8 text-center">
+            <p className="text-amber-400 text-4xl font-bold mb-4">02</p>
+            <h3 className="font-semibold text-xl mb-3">We coordinate the job</h3>
+            <p className="text-neutral-400 leading-relaxed">
+              I manage materials, suppliers and trusted trades so the project moves smoothly from order to installation.
+            </p>
+          </div>
+          <div className="rounded-3xl border border-white/10 bg-black/70 p-8 text-center">
+            <p className="text-amber-400 text-4xl font-bold mb-4">03</p>
+            <h3 className="font-semibold text-xl mb-3">Finish with care</h3>
+            <p className="text-neutral-400 leading-relaxed">
+              The install is completed with precision and respect for your home, leaving a clean, beautiful finish.
+            </p>
+          </div>
+        </div>
+      </section>
+
       <section className="px-6 py-16 bg-black border-b border-white/10">
         <div className="max-w-7xl mx-auto grid lg:grid-cols-[1.1fr_0.9fr] gap-12 items-center">
           <div>
@@ -250,13 +284,13 @@ export default function Home() {
               About Dawid
             </p>
             <h2 className="text-3xl md:text-4xl font-bold mb-5">
-              From workshop craftsmanship to production management, now back to my passion.
+              From workshop craftsmanship back to the passion for kitchen fitting.
             </h2>
             <p className="text-neutral-400 leading-relaxed mb-5">
-              I trained as a furniture joiner in Poland and spent years crafting cabinets, kitchens and bespoke interiors. After moving abroad I climbed to production management, overseeing manufacturing and production processes.
+              I trained as a furniture joiner in Poland and spent years crafting cabinets, kitchens and bespoke interiors. After moving abroad, I gained broad production experience and returned to my true passion: kitchen fitting and craftsmanship.
             </p>
             <p className="text-neutral-400 leading-relaxed mb-5">
-              I have over 10 years of experience and more than 100 kitchens installed, delivering professional workmanship and trusted coordination.
+              I have over 10 years of experience and more than 100 kitchens installed, delivering professional workmanship, clear communication and trusted trade coordination.
             </p>
             <p className="text-neutral-400 leading-relaxed">
               Today I focus on kitchen fitting and full project logistics. I personally coordinate design, suppliers, electric, plumbing, gas and tiling partners so your project is delivered smoothly from first quote to final handover.
