@@ -1,5 +1,10 @@
 import Link from "next/link";
 
+export const metadata = {
+  title: "Thank You | DC Joinery",
+  description: "Thank you for contacting DC Joinery. We will review your enquiry and reply shortly.",
+};
+
 export default function ThankYouPage() {
   return (
     <main className="min-h-screen bg-neutral-950 text-white flex items-center justify-center px-6">

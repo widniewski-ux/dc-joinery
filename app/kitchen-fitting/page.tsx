@@ -1,6 +1,11 @@
 import Link from "next/link";
 import { sendKitchenFittingForm } from "../actions";
 
+export const metadata = {
+  title: "Kitchen Fitting Quote | DC Joinery NI",
+  description: "Request a kitchen fitting quote from DC Joinery: UK kitchen install experience, supplier coordination and trusted trades.",
+};
+
 export default function KitchenFittingPage() {
   return (
     <main className="min-h-screen bg-neutral-950 text-white">
@@ -50,6 +55,14 @@ export default function KitchenFittingPage() {
               <p className="text-black/80">
                 Appliance fitting can be included, but electrical, gas and plumbing connections must be completed by qualified trades.
               </p>
+            </div>
+            <div className="bg-white/[0.04] border border-white/10 rounded-3xl p-6">
+              <h2 className="text-2xl font-bold mb-4">How this service works</h2>
+              <div className="space-y-3 text-neutral-300">
+                <p>✔ Professional review of supplier plans, measurements and room layout.</p>
+                <p>✔ Practical advice on kitchen layout, appliances, worktops and trade requirements.</p>
+                <p>✔ Clear quote, timetable and handover plan before installation begins.</p>
+              </div>
             </div>
           </div>
 

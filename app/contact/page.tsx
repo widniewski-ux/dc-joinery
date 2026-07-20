@@ -1,6 +1,11 @@
 import Link from "next/link";
 import { sendContactForm } from "../actions";
 
+export const metadata = {
+  title: "Contact DC Joinery | Free Quote for Kitchen Fitting in Northern Ireland",
+  description: "Contact DC Joinery for kitchen fitting, kitchen supply and bespoke joinery projects across Northern Ireland.",
+};
+
 export default function ContactPage() {
   return (
     <main className="min-h-screen bg-neutral-950 text-white">
