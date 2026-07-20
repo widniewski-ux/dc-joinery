@@ -35,7 +35,7 @@ export default function ContactPage() {
               I trained as a furniture joiner in Poland and worked in production and installation. After moving abroad, I built my experience step by step and returned to my real passion: kitchen fitting and full project coordination.
             </p>
             <p className="text-neutral-600 leading-relaxed mt-4">
-              I have over 10 years of experience and more than 100 kitchens installed. I offer kitchen fitting and full project logistics from design and orders to electric, plumbing, gas and tiling coordination.
+              I have over 7 years of experience and more than 30 kitchens installed. I offer kitchen fitting and full project logistics from design and orders to electric, plumbing, gas and tiling coordination.
             </p>
           </div>
 

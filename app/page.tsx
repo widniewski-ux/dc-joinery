@@ -21,8 +21,8 @@ const recentProjects = [
 ];
 
 const stats = [
-  ["100+", "Kitchens Installed"],
-  ["10+", "Years Experience"],
+  ["30+", "Kitchens Installed"],
+  ["7", "Years Experience"],
   ["Free", "Quotes"],
   ["NI", "Based"],
 ];
@@ -93,69 +93,6 @@ export default function Home() {
           <div className="absolute inset-0 bg-gradient-to-r from-black/65 via-black/35 to-black/10" />
         </div>
 
-        <nav className="relative z-20 px-6 py-6">
-          <div className="max-w-7xl mx-auto flex items-center justify-between">
-            <Link href="/">
-              <Image
-                src="/logo.png"
-                alt="DC Joinery Logo"
-                width={110}
-                height={65}
-                className="h-12 w-auto"
-              />
-            </Link>
-
-            <div className="hidden lg:flex items-center gap-8 text-sm font-semibold">
-              <Link href="/" className="text-amber-400 border-b border-amber-400 pb-2">
-                Home
-              </Link>
-
-              <Link href="/kitchen-fitting" className="hover:text-amber-400 transition">
-                Kitchen Fitting
-              </Link>
-
-              <Link href="/fit-and-supply" className="hover:text-amber-400 transition">
-                Fit & Supply
-              </Link>
-
-              <Link href="/projects" className="hover:text-amber-400 transition">
-                Projects
-              </Link>
-
-              <Link href="/contact" className="hover:text-amber-400 transition">
-                Contact
-              </Link>
-
-              <a href={facebookUrl} target="_blank" rel="noopener noreferrer">
-                <Image
-                  src="/logos/Facebook.png"
-                  alt="Facebook"
-                  width={28}
-                  height={28}
-                  className="h-7 w-7 object-contain hover:scale-110 transition"
-                />
-              </a>
-
-              <a href={instagramUrl} target="_blank" rel="noopener noreferrer">
-                <Image
-                  src="/logos/Instagram.png"
-                  alt="Instagram"
-                  width={28}
-                  height={28}
-                  className="h-7 w-7 object-contain hover:scale-110 transition"
-                />
-              </a>
-
-              <Link
-                href="/contact"
-                className="bg-amber-400 text-black px-7 py-3 rounded-xl font-bold hover:bg-amber-300 transition"
-              >
-                Get a Quote
-              </Link>
-            </div>
-          </div>
-        </nav>
-
         <div className="relative z-10 px-6 pt-14 pb-14">
           <div className="max-w-7xl mx-auto">
             <p className="uppercase tracking-[0.5em] text-amber-400 text-sm mb-7">
@@ -169,7 +106,7 @@ export default function Home() {
             </h1>
 
             <p className="text-neutral-100 text-lg md:text-xl max-w-2xl mb-10 leading-relaxed">
-              From kitchen fitting to full supply and installation, one point of contact from first idea to final finish. Personal service with trade coordination for electric, plumbing, gas and tiling.
+              From kitchen fitting to full supply and installation, one point of contact from first idea to final finish. Proven UK track record with over 7 years of experience and more than 30 kitchens installed, including trade coordination for electric, plumbing, gas and tiling.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-5 mb-14">
@@ -290,7 +227,7 @@ export default function Home() {
               I trained as a furniture joiner in Poland and spent years crafting cabinets, kitchens and bespoke interiors. After moving abroad, I gained broad production experience and returned to my true passion: kitchen fitting and craftsmanship.
             </p>
             <p className="text-neutral-400 leading-relaxed mb-5">
-              I have over 10 years of experience and more than 100 kitchens installed, delivering professional workmanship, clear communication and trusted trade coordination.
+              I have over 7 years of experience and more than 30 kitchens installed, delivering professional workmanship, clear communication and trusted trade coordination.
             </p>
             <p className="text-neutral-400 leading-relaxed">
               Today I focus on kitchen fitting and full project logistics. I personally coordinate design, suppliers, electric, plumbing, gas and tiling partners so your project is delivered smoothly from first quote to final handover.
@@ -303,7 +240,7 @@ export default function Home() {
             </p>
             <div className="space-y-4 text-neutral-300">
               <p>✔ Personal attention from first call to final handover.</p>
-              <p>✔ Over 10 years of experience and more than 100 kitchens installed.</p>
+              <p>✔ Over 7 years of experience and more than 30 kitchens installed.</p>
               <p>✔ Full trade coordination including electric, plumbing, gas and tiling.</p>
               <p>✔ Local Northern Ireland service with trusted partners.</p>
             </div>
