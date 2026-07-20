@@ -3,35 +3,100 @@
 import { Resend } from "resend";
 import { redirect } from "next/navigation";
 
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+const MAX_ATTACHMENT_COUNT = 5;
+const ALLOWED_FILE_TYPES = [
+  "application/pdf",
+  "image/jpeg",
+  "image/png",
+  "application/msword",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+];
+const ALLOWED_FILE_EXTENSIONS = [
+  ".pdf",
+  ".jpg",
+  ".jpeg",
+  ".png",
+  ".doc",
+  ".docx",
+];
+
 function getResend() {
   return new Resend(process.env.RESEND_API_KEY);
 }
 
+function validateEmail(email: string): boolean {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+}
+
+function validatePhone(phone: string): boolean {
+  const phoneRegex = /^[\d\s\-\+\(\)]{10,}$/;
+  return phoneRegex.test(phone);
+}
+
+function validateHoneypot(value: string): void {
+  if (value.trim()) {
+    throw new Error("Spam detected");
+  }
+}
+
 async function prepareAttachments(files: File[]) {
+  const validFiles = files.filter((file) => file.size > 0);
+
+  if (validFiles.length > MAX_ATTACHMENT_COUNT) {
+    throw new Error(`Please upload no more than ${MAX_ATTACHMENT_COUNT} files`);
+  }
+
+  for (const file of validFiles) {
+    if (file.size > MAX_FILE_SIZE) {
+      throw new Error(`File ${file.name} exceeds 5MB limit`);
+    }
+    if (!ALLOWED_FILE_TYPES.includes(file.type)) {
+      const extension = file.name.toLowerCase().split('.').pop() || "";
+      if (!ALLOWED_FILE_EXTENSIONS.includes(`.${extension}`)) {
+        throw new Error(`File type not allowed: ${file.type}`);
+      }
+    }
+  }
+
   return Promise.all(
-    files
-      .filter((file) => file.size > 0)
-      .map(async (file) => ({
-        filename: file.name,
-        content: Buffer.from(await file.arrayBuffer()),
-      }))
+    validFiles.map(async (file) => ({
+      filename: file.name,
+      content: Buffer.from(await file.arrayBuffer()),
+    }))
   );
 }
 
 export async function sendContactForm(formData: FormData) {
-  const resend = getResend();
+  try {
+    const honeypot = String(formData.get("botField") || "").trim();
+    validateHoneypot(honeypot);
+    const name = String(formData.get("name") || "").trim();
+    const phone = String(formData.get("phone") || "").trim();
+    const email = String(formData.get("email") || "").trim();
+    const message = String(formData.get("message") || "").trim();
 
-  const name = String(formData.get("name") || "");
-  const phone = String(formData.get("phone") || "");
-  const email = String(formData.get("email") || "");
-  const message = String(formData.get("message") || "");
+    if (!name || name.length < 2) {
+      throw new Error("Name must be at least 2 characters");
+    }
+    if (!validateEmail(email)) {
+      throw new Error("Invalid email address");
+    }
+    if (!validatePhone(phone)) {
+      throw new Error("Invalid phone number (minimum 10 digits)");
+    }
+    if (!message || message.length < 10) {
+      throw new Error("Message must be at least 10 characters");
+    }
 
-  await resend.emails.send({
-    from: "DC Joinery <website@dcjoineryni.uk>",
-    to: "info@dcjoinery.uk",
-    replyTo: email,
-    subject: "New Contact Enquiry",
-    text: `
+    const resend = getResend();
+    await resend.emails.send({
+      from: "DC Joinery <website@dcjoinery.uk>",
+      to: "info@dcjoinery.uk",
+      replyTo: email,
+      subject: "New Contact Enquiry",
+      text: `
 New contact enquiry from DC Joinery website
 
 Name: ${name}
@@ -40,35 +105,55 @@ Email: ${email}
 
 Message:
 ${message}
-    `,
-  });
+      `,
+    });
 
-  redirect("/thank-you");
+    redirect("/thank-you");
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Failed to send message";
+    throw new Error(message);
+  }
 }
 
 export async function sendKitchenFittingForm(formData: FormData) {
-  const resend = getResend();
+  try {
+    const honeypot = String(formData.get("botField") || "").trim();
+    validateHoneypot(honeypot);
+    const name = String(formData.get("name") || "").trim();
+    const address = String(formData.get("address") || "").trim();
+    const phone = String(formData.get("phone") || "").trim();
+    const email = String(formData.get("email") || "").trim();
+    const kitchenType = String(formData.get("kitchenType") || "");
+    const wasteRemoval = String(formData.get("wasteRemoval") || "");
+    const supplier = String(formData.get("supplier") || "");
+    const worktop = String(formData.get("worktop") || "");
+    const otherWorktop = String(formData.get("otherWorktop") || "");
+    const installationDate = String(formData.get("installationDate") || "");
+    const files = formData.getAll("documents") as File[];
 
-  const name = String(formData.get("name") || "");
-  const address = String(formData.get("address") || "");
-  const phone = String(formData.get("phone") || "");
-  const email = String(formData.get("email") || "");
-  const kitchenType = String(formData.get("kitchenType") || "");
-  const wasteRemoval = String(formData.get("wasteRemoval") || "");
-  const supplier = String(formData.get("supplier") || "");
-  const worktop = String(formData.get("worktop") || "");
-  const otherWorktop = String(formData.get("otherWorktop") || "");
-  const installationDate = String(formData.get("installationDate") || "");
-  const files = formData.getAll("documents") as File[];
-  const attachments = await prepareAttachments(files);
+    if (!name || name.length < 2) {
+      throw new Error("Name must be at least 2 characters");
+    }
+    if (!validateEmail(email)) {
+      throw new Error("Invalid email address");
+    }
+    if (!validatePhone(phone)) {
+      throw new Error("Invalid phone number");
+    }
+    if (!address || address.length < 5) {
+      throw new Error("Address required");
+    }
 
-  await resend.emails.send({
-    from: "DC Joinery <website@dcjoineryni.uk>",
-    to: "info@dcjoinery.uk",
-    replyTo: email,
-    subject: "New Kitchen Fitting Quote Request",
-    attachments,
-    text: `
+    const attachments = await prepareAttachments(files);
+
+    const resend = getResend();
+    await resend.emails.send({
+      from: "DC Joinery <website@dcjoinery.uk>",
+      to: "info@dcjoinery.uk",
+      replyTo: email,
+      subject: "New Kitchen Fitting Quote Request",
+      attachments,
+      text: `
 New kitchen fitting quote request
 
 Name: ${name}
@@ -85,33 +170,53 @@ Ready for installation: ${installationDate}
 
 Attachments:
 ${attachments.length > 0 ? attachments.map((a) => a.filename).join(", ") : "No files uploaded"}
-    `,
-  });
+      `,
+    });
 
-  redirect("/thank-you");
+    redirect("/thank-you");
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Failed to send form";
+    throw new Error(message);
+  }
 }
 
 export async function sendFitAndSupplyForm(formData: FormData) {
-  const resend = getResend();
+  try {
+    const honeypot = String(formData.get("botField") || "").trim();
+    validateHoneypot(honeypot);
+    const name = String(formData.get("name") || "").trim();
+    const address = String(formData.get("address") || "").trim();
+    const phone = String(formData.get("phone") || "").trim();
+    const email = String(formData.get("email") || "").trim();
+    const projectType = String(formData.get("projectType") || "");
+    const hasDesign = String(formData.get("hasDesign") || "");
+    const supplier = String(formData.get("supplier") || "");
+    const message = String(formData.get("message") || "").trim();
+    const files = formData.getAll("photos") as File[];
 
-  const name = String(formData.get("name") || "");
-  const address = String(formData.get("address") || "");
-  const phone = String(formData.get("phone") || "");
-  const email = String(formData.get("email") || "");
-  const projectType = String(formData.get("projectType") || "");
-  const hasDesign = String(formData.get("hasDesign") || "");
-  const supplier = String(formData.get("supplier") || "");
-  const message = String(formData.get("message") || "");
-  const files = formData.getAll("photos") as File[];
-  const attachments = await prepareAttachments(files);
+    if (!name || name.length < 2) {
+      throw new Error("Name must be at least 2 characters");
+    }
+    if (!validateEmail(email)) {
+      throw new Error("Invalid email address");
+    }
+    if (!validatePhone(phone)) {
+      throw new Error("Invalid phone number");
+    }
+    if (!address || address.length < 5) {
+      throw new Error("Address required");
+    }
 
-  await resend.emails.send({
-    from: "DC Joinery <website@dcjoineryni.uk>",
-    to: "info@dcjoinery.uk",
-    replyTo: email,
-    subject: "New Fit & Supply Consultation Request",
-    attachments,
-    text: `
+    const attachments = await prepareAttachments(files);
+
+    const resend = getResend();
+    await resend.emails.send({
+      from: "DC Joinery <website@dcjoinery.uk>",
+      to: "info@dcjoinery.uk",
+      replyTo: email,
+      subject: "New Fit & Supply Consultation Request",
+      attachments,
+      text: `
 New fit & supply consultation request
 
 Name: ${name}
@@ -128,8 +233,12 @@ ${message}
 
 Attachments:
 ${attachments.length > 0 ? attachments.map((a) => a.filename).join(", ") : "No files uploaded"}
-    `,
-  });
+      `,
+    });
 
-  redirect("/thank-you");
+    redirect("/thank-you");
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Failed to send form";
+    throw new Error(message);
+  }
 }

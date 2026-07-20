@@ -1,6 +1,11 @@
 import Link from "next/link";
 import { sendContactForm } from "../actions";
 
+export const metadata = {
+  title: "Contact DC Joinery | Free Quote for Kitchen Fitting in Northern Ireland",
+  description: "Contact DC Joinery for kitchen fitting, kitchen supply and bespoke joinery projects across Northern Ireland.",
+};
+
 export default function ContactPage() {
   return (
     <main className="min-h-screen bg-neutral-950 text-white">
@@ -21,13 +26,23 @@ export default function ContactPage() {
           </p>
 
           <h1 className="text-5xl md:text-6xl font-bold mb-6">
-            Get In Touch
+            Get In Touch for a Free UK Quote
           </h1>
 
           <p className="text-neutral-300 text-lg mb-10">
             Looking for a kitchen fitter, kitchen renovation, fitted bedroom or bespoke joinery project?
-            Complete the form below and we'll get back to you.
+            Complete the form below and we&apos;ll get back to you, usually within 24 hours.
           </p>
+
+          <div className="bg-white/[0.04] border border-white/10 rounded-3xl p-6 mb-10">
+            <h2 className="text-2xl font-bold mb-4">A little about me</h2>
+            <p className="text-neutral-600 leading-relaxed">
+              I trained as a furniture joiner in Poland and worked in production and installation. After moving abroad, I built my experience step by step and returned to my real passion: kitchen fitting and full project coordination.
+            </p>
+            <p className="text-neutral-600 leading-relaxed mt-4">
+              I have over 7 years of experience and more than 30 kitchens installed. I offer kitchen fitting and full project logistics from design and orders to electric, plumbing, gas and tiling coordination.
+            </p>
+          </div>
 
           <div className="grid md:grid-cols-2 gap-8 mb-12">
             <div className="bg-white/5 border border-white/10 rounded-3xl p-8">
@@ -35,7 +50,7 @@ export default function ContactPage() {
 
               <div className="space-y-3 text-neutral-300">
                 <p>📞 Phone: 07500779126</p>
-                <p>✉️ Email: info@dcjoineryni.uk</p>
+                <p>✉️ Email: info@dcjoinery.uk</p>
                 <p>📍 Northern Ireland</p>
               </div>
             </div>
@@ -55,8 +70,9 @@ export default function ContactPage() {
 
           <form
             action={sendContactForm}
-            className="grid gap-5 bg-white text-black rounded-3xl p-8 md:p-10"
+            className="form-container grid gap-5 bg-white text-black rounded-3xl p-8 md:p-10"
           >
+            <input type="text" name="botField" autoComplete="off" className="hidden" />
             <input
               name="name"
               className="input"

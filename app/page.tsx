@@ -1,6 +1,11 @@
 import Image from "next/image";
 import Link from "next/link";
 
+export const metadata = {
+  title: "DC Joinery | Kitchen Fitting & Bespoke Joinery Northern Ireland",
+  description: "Professional kitchen fitting, kitchen supply and installation, fitted bedrooms and bespoke joinery across Northern Ireland.",
+};
+
 const facebookUrl = "https://www.facebook.com/share/1Dfc738uhx/?mibextid=wwXIfr";
 const instagramUrl = "https://www.instagram.com/dawid_joinery__dc?igsh=dnZrZG5xcnpmZ3Bl&utm_source=qr";
 const whatsappUrl = "https://wa.me/447500779126";
@@ -21,17 +26,17 @@ const recentProjects = [
 ];
 
 const stats = [
-  ["35+", "Project Photos"],
-  ["6+", "Years Experience"],
+  ["30+", "Kitchens Installed"],
+  ["7", "Years Experience"],
   ["Free", "Quotes"],
   ["NI", "Based"],
 ];
 
 const trustPoints = [
-  ["Professional Installation", "High quality fitting with attention to detail."],
-  ["Reliable Service", "Clean, dependable and on time, every time."],
-  ["One Point Of Contact", "From first idea to final finish, we manage it all."],
-  ["Northern Ireland Based", "Local, trusted and proud of our work."],
+  ["Polish Joinery Expertise", "Trained in furniture craftsmanship with hands-on production and installation experience."],
+  ["End-to-End Service", "From design and ordering to trades coordination and completion."],
+  ["Full Project Support", "We manage electric, plumbing, gas and tiling partners for a smooth install."],
+  ["Northern Ireland Based", "Local, trusted and proud of our work across NI."],
 ];
 
 const suppliers = [
@@ -93,69 +98,6 @@ export default function Home() {
           <div className="absolute inset-0 bg-gradient-to-r from-black/65 via-black/35 to-black/10" />
         </div>
 
-        <nav className="relative z-20 px-6 py-6">
-          <div className="max-w-7xl mx-auto flex items-center justify-between">
-            <Link href="/">
-              <Image
-                src="/logo.png"
-                alt="DC Joinery Logo"
-                width={110}
-                height={65}
-                className="h-12 w-auto"
-              />
-            </Link>
-
-            <div className="hidden lg:flex items-center gap-8 text-sm font-semibold">
-              <Link href="/" className="text-amber-400 border-b border-amber-400 pb-2">
-                Home
-              </Link>
-
-              <Link href="/kitchen-fitting" className="hover:text-amber-400 transition">
-                Kitchen Fitting
-              </Link>
-
-              <Link href="/fit-and-supply" className="hover:text-amber-400 transition">
-                Fit & Supply
-              </Link>
-
-              <Link href="/projects" className="hover:text-amber-400 transition">
-                Projects
-              </Link>
-
-              <Link href="/contact" className="hover:text-amber-400 transition">
-                Contact
-              </Link>
-
-              <a href={facebookUrl} target="_blank" rel="noopener noreferrer">
-                <Image
-                  src="/logos/Facebook.png"
-                  alt="Facebook"
-                  width={28}
-                  height={28}
-                  className="h-7 w-7 object-contain hover:scale-110 transition"
-                />
-              </a>
-
-              <a href={instagramUrl} target="_blank" rel="noopener noreferrer">
-                <Image
-                  src="/logos/Instagram.png"
-                  alt="Instagram"
-                  width={28}
-                  height={28}
-                  className="h-7 w-7 object-contain hover:scale-110 transition"
-                />
-              </a>
-
-              <Link
-                href="/contact"
-                className="bg-amber-400 text-black px-7 py-3 rounded-xl font-bold hover:bg-amber-300 transition"
-              >
-                Get a Quote
-              </Link>
-            </div>
-          </div>
-        </nav>
-
         <div className="relative z-10 px-6 pt-14 pb-14">
           <div className="max-w-7xl mx-auto">
             <p className="uppercase tracking-[0.5em] text-amber-400 text-sm mb-7">
@@ -169,8 +111,14 @@ export default function Home() {
             </h1>
 
             <p className="text-neutral-100 text-lg md:text-xl max-w-2xl mb-10 leading-relaxed">
-              From kitchen fitting to full supply and installation, one point of contact from first idea to final finish.
+              From kitchen fitting to full supply and installation, one point of contact from first idea to final finish. Proven UK track record with over 7 years of experience and more than 30 kitchens installed, including trade coordination for electric, plumbing, gas and tiling.
             </p>
+
+            <div className="mb-10 flex flex-wrap gap-3">
+              <span className="rounded-full border border-amber-400/30 bg-amber-400/10 px-4 py-2 text-sm text-amber-200">7 years UK kitchen fitting experience</span>
+              <span className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/80">30+ kitchens installed in the UK</span>
+              <span className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/80">Trade coordination: electric, plumbing, gas, tiling</span>
+            </div>
 
             <div className="flex flex-col sm:flex-row gap-5 mb-14">
               <Link href="/kitchen-fitting" className="bg-amber-400 text-black px-8 py-4 rounded-full font-bold text-center hover:bg-amber-300 transition">
@@ -239,6 +187,75 @@ export default function Home() {
               <p className="text-neutral-400">{text}</p>
             </div>
           ))}
+        </div>
+      </section>
+
+      <section className="px-6 py-16 bg-neutral-950 border-b border-white/10">
+        <div className="max-w-7xl mx-auto text-center mb-12">
+          <p className="uppercase tracking-[0.35em] text-sm text-amber-400 mb-4">
+            How it works
+          </p>
+          <h2 className="text-3xl md:text-4xl font-bold">
+            Simple steps from quote to finished kitchen
+          </h2>
+        </div>
+
+        <div className="max-w-7xl mx-auto grid gap-6 md:grid-cols-3">
+          <div className="rounded-3xl border border-white/10 bg-black/70 p-8 text-center">
+            <p className="text-amber-400 text-4xl font-bold mb-4">01</p>
+            <h3 className="font-semibold text-xl mb-3">Book your quote</h3>
+            <p className="text-neutral-400 leading-relaxed">
+              Send a message or use the contact form to share your project details and arrange a free estimate.
+            </p>
+          </div>
+          <div className="rounded-3xl border border-white/10 bg-black/70 p-8 text-center">
+            <p className="text-amber-400 text-4xl font-bold mb-4">02</p>
+            <h3 className="font-semibold text-xl mb-3">We coordinate the job</h3>
+            <p className="text-neutral-400 leading-relaxed">
+              I manage materials, suppliers and trusted trades so the project moves smoothly from order to installation.
+            </p>
+          </div>
+          <div className="rounded-3xl border border-white/10 bg-black/70 p-8 text-center">
+            <p className="text-amber-400 text-4xl font-bold mb-4">03</p>
+            <h3 className="font-semibold text-xl mb-3">Finish with care</h3>
+            <p className="text-neutral-400 leading-relaxed">
+              The install is completed with precision and respect for your home, leaving a clean, beautiful finish.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section className="px-6 py-16 bg-black border-b border-white/10">
+        <div className="max-w-7xl mx-auto grid lg:grid-cols-[1.1fr_0.9fr] gap-12 items-center">
+          <div>
+            <p className="uppercase tracking-[0.35em] text-sm text-amber-400 mb-4">
+              About Dawid
+            </p>
+            <h2 className="text-3xl md:text-4xl font-bold mb-5">
+              From workshop craftsmanship back to the passion for kitchen fitting.
+            </h2>
+            <p className="text-neutral-400 leading-relaxed mb-5">
+              I trained as a furniture joiner in Poland and spent years crafting cabinets, kitchens and bespoke interiors. After moving abroad, I gained broad production experience and returned to my true passion: kitchen fitting and craftsmanship.
+            </p>
+            <p className="text-neutral-400 leading-relaxed mb-5">
+              I have over 7 years of experience and more than 30 kitchens installed, delivering professional workmanship, clear communication and trusted trade coordination.
+            </p>
+            <p className="text-neutral-400 leading-relaxed">
+              Today I focus on kitchen fitting and full project logistics. I personally coordinate design, suppliers, electric, plumbing, gas and tiling partners so your project is delivered smoothly from first quote to final handover.
+            </p>
+          </div>
+
+          <div className="rounded-3xl overflow-hidden border border-white/10 bg-white/[0.04] p-6">
+            <p className="uppercase tracking-[0.35em] text-sm text-amber-400 mb-4">
+              Why choose DC Joinery
+            </p>
+            <div className="space-y-4 text-neutral-300">
+              <p>✔ Personal attention from first call to final handover.</p>
+              <p>✔ Over 7 years of experience and more than 30 kitchens installed.</p>
+              <p>✔ Full trade coordination including electric, plumbing, gas and tiling.</p>
+              <p>✔ Local Northern Ireland service with trusted partners.</p>
+            </div>
+          </div>
         </div>
       </section>
 

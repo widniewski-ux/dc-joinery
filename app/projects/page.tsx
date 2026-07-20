@@ -1,6 +1,11 @@
 import Image from "next/image";
 import Link from "next/link";
 
+export const metadata = {
+  title: "Projects | DC Joinery Portfolio",
+  description: "Browse DC Joinery project examples: kitchens, fitted furniture, wardrobes and bespoke joinery across Northern Ireland.",
+};
+
 const portfolioSections = [
   {
     category: "Wren Kitchens",
@@ -137,7 +142,7 @@ export default function ProjectsPage() {
           </h1>
 
           <p className="text-neutral-300 text-lg mb-14 max-w-3xl">
-            Kitchens, fitted furniture, wardrobes and bespoke joinery projects completed across Northern Ireland.
+            Browse a selection of recent UK kitchen and bespoke joinery projects completed to a professional standard across Northern Ireland. Over 7 years of experience and more than 30 kitchen installs.
           </p>
 
           <div className="grid gap-16">

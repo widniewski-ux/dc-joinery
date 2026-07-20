@@ -1,6 +1,11 @@
 import Link from "next/link";
 import { sendFitAndSupplyForm } from "../actions";
 
+export const metadata = {
+  title: "Fit & Supply Consultation | DC Joinery",
+  description: "Fit & Supply service for kitchens, bedrooms and bespoke joinery with design, supply and installation coordination in Northern Ireland.",
+};
+
 export default function FitAndSupplyPage() {
   return (
     <main className="min-h-screen bg-neutral-950 text-white">
@@ -49,13 +54,22 @@ export default function FitAndSupplyPage() {
                   Use this form if you need help from idea and design through to supply, fitting and final finish.
                 </p>
               </div>
+              <div className="bg-white/[0.04] border border-white/10 rounded-3xl p-6">
+                <h2 className="text-2xl font-bold mb-4">What we handle</h2>
+                <div className="space-y-3 text-neutral-300">
+                  <p>✔ Suppliers, orders and delivery coordination.</p>
+                  <p>✔ Trade booking and installation planning.</p>
+                  <p>✔ Clear communication and quality follow-up.</p>
+                </div>
+              </div>
             </div>
           </div>
 
           <form
             action={sendFitAndSupplyForm}
-            className="bg-white text-black rounded-[2rem] p-6 md:p-10 shadow-2xl border border-white/10"
+            className="form-container bg-white text-black rounded-[2rem] p-6 md:p-10 shadow-2xl border border-white/10"
           >
+            <input type="text" name="botField" autoComplete="off" className="hidden" />
             <div className="mb-8">
               <p className="text-sm uppercase tracking-[0.25em] text-neutral-500 mb-3">
                 Consultation request
@@ -146,7 +160,7 @@ export default function FitAndSupplyPage() {
                 <input
                   name="photos"
                   className="block w-full border border-neutral-300 rounded-xl p-4 bg-white"
-                  type="file"
+                  type="file" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
                   multiple
                 />
 
