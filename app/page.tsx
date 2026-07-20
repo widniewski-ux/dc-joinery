@@ -1,6 +1,11 @@
 import Image from "next/image";
 import Link from "next/link";
 
+export const metadata = {
+  title: "DC Joinery | Kitchen Fitting & Bespoke Joinery Northern Ireland",
+  description: "Professional kitchen fitting, kitchen supply and installation, fitted bedrooms and bespoke joinery across Northern Ireland.",
+};
+
 const facebookUrl = "https://www.facebook.com/share/1Dfc738uhx/?mibextid=wwXIfr";
 const instagramUrl = "https://www.instagram.com/dawid_joinery__dc?igsh=dnZrZG5xcnpmZ3Bl&utm_source=qr";
 const whatsappUrl = "https://wa.me/447500779126";
@@ -108,6 +113,12 @@ export default function Home() {
             <p className="text-neutral-100 text-lg md:text-xl max-w-2xl mb-10 leading-relaxed">
               From kitchen fitting to full supply and installation, one point of contact from first idea to final finish. Proven UK track record with over 7 years of experience and more than 30 kitchens installed, including trade coordination for electric, plumbing, gas and tiling.
             </p>
+
+            <div className="mb-10 flex flex-wrap gap-3">
+              <span className="rounded-full border border-amber-400/30 bg-amber-400/10 px-4 py-2 text-sm text-amber-200">7 years UK kitchen fitting experience</span>
+              <span className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/80">30+ kitchens installed in the UK</span>
+              <span className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/80">Trade coordination: electric, plumbing, gas, tiling</span>
+            </div>
 
             <div className="flex flex-col sm:flex-row gap-5 mb-14">
               <Link href="/kitchen-fitting" className="bg-amber-400 text-black px-8 py-4 rounded-full font-bold text-center hover:bg-amber-300 transition">
