@@ -26,12 +26,12 @@ export default function ContactPage() {
           </p>
 
           <h1 className="text-5xl md:text-6xl font-bold mb-6">
-            Get In Touch
+            Get In Touch for a Free UK Quote
           </h1>
 
           <p className="text-neutral-300 text-lg mb-10">
             Looking for a kitchen fitter, kitchen renovation, fitted bedroom or bespoke joinery project?
-            Complete the form below and we&apos;ll get back to you.
+            Complete the form below and we&apos;ll get back to you, usually within 24 hours.
           </p>
 
           <div className="bg-white/[0.04] border border-white/10 rounded-3xl p-6 mb-10">
