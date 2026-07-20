@@ -4,12 +4,21 @@ import { Resend } from "resend";
 import { redirect } from "next/navigation";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+const MAX_ATTACHMENT_COUNT = 5;
 const ALLOWED_FILE_TYPES = [
   "application/pdf",
   "image/jpeg",
   "image/png",
   "application/msword",
   "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+];
+const ALLOWED_FILE_EXTENSIONS = [
+  ".pdf",
+  ".jpg",
+  ".jpeg",
+  ".png",
+  ".doc",
+  ".docx",
 ];
 
 function getResend() {
@@ -26,15 +35,28 @@ function validatePhone(phone: string): boolean {
   return phoneRegex.test(phone);
 }
 
+function validateHoneypot(value: string): void {
+  if (value.trim()) {
+    throw new Error("Spam detected");
+  }
+}
+
 async function prepareAttachments(files: File[]) {
   const validFiles = files.filter((file) => file.size > 0);
+
+  if (validFiles.length > MAX_ATTACHMENT_COUNT) {
+    throw new Error(`Please upload no more than ${MAX_ATTACHMENT_COUNT} files`);
+  }
 
   for (const file of validFiles) {
     if (file.size > MAX_FILE_SIZE) {
       throw new Error(`File ${file.name} exceeds 5MB limit`);
     }
     if (!ALLOWED_FILE_TYPES.includes(file.type)) {
-      throw new Error(`File type not allowed: ${file.type}`);
+      const extension = file.name.toLowerCase().split('.').pop() || "";
+      if (!ALLOWED_FILE_EXTENSIONS.includes(`.${extension}`)) {
+        throw new Error(`File type not allowed: ${file.type}`);
+      }
     }
   }
 
@@ -48,6 +70,8 @@ async function prepareAttachments(files: File[]) {
 
 export async function sendContactForm(formData: FormData) {
   try {
+    const honeypot = String(formData.get("botField") || "").trim();
+    validateHoneypot(honeypot);
     const name = String(formData.get("name") || "").trim();
     const phone = String(formData.get("phone") || "").trim();
     const email = String(formData.get("email") || "").trim();
@@ -93,6 +117,8 @@ ${message}
 
 export async function sendKitchenFittingForm(formData: FormData) {
   try {
+    const honeypot = String(formData.get("botField") || "").trim();
+    validateHoneypot(honeypot);
     const name = String(formData.get("name") || "").trim();
     const address = String(formData.get("address") || "").trim();
     const phone = String(formData.get("phone") || "").trim();
@@ -156,6 +182,8 @@ ${attachments.length > 0 ? attachments.map((a) => a.filename).join(", ") : "No f
 
 export async function sendFitAndSupplyForm(formData: FormData) {
   try {
+    const honeypot = String(formData.get("botField") || "").trim();
+    validateHoneypot(honeypot);
     const name = String(formData.get("name") || "").trim();
     const address = String(formData.get("address") || "").trim();
     const phone = String(formData.get("phone") || "").trim();

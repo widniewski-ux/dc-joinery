@@ -70,6 +70,7 @@ export default function KitchenFittingPage() {
             action={sendKitchenFittingForm}
             className="form-container bg-white text-black rounded-[2rem] p-6 md:p-10 shadow-2xl border border-white/10"
           >
+            <input type="text" name="botField" autoComplete="off" className="hidden" />
             <div className="mb-8">
               <p className="text-sm uppercase tracking-[0.25em] text-neutral-500 mb-3">
                 Quote request
@@ -158,7 +159,7 @@ export default function KitchenFittingPage() {
                 <input
                   name="documents"
                   className="block w-full border border-neutral-300 rounded-xl p-4 bg-white"
-                  type="file"
+                  type="file" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
                   multiple
                 />
 

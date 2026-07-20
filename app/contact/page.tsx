@@ -72,6 +72,7 @@ export default function ContactPage() {
             action={sendContactForm}
             className="form-container grid gap-5 bg-white text-black rounded-3xl p-8 md:p-10"
           >
+            <input type="text" name="botField" autoComplete="off" className="hidden" />
             <input
               name="name"
               className="input"
