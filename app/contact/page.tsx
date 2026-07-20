@@ -26,8 +26,15 @@ export default function ContactPage() {
 
           <p className="text-neutral-300 text-lg mb-10">
             Looking for a kitchen fitter, kitchen renovation, fitted bedroom or bespoke joinery project?
-            Complete the form below and we'll get back to you.
+            Complete the form below and we&apos;ll get back to you.
           </p>
+
+          <div className="bg-white/[0.04] border border-white/10 rounded-3xl p-6 mb-10">
+            <h2 className="text-2xl font-bold mb-4">A little about me</h2>
+            <p className="text-neutral-600 leading-relaxed">
+              I trained as a furniture joiner in Poland and worked in furniture production and installation. After ten years as a production manager, I returned to my true passion: kitchen fitting and full project coordination.
+            </p>
+          </div>
 
           <div className="grid md:grid-cols-2 gap-8 mb-12">
             <div className="bg-white/5 border border-white/10 rounded-3xl p-8">

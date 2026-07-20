@@ -21,17 +21,17 @@ const recentProjects = [
 ];
 
 const stats = [
-  ["35+", "Project Photos"],
-  ["6+", "Years Experience"],
+  ["100+", "Kitchens Installed"],
+  ["10+", "Years Experience"],
   ["Free", "Quotes"],
   ["NI", "Based"],
 ];
 
 const trustPoints = [
-  ["Professional Installation", "High quality fitting with attention to detail."],
-  ["Reliable Service", "Clean, dependable and on time, every time."],
-  ["One Point Of Contact", "From first idea to final finish, we manage it all."],
-  ["Northern Ireland Based", "Local, trusted and proud of our work."],
+  ["Polish Joinery Expertise", "Trained in furniture craftsmanship with hands-on production and installation experience."],
+  ["End-to-End Service", "From design and ordering to trades coordination and completion."],
+  ["Full Project Support", "We manage electric, plumbing, gas and tiling partners for a smooth install."],
+  ["Northern Ireland Based", "Local, trusted and proud of our work across NI."],
 ];
 
 const suppliers = [
@@ -169,7 +169,8 @@ export default function Home() {
             </h1>
 
             <p className="text-neutral-100 text-lg md:text-xl max-w-2xl mb-10 leading-relaxed">
-              From kitchen fitting to full supply and installation, one point of contact from first idea to final finish.
+              From kitchen fitting to full supply and installation, one point of contact from first idea to final finish. Personal service with trade coordination for electric, plumbing, gas and tiling.
+              Personal service with trade coordination for electric, plumbing, gas and tiling.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-5 mb-14">
@@ -239,6 +240,37 @@ export default function Home() {
               <p className="text-neutral-400">{text}</p>
             </div>
           ))}
+        </div>
+      </section>
+
+      <section className="px-6 py-16 bg-black border-b border-white/10">
+        <div className="max-w-7xl mx-auto grid lg:grid-cols-[1.1fr_0.9fr] gap-12 items-center">
+          <div>
+            <p className="uppercase tracking-[0.35em] text-sm text-amber-400 mb-4">
+              About Dawid
+            </p>
+            <h2 className="text-3xl md:text-4xl font-bold mb-5">
+              From workshop craftsmanship to production management, now back to my passion.
+            </h2>
+            <p className="text-neutral-400 leading-relaxed mb-5">
+              I trained as a furniture joiner in Poland and spent years crafting cabinets, kitchens and bespoke interiors. After moving abroad I climbed to production management, overseeing manufacturing and installation teams.
+            </p>
+            <p className="text-neutral-400 leading-relaxed">
+              Today I focus on kitchen fitting and full project logistics. I personally coordinate design, suppliers, electric, plumbing, gas and tiling partners so your project is delivered smoothly from first quote to final handover.
+            </p>
+          </div>
+
+          <div className="rounded-3xl overflow-hidden border border-white/10 bg-white/[0.04] p-6">
+            <p className="uppercase tracking-[0.35em] text-sm text-amber-400 mb-4">
+              Why choose DC Joinery
+            </p>
+            <div className="space-y-4 text-neutral-300">
+              <p>✔ Personal attention from first call to final handover.</p>
+              <p>✔ Hundreds of kitchen installs with furniture production experience.</p>
+              <p>✔ Full trade coordination including electric, plumbing, gas and tiling.</p>
+              <p>✔ Local Northern Ireland service with trusted partners.</p>
+            </div>
+          </div>
         </div>
       </section>
 
