@@ -253,7 +253,10 @@ export default function Home() {
               From workshop craftsmanship to production management, now back to my passion.
             </h2>
             <p className="text-neutral-400 leading-relaxed mb-5">
-              I trained as a furniture joiner in Poland and spent years crafting cabinets, kitchens and bespoke interiors. After moving abroad I climbed to production management, overseeing manufacturing and installation teams.
+              I trained as a furniture joiner in Poland and spent years crafting cabinets, kitchens and bespoke interiors. After moving abroad I climbed to production management, overseeing manufacturing and production processes.
+            </p>
+            <p className="text-neutral-400 leading-relaxed mb-5">
+              I have over 10 years of experience and more than 100 kitchens installed, delivering professional workmanship and trusted coordination.
             </p>
             <p className="text-neutral-400 leading-relaxed">
               Today I focus on kitchen fitting and full project logistics. I personally coordinate design, suppliers, electric, plumbing, gas and tiling partners so your project is delivered smoothly from first quote to final handover.
@@ -266,7 +269,7 @@ export default function Home() {
             </p>
             <div className="space-y-4 text-neutral-300">
               <p>✔ Personal attention from first call to final handover.</p>
-              <p>✔ Hundreds of kitchen installs with furniture production experience.</p>
+              <p>✔ Over 10 years of experience and more than 100 kitchens installed.</p>
               <p>✔ Full trade coordination including electric, plumbing, gas and tiling.</p>
               <p>✔ Local Northern Ireland service with trusted partners.</p>
             </div>
