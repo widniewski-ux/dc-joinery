@@ -35,6 +35,9 @@ export default function Footer() {
             <Link href="/fit-and-supply" className="block transition hover:text-white">
               Fit & Supply
             </Link>
+            <Link href="/ai-kitchen-designer" className="block transition hover:text-white">
+              AI Kitchen Designer
+            </Link>
             <Link href="/projects" className="block transition hover:text-white">
               Projects
             </Link>

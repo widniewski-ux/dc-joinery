@@ -226,6 +226,36 @@ export default function Home() {
       </section>
 
       <section className="px-6 py-16 bg-black border-b border-white/10">
+        <div className="max-w-7xl mx-auto rounded-3xl border border-amber-400/30 bg-gradient-to-br from-amber-400/10 via-black to-black p-8 md:p-12">
+          <p className="uppercase tracking-[0.35em] text-sm text-amber-300 mb-4">
+            AI Kitchen Designer
+          </p>
+          <h2 className="text-3xl md:text-5xl font-bold mb-5">
+            Upload your kitchen photo and get a premium concept in minutes.
+          </h2>
+          <p className="text-neutral-200 text-lg max-w-3xl leading-relaxed mb-8">
+            Our new AI Kitchen Designer generates a realistic visual concept, professional
+            design summary, indicative cost range, and downloadable PDF you can send directly
+            to DC Joinery for a quick quote.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4">
+            <Link
+              href="/ai-kitchen-designer"
+              className="rounded-full bg-amber-400 px-8 py-4 text-center font-bold text-black hover:bg-amber-300 transition"
+            >
+              Try AI Kitchen Designer
+            </Link>
+            <Link
+              href="/contact"
+              className="rounded-full border border-white/30 px-8 py-4 text-center font-bold hover:bg-white hover:text-black transition"
+            >
+              Prefer a classic quote?
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      <section className="px-6 py-16 bg-black border-b border-white/10">
         <div className="max-w-7xl mx-auto grid lg:grid-cols-[1.1fr_0.9fr] gap-12 items-center">
           <div>
             <p className="uppercase tracking-[0.35em] text-sm text-amber-400 mb-4">

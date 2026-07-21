@@ -8,6 +8,7 @@ const links = [
   { href: "/", label: "Home" },
   { href: "/kitchen-fitting", label: "Kitchen Fitting" },
   { href: "/fit-and-supply", label: "Fit & Supply" },
+  { href: "/ai-kitchen-designer", label: "AI Kitchen Designer" },
   { href: "/projects", label: "Projects" },
   { href: "/contact", label: "Contact" },
 ];
