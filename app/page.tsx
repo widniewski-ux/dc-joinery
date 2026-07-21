@@ -26,8 +26,8 @@ const recentProjects = [
 ];
 
 const stats = [
-  ["30+", "Kitchens Installed"],
-  ["7", "Years Experience"],
+  ["30+", "Installations in UK"],
+  ["7", "Years in Production & Installations"],
   ["Free", "Quotes"],
   ["NI", "Based"],
 ];
@@ -111,12 +111,12 @@ export default function Home() {
             </h1>
 
             <p className="text-neutral-100 text-lg md:text-xl max-w-2xl mb-10 leading-relaxed">
-              From kitchen fitting to full supply and installation, one point of contact from first idea to final finish. Proven UK track record with over 7 years of experience and more than 30 kitchens installed, including trade coordination for electric, plumbing, gas and tiling.
+              From kitchen fitting to full supply and installation, one point of contact from first idea to final finish. Built on 7 years of experience in furniture production and installations, with more than 30 installations completed in the UK, including trade coordination for electric, plumbing, gas and tiling.
             </p>
 
             <div className="mb-10 flex flex-wrap gap-3">
-              <span className="rounded-full border border-amber-400/30 bg-amber-400/10 px-4 py-2 text-sm text-amber-200">7 years UK kitchen fitting experience</span>
-              <span className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/80">30+ kitchens installed in the UK</span>
+              <span className="rounded-full border border-amber-400/30 bg-amber-400/10 px-4 py-2 text-sm text-amber-200">7 years in furniture production and installations</span>
+              <span className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/80">30+ installations completed in the UK</span>
               <span className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/80">Trade coordination: electric, plumbing, gas, tiling</span>
             </div>
 
@@ -268,7 +268,7 @@ export default function Home() {
               I trained as a furniture joiner in Poland and spent years crafting cabinets, kitchens and bespoke interiors. After moving abroad, I gained broad production experience and returned to my true passion: kitchen fitting and craftsmanship.
             </p>
             <p className="text-neutral-400 leading-relaxed mb-5">
-              I have over 7 years of experience and more than 30 kitchens installed, delivering professional workmanship, clear communication and trusted trade coordination.
+              I have 7 years of experience in furniture production and installations, plus more than 30 installations completed in the UK, delivering professional workmanship, clear communication and trusted trade coordination.
             </p>
             <p className="text-neutral-400 leading-relaxed">
               Today I focus on kitchen fitting and full project logistics. I personally coordinate design, suppliers, electric, plumbing, gas and tiling partners so your project is delivered smoothly from first quote to final handover.
@@ -281,7 +281,7 @@ export default function Home() {
             </p>
             <div className="space-y-4 text-neutral-300">
               <p>✔ Personal attention from first call to final handover.</p>
-              <p>✔ Over 7 years of experience and more than 30 kitchens installed.</p>
+              <p>✔ 7 years in furniture production and installations, plus 30+ UK installations.</p>
               <p>✔ Full trade coordination including electric, plumbing, gas and tiling.</p>
               <p>✔ Local Northern Ireland service with trusted partners.</p>
             </div>

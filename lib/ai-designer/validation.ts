@@ -1,7 +1,14 @@
 import type { KitchenStyle, LeadInput } from "./types";
 
-const ALLOWED_UPLOAD_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
-const MAX_UPLOAD_SIZE = 8 * 1024 * 1024;
+const ALLOWED_UPLOAD_TYPES = new Set([
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/avif",
+  "image/heic",
+  "image/heif",
+]);
+const MAX_UPLOAD_SIZE = 50 * 1024 * 1024;
 
 export const KITCHEN_STYLES: KitchenStyle[] = [
   "Modern Minimal",
@@ -16,10 +23,10 @@ export function validateUploadFile(file: File | null): File {
     throw new Error("Please upload a kitchen photo");
   }
   if (!ALLOWED_UPLOAD_TYPES.has(file.type)) {
-    throw new Error("Only JPG, PNG, and WEBP files are supported");
+    throw new Error("Only JPG, PNG, WEBP, AVIF, and HEIC/HEIF files are supported");
   }
   if (file.size > MAX_UPLOAD_SIZE) {
-    throw new Error("Image size must be 8MB or less");
+    throw new Error("Image size must be 50MB or less");
   }
   return file;
 }

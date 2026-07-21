@@ -19,7 +19,7 @@ export default function Footer() {
             </span>
           </div>
           <p className="max-w-lg text-neutral-300 leading-relaxed">
-            Professional kitchen fitting and bespoke joinery in Northern Ireland. Over 7 years of UK kitchen experience and more than 30 kitchens installed with trusted trade coordination.
+            Professional kitchen fitting and bespoke joinery in Northern Ireland. Built on 7 years of experience in furniture production and installations, with 30+ installations completed in the UK and trusted trade coordination.
           </p>
         </div>
 

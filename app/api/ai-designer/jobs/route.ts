@@ -1,5 +1,10 @@
 import { randomUUID } from "crypto";
 
+import {
+  assertRateLimit,
+  getRequestIdentifier,
+  RateLimitError,
+} from "@/lib/ai-designer/rate-limit";
 import { createKitchenDesignJob, uploadAssetToStorage } from "@/lib/ai-designer/supabase-rest";
 import {
   validateBudget,
@@ -12,6 +17,9 @@ export const runtime = "nodejs";
 
 export async function POST(request: Request) {
   try {
+    const identifier = getRequestIdentifier(request);
+    assertRateLimit(`ai-designer:create:${identifier}`, 10, 60_000);
+
     const formData = await request.formData();
     const imageFile = validateUploadFile(formData.get("photo") as File | null);
     const style = validateStyle(String(formData.get("style") || ""));
@@ -37,6 +45,9 @@ export async function POST(request: Request) {
 
     return Response.json({ job }, { status: 201 });
   } catch (error) {
+    if (error instanceof RateLimitError) {
+      return Response.json({ error: error.message }, { status: 429 });
+    }
     const message = error instanceof Error ? error.message : "Failed to create AI design job";
     return Response.json({ error: message }, { status: 400 });
   }

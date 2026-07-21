@@ -92,9 +92,15 @@ It stores:
 - customer input images
 - generated PDFs
 
+### Generation processing
+
+- Generation is started asynchronously from `/api/ai-designer/jobs/:jobId/generate`
+- Frontend polls `/api/ai-designer/jobs/:jobId` until status is `report_ready` or `failed`
+
 ## Security Notes
 
 - Security headers configured in `next.config.ts`
 - Form honeypot anti-spam in lead/contact flows
+- In-memory rate limiting on AI endpoints (create/generate/lead/admin reports)
 - Strict server-side validation for file type, file count, and size
 - Secrets read only from server environment variables

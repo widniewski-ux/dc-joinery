@@ -142,7 +142,7 @@ export default function ProjectsPage() {
           </h1>
 
           <p className="text-neutral-300 text-lg mb-14 max-w-3xl">
-            Browse a selection of recent UK kitchen and bespoke joinery projects completed to a professional standard across Northern Ireland. Over 7 years of experience and more than 30 kitchen installs.
+            Browse a selection of recent UK kitchen and bespoke joinery projects completed to a professional standard across Northern Ireland. Built on 7 years of experience in furniture production and installations, with 30+ installations completed in the UK.
           </p>
 
           <div className="grid gap-16">

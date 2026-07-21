@@ -7,7 +7,18 @@ export const metadata: Metadata = {
     "Upload your kitchen photo and get an AI-generated concept, design summary, indicative cost, and downloadable PDF report.",
 };
 
-export default function AiKitchenDesignerPage() {
+type PageProps = {
+  searchParams?: Promise<{ step?: string }>;
+};
+
+export default async function AiKitchenDesignerPage({ searchParams }: PageProps) {
+  const params = searchParams ? await searchParams : undefined;
+  const rawStep = Number(params?.step ?? "1");
+  const initialStep =
+    Number.isInteger(rawStep) && rawStep >= 1 && rawStep <= 10
+      ? (rawStep as 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10)
+      : 1;
+
   return (
     <main className="min-h-screen bg-neutral-950 text-white px-6 py-14 md:py-20">
       <div className="max-w-6xl mx-auto">
@@ -21,7 +32,7 @@ export default function AiKitchenDesignerPage() {
           indicative UK cost range.
         </p>
 
-        <KitchenDesignerWizard />
+        <KitchenDesignerWizard initialStep={initialStep} />
       </div>
     </main>
   );

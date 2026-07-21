@@ -6,6 +6,13 @@
   border-radius: 12px;
   padding: 14px 16px;
   outline: none;
+  background: #ffffff;
+  color: #0a0a0a;
+  caret-color: #0a0a0a;
+}
+
+.input::placeholder {
+  color: #6b7280;
 }
 
 .input:focus {

@@ -11,7 +11,7 @@ import {
 } from "./supabase-rest";
 import type { KitchenDesignJob } from "./types";
 
-interface VisionAnalysis {
+interface VisionAnalysis extends Record<string, unknown> {
   layoutSummary: string;
   constraints: string[];
   opportunities: string[];
@@ -27,6 +27,44 @@ interface CostEstimate {
 const openAiApiKey = () => requiredEnv("OPENAI_API_KEY");
 const replicateToken = () => requiredEnv("REPLICATE_API_TOKEN");
 const replicateModelVersion = () => requiredEnv("REPLICATE_MODEL_VERSION");
+
+function isReplicateVersionHash(value: string): boolean {
+  return /^[a-f0-9]{64}$/.test(value);
+}
+
+function resolveReplicatePredictionRequest(input: {
+  image: string;
+  prompt: string;
+}): {
+  url: string;
+  body: Record<string, unknown>;
+} {
+  const modelConfig = replicateModelVersion().trim();
+
+  if (isReplicateVersionHash(modelConfig)) {
+    return {
+      url: "https://api.replicate.com/v1/predictions",
+      body: {
+        version: modelConfig,
+        input,
+      },
+    };
+  }
+
+  const [owner, model] = modelConfig.split("/");
+  if (owner && model) {
+    return {
+      url: `https://api.replicate.com/v1/models/${owner}/${model}/predictions`,
+      body: {
+        input,
+      },
+    };
+  }
+
+  throw new Error(
+    "REPLICATE_MODEL_VERSION must be a 64-char version hash or owner/model slug"
+  );
+}
 
 function extractJson<T>(input: string): T {
   const start = input.indexOf("{");
@@ -101,24 +139,112 @@ Layout summary: ${analysis.layoutSummary}
 Constraints: ${analysis.constraints.join("; ")}
 Opportunities: ${analysis.opportunities.join("; ")}
 Appliance notes: ${analysis.applianceNotes}
+Customer notes: ${job.customer_notes ?? "none"}
 
-Create a realistic, premium UK kitchen outcome that preserves room geometry and perspective from the source image.`;
+Create a realistic, premium UK kitchen outcome inspired by established catalog directions (Howdens, Wren, B&Q, IKEA) while preserving room geometry and perspective from the source image.
+IMPORTANT: Keep this as the same kitchen photo edited in place, not a new unrelated room.`;
 }
 
-async function generateKitchenRender(job: KitchenDesignJob, analysis: VisionAnalysis): Promise<string> {
-  const predictionResponse = await fetch("https://api.replicate.com/v1/predictions", {
+function generatedImageStoragePath(jobId: string): string {
+  return `${jobId}/generated-${Date.now()}.png`;
+}
+
+async function downloadAndStoreImageFromUrl(imageUrl: string, jobId: string): Promise<string> {
+  const imageResponse = await fetch(imageUrl, { cache: "no-store" });
+  if (!imageResponse.ok) {
+    const body = await imageResponse.text();
+    throw new Error(`Generated image download failed: ${imageResponse.status} ${body}`);
+  }
+
+  const imageBuffer = await imageResponse.arrayBuffer();
+  return uploadAssetToStorage(generatedImageStoragePath(jobId), imageBuffer, "image/png");
+}
+
+async function generateKitchenRenderWithOpenAi(
+  job: KitchenDesignJob,
+  analysis: VisionAnalysis
+): Promise<string> {
+  const sourceImageResponse = await fetch(job.input_image_url, { cache: "no-store" });
+  if (!sourceImageResponse.ok) {
+    const body = await sourceImageResponse.text();
+    throw new Error(`Failed to load source image for editing: ${sourceImageResponse.status} ${body}`);
+  }
+
+  const sourceImageBuffer = await sourceImageResponse.arrayBuffer();
+  const sourceImageType = sourceImageResponse.headers.get("content-type") || "image/png";
+  const imageBlob = new Blob([sourceImageBuffer], { type: sourceImageType });
+
+  const formData = new FormData();
+  formData.append("model", "gpt-image-1");
+  formData.append(
+    "prompt",
+    `${buildRenderPrompt(job, analysis)}
+
+Editing constraints:
+- Keep wall geometry, windows, ceiling lines, and camera perspective.
+- Keep sink/cooker/fridge positions unless customer notes explicitly request changes.
+- Redesign cabinetry, finishes, handles, worktops, and lighting only.
+- Output must look like a real renovation of this exact room.`
+  );
+  formData.append("size", "1536x1024");
+  formData.append("quality", "high");
+  formData.append("image", imageBlob, "kitchen-source.png");
+
+  const response = await fetch("https://api.openai.com/v1/images/edits", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${openAiApiKey()}`,
+    },
+    body: formData,
+    cache: "no-store",
+  });
+
+  if (!response.ok) {
+    const body = await response.text();
+    throw new Error(`OpenAI image edit failed: ${response.status} ${body}`);
+  }
+
+  const payload = (await response.json()) as {
+    data?: Array<{ b64_json?: string; url?: string }>;
+  };
+  const first = payload.data?.[0];
+  if (!first) {
+    throw new Error("OpenAI image edit did not return an image");
+  }
+
+  if (first.b64_json) {
+    const pngBytes = Buffer.from(first.b64_json, "base64");
+    return uploadAssetToStorage(
+      generatedImageStoragePath(job.id),
+      pngBytes.buffer.slice(pngBytes.byteOffset, pngBytes.byteOffset + pngBytes.byteLength),
+      "image/png"
+    );
+  }
+
+  if (first.url) {
+    return downloadAndStoreImageFromUrl(first.url, job.id);
+  }
+
+  throw new Error("OpenAI image edit response missing image payload");
+}
+
+async function generateKitchenRenderWithReplicate(
+  job: KitchenDesignJob,
+  analysis: VisionAnalysis
+): Promise<string> {
+  const requestInput = {
+    image: job.input_image_url,
+    prompt: buildRenderPrompt(job, analysis),
+  };
+  const replicateRequest = resolveReplicatePredictionRequest(requestInput);
+
+  const predictionResponse = await fetch(replicateRequest.url, {
     method: "POST",
     headers: {
       Authorization: `Token ${replicateToken()}`,
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({
-      version: replicateModelVersion(),
-      input: {
-        image: job.input_image_url,
-        prompt: buildRenderPrompt(job, analysis),
-      },
-    }),
+    body: JSON.stringify(replicateRequest.body),
     cache: "no-store",
   });
 
@@ -173,7 +299,20 @@ async function generateKitchenRender(job: KitchenDesignJob, analysis: VisionAnal
   if (!outputUrl) {
     throw new Error("Image generation did not return an output URL");
   }
-  return outputUrl;
+  return downloadAndStoreImageFromUrl(outputUrl, job.id);
+}
+
+async function generateKitchenRender(job: KitchenDesignJob, analysis: VisionAnalysis): Promise<string> {
+  try {
+    return await generateKitchenRenderWithOpenAi(job, analysis);
+  } catch (openAiError) {
+    console.warn("OpenAI image edit failed, falling back to Replicate", {
+      jobId: job.id,
+      error: openAiError instanceof Error ? openAiError.message : openAiError,
+    });
+  }
+
+  return generateKitchenRenderWithReplicate(job, analysis);
 }
 
 async function generateDescriptionAndEstimate(
@@ -246,12 +385,15 @@ export async function runKitchenDesignPipeline(jobId: string): Promise<KitchenDe
   if (!job) {
     throw new Error("AI design job not found");
   }
+  if (job.status === "report_ready" || job.status === "lead_submitted") {
+    return job;
+  }
 
   try {
     await setKitchenDesignStatus(jobId, "analyzing");
     const analysis = await analyzeKitchenPhoto(job);
     await updateKitchenDesignJob(jobId, {
-      vision_analysis: analysis as unknown as Record<string, unknown>,
+      vision_analysis: analysis,
     });
 
     await setKitchenDesignStatus(jobId, "rendering");
@@ -269,13 +411,24 @@ export async function runKitchenDesignPipeline(jobId: string): Promise<KitchenDe
       estimate_explanation: estimate.explanation,
     });
 
-    const pdfBuffer = await generateKitchenPdfReport(refreshed);
-    const pdfPath = `${jobId}/report-${Date.now()}.pdf`;
-    const pdfUrl = await uploadAssetToStorage(pdfPath, pdfBuffer, "application/pdf");
+    let pdfUrl: string | null = null;
+    let pdfErrorNote: string | null = null;
+    try {
+      const pdfBuffer = await generateKitchenPdfReport(refreshed);
+      const pdfPath = `${jobId}/report-${Date.now()}.pdf`;
+      pdfUrl = await uploadAssetToStorage(pdfPath, pdfBuffer, "application/pdf");
+    } catch (error) {
+      pdfErrorNote =
+        error instanceof Error ? error.message : "PDF report could not be generated";
+    }
 
     return updateKitchenDesignJob(jobId, {
       pdf_report_url: pdfUrl,
       status: "report_ready",
+      estimate_explanation:
+        pdfErrorNote && refreshed.estimate_explanation
+          ? `${refreshed.estimate_explanation}\n\nPDF note: ${pdfErrorNote}`
+          : refreshed.estimate_explanation,
     });
   } catch (error) {
     await updateKitchenDesignJob(jobId, {
@@ -294,10 +447,11 @@ export async function sendAdminKitchenLeadReport(job: KitchenDesignJob): Promise
   }
 
   const adminEmail = optionalEnv("AI_DESIGNER_ADMIN_EMAIL") ?? "info@dcjoinery.uk";
+  const fromEmail = optionalEnv("AI_DESIGNER_FROM_EMAIL") ?? "website@dcjoineryni.uk";
   const resend = new Resend(resendKey);
 
-  await resend.emails.send({
-    from: "DC Joinery AI Designer <website@dcjoinery.uk>",
+  const result = await resend.emails.send({
+    from: `DC Joinery AI Designer <${fromEmail}>`,
     to: adminEmail,
     subject: `New AI Kitchen Designer lead - ${job.lead_name ?? "Unnamed client"}`,
     text: `
@@ -320,4 +474,10 @@ Generated image: ${job.generated_image_url ?? "N/A"}
 PDF report: ${job.pdf_report_url ?? "N/A"}
 `,
   });
+
+  if (result.error) {
+    throw new Error(
+      `Resend send failed: ${result.error.message || "Unknown email provider error"}`
+    );
+  }
 }
