@@ -1,51 +1,63 @@
 {
-  "checked_at": "2026-07-22T18:19:44Z",
+  "checked_at": "2026-07-22T18:20:05Z",
   "period_days": 28,
   "audit_rows": [
     {
       "provider": "Vercel",
       "status": "ok",
-      "details": "Team dc-joinery plan=hobby | latest probe: Missing VERCEL_TOKEN for billing audit.",
-      "checked_at": "2026-07-22T18:19:44Z"
+      "details": "Team dc-joinery plan=hobby",
+      "checked_at": "2026-07-22T18:20:05Z"
     },
     {
       "provider": "Supabase",
       "status": "ok",
       "details": "jobs_28d=12 storage_probe_status=406 storage_probe_details={'code': 'PGRST106', 'details': None, 'hint': 'Only the following schemas are exposed: public, graphql_public', 'message': 'Invalid schema: storage'}",
-      "checked_at": "2026-07-22T18:19:44Z"
+      "checked_at": "2026-07-22T18:20:05Z"
     },
     {
       "provider": "Resend",
       "status": "ok",
-      "details": "emails_28d=0 api_status=200",
-      "checked_at": "2026-07-22T18:19:44Z"
+      "details": "emails_28d=6 api_status=200",
+      "checked_at": "2026-07-22T18:20:05Z"
     },
     {
       "provider": "OpenAI",
       "status": "pending",
       "details": "status=403 details={'error': \"You have insufficient permissions for this operation. Missing scopes: api.usage.read. Check that you have the correct role in your organization, and if you're using a restricted API key, that it has the necessary scopes.\"}",
-      "checked_at": "2026-07-22T18:19:44Z"
+      "checked_at": "2026-07-22T18:20:05Z"
     },
     {
       "provider": "Replicate",
       "status": "ok",
       "details": "predictions_28d=5 predict_time_sec_28d=213.86",
-      "checked_at": "2026-07-22T18:19:44Z"
+      "checked_at": "2026-07-22T18:20:05Z"
     },
     {
       "provider": "PDFShift",
       "status": "pending",
-      "details": "status=401 mode=basic-fallback details={'success': False, 'error': 'The provided API Key was not found.', 'code': 401}",
-      "checked_at": "2026-07-22T18:19:44Z"
+      "details": "status=None mode=x-api-key details={'error': 'Expecting value: line 1 column 1 (char 0)'}",
+      "checked_at": "2026-07-22T18:20:05Z"
     },
     {
       "provider": "Domain Registrar",
-      "status": "missing",
-      "details": "Missing env key: DOMAIN_INVOICE_REFERENCE",
-      "checked_at": "2026-07-22T18:19:44Z"
+      "status": "pending",
+      "details": "Credential present, invoice/usage amount still required.",
+      "checked_at": "2026-07-22T18:20:05Z"
     }
   ],
   "cost_rows": [
+    {
+      "date": "2026-07-22",
+      "vendor": "Vercel",
+      "service": "Hosting plan (Hobby)",
+      "category": "Hosting",
+      "billing_cycle": "monthly",
+      "unit_cost_gbp": 0,
+      "qty": 1,
+      "notes": "Plan detected from Vercel API (28-day audit window).",
+      "verification_status": "verified",
+      "evidence": "Vercel team billing.plan=hobby"
+    },
     {
       "date": "2026-07-22",
       "vendor": "Supabase",
@@ -68,7 +80,7 @@
       "qty": 1,
       "notes": "Real amount not inferred. Fill from invoice/export.",
       "verification_status": "pending",
-      "evidence": "emails_28d=0 api_status=200"
+      "evidence": "emails_28d=6 api_status=200"
     },
     {
       "date": "2026-07-22",
@@ -104,7 +116,7 @@
       "qty": 1,
       "notes": "Real amount not inferred. Fill from invoice/export.",
       "verification_status": "pending",
-      "evidence": "status=401 mode=basic-fallback details={'success': False, 'error': 'The provided API Key was not found.', 'code': 401}"
+      "evidence": "status=None mode=x-api-key details={'error': 'Expecting value: line 1 column 1 (char 0)'}"
     },
     {
       "date": "2026-07-22",
@@ -114,9 +126,9 @@
       "billing_cycle": "yearly",
       "unit_cost_gbp": 0,
       "qty": 1,
-      "notes": "Missing credential/invoice source.",
-      "verification_status": "missing",
-      "evidence": "Missing env key: DOMAIN_INVOICE_REFERENCE"
+      "notes": "Real amount not inferred. Fill from invoice/export.",
+      "verification_status": "pending",
+      "evidence": "Credential present, invoice/usage amount still required."
     }
   ]
 }
