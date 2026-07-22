@@ -308,6 +308,78 @@ def _http_json(
         return None, {"error": str(err)}
 
 
+def _pdfshift_audit(api_key: str) -> tuple[int | None, dict, str]:
+    body = {"source": "<html><body>audit</body></html>"}
+    status, payload = _http_json(
+        "https://api.pdfshift.io/v3/convert/pdf",
+        method="POST",
+        headers={"X-API-Key": api_key},
+        body=body,
+    )
+    if status == 401:
+        auth = base64.b64encode(f"{api_key}:".encode()).decode()
+        status, payload = _http_json(
+            "https://api.pdfshift.io/v3/convert/pdf",
+            method="POST",
+            headers={"Authorization": f"Basic {auth}"},
+            body=body,
+        )
+        return status, payload, "basic-fallback"
+    return status, payload, "x-api-key"
+
+
+def _merge_verified_costs(
+    previous_payload: dict,
+    audit_rows: list[tuple[str, str, str, str]],
+    cost_rows: list[dict[str, str | float]],
+) -> tuple[list[tuple[str, str, str, str]], list[dict[str, str | float]]]:
+    previous_cost_rows = {
+        str(row.get("vendor", "")): row
+        for row in previous_payload.get("cost_rows", [])
+        if isinstance(row, dict)
+    }
+    previous_audit_rows = {
+        str(row.get("provider", "")): row
+        for row in previous_payload.get("audit_rows", [])
+        if isinstance(row, dict)
+    }
+
+    merged_cost_rows: list[dict[str, str | float]] = []
+    for current in cost_rows:
+        vendor = str(current.get("vendor", ""))
+        previous = previous_cost_rows.get(vendor)
+        if (
+            previous
+            and str(previous.get("verification_status", "")) == "verified"
+            and float(previous.get("unit_cost_gbp", 0) or 0) > 0
+            and str(current.get("verification_status", "")) != "verified"
+        ):
+            preserved = dict(previous)
+            preserved["notes"] = (
+                f"{previous.get('notes', '')} | preserved: latest API audit could not verify automatically."
+            ).strip(" |")
+            merged_cost_rows.append(preserved)
+            continue
+        merged_cost_rows.append(current)
+
+    merged_audit_rows: list[tuple[str, str, str, str]] = []
+    for provider, status, details, checked_at in audit_rows:
+        previous = previous_audit_rows.get(provider)
+        if previous and previous.get("status") == "ok" and status in {"pending", "missing", "error"}:
+            merged_audit_rows.append(
+                (
+                    provider,
+                    "ok",
+                    f"{previous.get('details', '')} | latest probe: {details}",
+                    checked_at,
+                )
+            )
+            continue
+        merged_audit_rows.append((provider, status, details, checked_at))
+
+    return merged_audit_rows, merged_cost_rows
+
+
 def cmd_audit(args: argparse.Namespace) -> None:
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     env = os.environ.copy()
@@ -321,6 +393,12 @@ def cmd_audit(args: argparse.Namespace) -> None:
 
     checked_at = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
     period_days = max(1, int(args.days))
+    previous_payload: dict = {}
+    if AUX_AUDIT_PATH.exists():
+        try:
+            previous_payload = json.loads(AUX_AUDIT_PATH.read_text())
+        except json.JSONDecodeError:
+            previous_payload = {}
     vercel_token = args.vercel_token or env.get("VERCEL_TOKEN")
     audit_rows: list[tuple[str, str, str, str]] = []
     cost_rows: list[dict[str, str | float]] = []
@@ -414,14 +492,10 @@ def cmd_audit(args: argparse.Namespace) -> None:
                 )
                 detail = f"status={status} details={payload}"
             elif provider == "PDFShift":
-                auth = base64.b64encode(f"{env['PDFSHIFT_API_KEY']}:".encode()).decode()
-                status, payload = _http_json(
-                    "https://api.pdfshift.io/v3/convert/pdf",
-                    method="POST",
-                    headers={"Authorization": f"Basic {auth}"},
-                    body={"source": "<html><body>audit</body></html>"},
-                )
-                detail = f"status={status} details={payload}"
+                status, payload, auth_mode = _pdfshift_audit(env["PDFSHIFT_API_KEY"])
+                if status == 200:
+                    status_label = "ok"
+                detail = f"status={status} mode={auth_mode} details={payload}"
             audit_rows.append((provider, status_label, detail, checked_at))
             cost_rows.append(
                 {
@@ -453,6 +527,8 @@ def cmd_audit(args: argparse.Namespace) -> None:
                     "evidence": f"Missing env key: {env_key}",
                 }
             )
+
+    audit_rows, cost_rows = _merge_verified_costs(previous_payload, audit_rows, cost_rows)
 
     payload = {
         "checked_at": checked_at,
