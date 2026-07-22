@@ -1,0 +1,49 @@
+name: Cost Tracker Sync
+
+on:
+  schedule:
+    - cron: "17 */6 * * *"
+  workflow_dispatch:
+
+jobs:
+  sync-costs:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      REPLICATE_API_TOKEN: ${{ secrets.REPLICATE_API_TOKEN }}
+      RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      PDFSHIFT_API_KEY: ${{ secrets.PDFSHIFT_API_KEY }}
+      DOMAIN_INVOICE_REFERENCE: ${{ secrets.DOMAIN_INVOICE_REFERENCE }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install openpyxl
+
+      - name: Refresh provider audit and workbook
+        run: |
+          python3 scripts/cost_tracker.py audit --days 28
+          python3 scripts/cost_tracker.py init
+
+      - name: Commit updated cost artifacts
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add ops/costs/provider-audit.json ops/costs/dcjoineryni-cost-tracker.xlsx
+          if git diff --cached --quiet; then
+            echo "No cost changes to commit."
+            exit 0
+          fi
+          git commit -m "chore(costs): auto-sync 28-day cost tracker"
+          git push

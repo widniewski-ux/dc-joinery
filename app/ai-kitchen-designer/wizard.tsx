@@ -43,6 +43,8 @@ const EDIT_INTENSITY_OPTIONS = [
   "Bold transformation",
 ] as const;
 
+const GENERATION_TARGET_SECONDS = 90;
+
 const MAX_IMAGE_SIZE_BYTES = 50 * 1024 * 1024;
 
 const STEP_LABELS = [
@@ -110,6 +112,8 @@ export default function KitchenDesignerWizard({ initialStep = 1 }: KitchenDesign
   const [infoMessage, setInfoMessage] = useState<string | null>(null);
   const [isDemoResult, setIsDemoResult] = useState(false);
   const [activeJobId, setActiveJobId] = useState<string | null>(null);
+  const [generationStartedAt, setGenerationStartedAt] = useState<number | null>(null);
+  const [generationNow, setGenerationNow] = useState<number>(Date.now());
 
   const previewUrl = useMemo(() => {
     if (!photo) return null;
@@ -121,6 +125,16 @@ export default function KitchenDesignerWizard({ initialStep = 1 }: KitchenDesign
       if (previewUrl) URL.revokeObjectURL(previewUrl);
     };
   }, [previewUrl]);
+
+  useEffect(() => {
+    if (!loading || step !== 8) return;
+
+    const intervalId = setInterval(() => {
+      setGenerationNow(Date.now());
+    }, 1000);
+
+    return () => clearInterval(intervalId);
+  }, [loading, step]);
 
   useEffect(() => {
     if (!activeJobId || !loading) return;
@@ -144,6 +158,7 @@ export default function KitchenDesignerWizard({ initialStep = 1 }: KitchenDesign
 
         if (payload.job.status === "report_ready" || payload.job.status === "lead_submitted") {
           setLoading(false);
+          setGenerationStartedAt(null);
           setInfoMessage("Your project is ready.");
           setStep(9);
           return;
@@ -151,6 +166,7 @@ export default function KitchenDesignerWizard({ initialStep = 1 }: KitchenDesign
 
         if (payload.job.status === "failed") {
           setLoading(false);
+          setGenerationStartedAt(null);
           setError(payload.job.estimate_explanation ?? "Generation failed. Please try again.");
           setStep(7);
           return;
@@ -162,6 +178,7 @@ export default function KitchenDesignerWizard({ initialStep = 1 }: KitchenDesign
         const message =
           caughtError instanceof Error ? caughtError.message : "Failed to poll generation status";
         setLoading(false);
+        setGenerationStartedAt(null);
         setError(message);
         setStep(7);
       }
@@ -296,6 +313,8 @@ export default function KitchenDesignerWizard({ initialStep = 1 }: KitchenDesign
       setIsDemoResult(false);
       setStep(8);
       setActiveJobId(null);
+      setGenerationStartedAt(Date.now());
+      setGenerationNow(Date.now());
 
       const createForm = new FormData();
       createForm.append("photo", photo);
@@ -343,6 +362,7 @@ export default function KitchenDesignerWizard({ initialStep = 1 }: KitchenDesign
       setJob(generatePayload.job);
       if (generatePayload.job.status === "report_ready" || generatePayload.job.status === "lead_submitted") {
         setLoading(false);
+        setGenerationStartedAt(null);
         setStep(9);
       } else {
         setInfoMessage("Generation started. We are processing your project now.");
@@ -354,6 +374,7 @@ export default function KitchenDesignerWizard({ initialStep = 1 }: KitchenDesign
         setError(message);
         setStep(7);
         setLoading(false);
+        setGenerationStartedAt(null);
         return;
       }
       setIsDemoResult(true);
@@ -364,6 +385,7 @@ export default function KitchenDesignerWizard({ initialStep = 1 }: KitchenDesign
       setJob(createDemoJob());
       setStep(9);
       setLoading(false);
+      setGenerationStartedAt(null);
     }
   }
 
@@ -450,6 +472,14 @@ export default function KitchenDesignerWizard({ initialStep = 1 }: KitchenDesign
       return next as WizardStep;
     });
   }
+
+  const generationElapsedSeconds = generationStartedAt
+    ? Math.max(0, Math.floor((generationNow - generationStartedAt) / 1000))
+    : 0;
+  const generationProgress = Math.min(
+    98,
+    Math.max(6, Math.round((generationElapsedSeconds / GENERATION_TARGET_SECONDS) * 100))
+  );
 
   return (
     <section className="rounded-3xl border border-white/10 bg-black/50 p-6 md:p-8">
@@ -845,7 +875,20 @@ export default function KitchenDesignerWizard({ initialStep = 1 }: KitchenDesign
             <p className="text-neutral-200">• Calculating indicative cost range and report</p>
           </div>
           {loading && (
-            <p className="text-amber-200">AI design engine is running...</p>
+            <div className="space-y-3">
+              <p className="text-amber-200 font-semibold">
+                Generating your kitchen concept...
+              </p>
+              <div className="h-2 w-full overflow-hidden rounded-full bg-white/10">
+                <div
+                  className="h-full rounded-full bg-amber-400 transition-all duration-700"
+                  style={{ width: `${generationProgress}%` }}
+                />
+              </div>
+              <p className="text-sm text-neutral-300">
+                {generationElapsedSeconds}s elapsed (usually up to {GENERATION_TARGET_SECONDS}s)
+              </p>
+            </div>
           )}
           {!loading && job && (
             <button
@@ -861,6 +904,7 @@ export default function KitchenDesignerWizard({ initialStep = 1 }: KitchenDesign
               type="button"
               onClick={() => {
                 setLoading(false);
+                setGenerationStartedAt(null);
                 setError("Generation was stopped. You can try again.");
                 setStep(7);
               }}
@@ -1036,18 +1080,23 @@ export default function KitchenDesignerWizard({ initialStep = 1 }: KitchenDesign
             <button
               type="button"
               onClick={submitLead}
-              disabled={loading || !job}
+              disabled={loading || !job || leadSuccess}
               className="rounded-xl bg-amber-400 px-6 py-3 font-bold text-black disabled:opacity-60"
             >
-              {loading ? "Sending..." : "Send Enquiry with Full Report"}
+              {loading ? "Sending..." : leadSuccess ? "Enquiry sent" : "Send Enquiry with Full Report"}
             </button>
             {leadError && (
               <p className="text-red-300 text-sm">{leadError}</p>
             )}
             {leadSuccess && (
-              <p className="text-emerald-300">
-                Thank you. Your AI kitchen concept has been sent to DC Joinery.
-              </p>
+              <div className="rounded-2xl border border-emerald-400/40 bg-emerald-400/10 p-4">
+                <p className="text-emerald-200 font-semibold">
+                  Thank you — your enquiry has been sent successfully.
+                </p>
+                <p className="text-emerald-100/90 text-sm mt-1">
+                  We will review your AI concept and contact you with next steps (usually within 24h).
+                </p>
+              </div>
             )}
           </div>
         </div>

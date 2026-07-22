@@ -1,0 +1,135 @@
+{
+  "checked_at": "2026-07-22T16:50:51Z",
+  "period_days": 28,
+  "audit_rows": [
+    {
+      "provider": "Vercel",
+      "status": "ok",
+      "details": "Team dc-joinery plan=hobby",
+      "checked_at": "2026-07-22T16:50:51Z"
+    },
+    {
+      "provider": "Supabase",
+      "status": "pending",
+      "details": "Credential present, invoice/usage amount still required.",
+      "checked_at": "2026-07-22T16:50:51Z"
+    },
+    {
+      "provider": "Resend",
+      "status": "pending",
+      "details": "status=403 details={'raw': 'error code: 1010\\n'}",
+      "checked_at": "2026-07-22T16:50:51Z"
+    },
+    {
+      "provider": "OpenAI",
+      "status": "ok",
+      "details": "OpenAI CSV cost_2026-06-22_2026-07-22.csv total USD 15.6562452; FX USD->GBP 0.747063 => GBP 11.70",
+      "checked_at": "2026-07-22T16:50:51Z"
+    },
+    {
+      "provider": "Replicate",
+      "status": "pending",
+      "details": "status=403 details={'raw': 'error code: 1010\\n'}",
+      "checked_at": "2026-07-22T16:50:51Z"
+    },
+    {
+      "provider": "PDFShift",
+      "status": "pending",
+      "details": "status=401 details={'success': False, 'error': 'The provided API Key was not found.', 'code': 401}",
+      "checked_at": "2026-07-22T16:50:51Z"
+    },
+    {
+      "provider": "Domain Registrar",
+      "status": "missing",
+      "details": "Missing env key: DOMAIN_INVOICE_REFERENCE",
+      "checked_at": "2026-07-22T16:50:51Z"
+    }
+  ],
+  "cost_rows": [
+    {
+      "date": "2026-07-22",
+      "vendor": "Vercel",
+      "service": "Hosting plan (Hobby)",
+      "category": "Hosting",
+      "billing_cycle": "monthly",
+      "unit_cost_gbp": 0,
+      "qty": 1,
+      "notes": "Plan detected from Vercel API (28-day audit window).",
+      "verification_status": "verified",
+      "evidence": "Vercel team billing.plan=hobby"
+    },
+    {
+      "date": "2026-07-22",
+      "vendor": "Supabase",
+      "service": "Database + storage",
+      "category": "Hosting",
+      "billing_cycle": "monthly",
+      "unit_cost_gbp": 0,
+      "qty": 1,
+      "notes": "Real amount not inferred. Fill from invoice/export.",
+      "verification_status": "pending",
+      "evidence": "Credential present, invoice/usage amount still required."
+    },
+    {
+      "date": "2026-07-22",
+      "vendor": "Resend",
+      "service": "Transactional email",
+      "category": "Email",
+      "billing_cycle": "monthly",
+      "unit_cost_gbp": 0,
+      "qty": 1,
+      "notes": "Real amount not inferred. Fill from invoice/export.",
+      "verification_status": "pending",
+      "evidence": "status=403 details={'raw': 'error code: 1010\\n'}"
+    },
+    {
+      "date": "2026-07-22",
+      "vendor": "OpenAI",
+      "service": "Model usage",
+      "category": "AI/API",
+      "billing_cycle": "monthly",
+      "unit_cost_gbp": 11.7,
+      "qty": 1,
+      "notes": "Actual 28-day cost from OpenAI CSV (2026-06-22..2026-07-22).",
+      "verification_status": "verified",
+      "evidence": "OpenAI CSV cost_2026-06-22_2026-07-22.csv total USD 15.6562452; FX USD->GBP 0.747063 => GBP 11.70"
+    },
+    {
+      "date": "2026-07-22",
+      "vendor": "Replicate",
+      "service": "Image generation usage",
+      "category": "AI/API",
+      "billing_cycle": "monthly",
+      "unit_cost_gbp": 0,
+      "qty": 1,
+      "notes": "Real amount not inferred. Fill from invoice/export.",
+      "verification_status": "pending",
+      "evidence": "status=403 details={'raw': 'error code: 1010\\n'}"
+    },
+    {
+      "date": "2026-07-22",
+      "vendor": "PDFShift",
+      "service": "PDF generation usage",
+      "category": "Tools",
+      "billing_cycle": "monthly",
+      "unit_cost_gbp": 0,
+      "qty": 1,
+      "notes": "Real amount not inferred. Fill from invoice/export.",
+      "verification_status": "pending",
+      "evidence": "status=401 details={'success': False, 'error': 'The provided API Key was not found.', 'code': 401}"
+    },
+    {
+      "date": "2026-07-22",
+      "vendor": "Domain Registrar",
+      "service": "dcjoineryni.uk domain",
+      "category": "Domain",
+      "billing_cycle": "yearly",
+      "unit_cost_gbp": 0,
+      "qty": 1,
+      "notes": "Missing credential/invoice source.",
+      "verification_status": "missing",
+      "evidence": "Missing env key: DOMAIN_INVOICE_REFERENCE"
+    }
+  ],
+  "openai_csv_source": "/Users/Dawid/Downloads/cost_2026-06-22_2026-07-22.csv"
+}

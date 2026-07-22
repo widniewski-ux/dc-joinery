@@ -71,21 +71,35 @@ export async function generateKitchenPdfReport(job: KitchenDesignJob): Promise<A
   const apiKey = requiredEnv("PDFSHIFT_API_KEY");
   const sourceHtml = buildReportHtml(job);
 
-  const credentials = Buffer.from(`${apiKey}:`).toString("base64");
-  const response = await fetch("https://api.pdfshift.io/v3/convert/pdf", {
+  const requestBody = JSON.stringify({
+    source: sourceHtml,
+    landscape: false,
+    use_print: false,
+    format: "A4",
+  });
+
+  let response = await fetch("https://api.pdfshift.io/v3/convert/pdf", {
     method: "POST",
     headers: {
-      Authorization: `Basic ${credentials}`,
+      "X-API-Key": apiKey,
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({
-      source: sourceHtml,
-      landscape: false,
-      use_print: false,
-      format: "A4",
-    }),
+    body: requestBody,
     cache: "no-store",
   });
+
+  if (response.status === 401) {
+    const credentials = Buffer.from(`${apiKey}:`).toString("base64");
+    response = await fetch("https://api.pdfshift.io/v3/convert/pdf", {
+      method: "POST",
+      headers: {
+        Authorization: `Basic ${credentials}`,
+        "Content-Type": "application/json",
+      },
+      body: requestBody,
+      cache: "no-store",
+    });
+  }
 
   if (!response.ok) {
     const body = await response.text();

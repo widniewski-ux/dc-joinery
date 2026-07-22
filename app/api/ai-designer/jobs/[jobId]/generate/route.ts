@@ -4,7 +4,7 @@ import {
   getRequestIdentifier,
   RateLimitError,
 } from "@/lib/ai-designer/rate-limit";
-import { getKitchenDesignJob, updateKitchenDesignJob } from "@/lib/ai-designer/supabase-rest";
+import { getKitchenDesignJob } from "@/lib/ai-designer/supabase-rest";
 
 export const runtime = "nodejs";
 
@@ -32,22 +32,12 @@ export async function POST(
       existing.status === "describing" ||
       existing.status === "estimating"
     ) {
-      return Response.json({ job: existing, processing: true }, { status: 202 });
+      const completedJob = await runKitchenDesignPipeline(jobId);
+      return Response.json({ job: completedJob, processing: false }, { status: 200 });
     }
 
-    const queuedJob = await updateKitchenDesignJob(jobId, {
-      status: "analyzing",
-      estimate_explanation: null,
-    });
-
-    void runKitchenDesignPipeline(jobId).catch((error) => {
-      console.error("AI Kitchen Designer pipeline failed", {
-        jobId,
-        error: error instanceof Error ? error.message : error,
-      });
-    });
-
-    return Response.json({ job: queuedJob, processing: true }, { status: 202 });
+    const completedJob = await runKitchenDesignPipeline(jobId);
+    return Response.json({ job: completedJob, processing: false }, { status: 200 });
   } catch (error) {
     if (error instanceof RateLimitError) {
       return Response.json({ error: error.message }, { status: 429 });

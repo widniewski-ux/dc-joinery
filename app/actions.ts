@@ -25,6 +25,24 @@ function getResend() {
   return new Resend(process.env.RESEND_API_KEY);
 }
 
+function getFromEmail(): string {
+  return process.env.AI_DESIGNER_FROM_EMAIL || "website@dcjoineryni.uk";
+}
+
+function getAdminEmail(): string {
+  return process.env.AI_DESIGNER_ADMIN_EMAIL || "info@dcjoinery.uk";
+}
+
+async function sendEmailChecked(
+  resend: Resend,
+  payload: Parameters<typeof resend.emails.send>[0]
+): Promise<void> {
+  const result = await resend.emails.send(payload);
+  if (result.error) {
+    throw new Error(`Resend send failed: ${result.error.message || "Unknown provider error"}`);
+  }
+}
+
 function validateEmail(email: string): boolean {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(email);
@@ -91,9 +109,9 @@ export async function sendContactForm(formData: FormData) {
     }
 
     const resend = getResend();
-    await resend.emails.send({
-      from: "DC Joinery <website@dcjoinery.uk>",
-      to: "info@dcjoinery.uk",
+    await sendEmailChecked(resend, {
+      from: `DC Joinery <${getFromEmail()}>`,
+      to: getAdminEmail(),
       replyTo: email,
       subject: "New Contact Enquiry",
       text: `
@@ -147,9 +165,9 @@ export async function sendKitchenFittingForm(formData: FormData) {
     const attachments = await prepareAttachments(files);
 
     const resend = getResend();
-    await resend.emails.send({
-      from: "DC Joinery <website@dcjoinery.uk>",
-      to: "info@dcjoinery.uk",
+    await sendEmailChecked(resend, {
+      from: `DC Joinery <${getFromEmail()}>`,
+      to: getAdminEmail(),
       replyTo: email,
       subject: "New Kitchen Fitting Quote Request",
       attachments,
@@ -210,9 +228,9 @@ export async function sendFitAndSupplyForm(formData: FormData) {
     const attachments = await prepareAttachments(files);
 
     const resend = getResend();
-    await resend.emails.send({
-      from: "DC Joinery <website@dcjoinery.uk>",
-      to: "info@dcjoinery.uk",
+    await sendEmailChecked(resend, {
+      from: `DC Joinery <${getFromEmail()}>`,
+      to: getAdminEmail(),
       replyTo: email,
       subject: "New Fit & Supply Consultation Request",
       attachments,
