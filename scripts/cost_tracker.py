@@ -8,7 +8,7 @@ import os
 import urllib.error
 import urllib.parse
 import urllib.request
-from datetime import date, datetime
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from typing import Iterable
 
@@ -286,7 +286,8 @@ def _http_json(
     url: str, *, method: str = "GET", headers: dict[str, str] | None = None, body: dict | None = None
 ) -> tuple[int | None, dict]:
     req = urllib.request.Request(url, method=method)
-    for key, value in (headers or {}).items():
+    effective_headers = {"User-Agent": "dc-joinery-cost-sync/1.0", **(headers or {})}
+    for key, value in effective_headers.items():
         req.add_header(key, value)
     payload = None
     if body is not None:
@@ -306,6 +307,98 @@ def _http_json(
         return err.code, parsed
     except Exception as err:
         return None, {"error": str(err)}
+
+
+def _parse_iso_datetime(value: str) -> datetime | None:
+    if not value:
+        return None
+    normalized = value.replace("Z", "+00:00")
+    try:
+        dt = datetime.fromisoformat(normalized)
+    except ValueError:
+        return None
+    if dt.tzinfo is None:
+        return dt.replace(tzinfo=timezone.utc)
+    return dt
+
+
+def _probe_resend_usage(api_key: str, period_start: datetime) -> tuple[str, str]:
+    status, payload = _http_json("https://api.resend.com/emails", headers={"Authorization": f"Bearer {api_key}"})
+    if status != 200:
+        return "pending", f"status={status} details={payload}"
+
+    emails = payload.get("data", []) if isinstance(payload, dict) else []
+    count_28d = 0
+    for item in emails:
+        created_at = _parse_iso_datetime(str(item.get("created_at", "")))
+        if created_at and created_at >= period_start:
+            count_28d += 1
+    return "ok", f"emails_28d={count_28d} api_status=200"
+
+
+def _probe_replicate_usage(api_key: str, period_start: datetime) -> tuple[str, str]:
+    status, payload = _http_json(
+        "https://api.replicate.com/v1/predictions?limit=100",
+        headers={"Authorization": f"Token {api_key}"},
+    )
+    if status != 200:
+        return "pending", f"status={status} details={payload}"
+
+    predictions = payload.get("results", []) if isinstance(payload, dict) else []
+    count_28d = 0
+    total_predict_seconds = 0.0
+    for item in predictions:
+        created_at = _parse_iso_datetime(str(item.get("created_at", "")))
+        if not created_at or created_at < period_start:
+            continue
+        count_28d += 1
+        metrics = item.get("metrics", {}) or {}
+        try:
+            total_predict_seconds += float(metrics.get("predict_time", 0) or 0)
+        except (TypeError, ValueError):
+            pass
+    return "ok", f"predictions_28d={count_28d} predict_time_sec_28d={round(total_predict_seconds, 2)}"
+
+
+def _probe_supabase_usage(supabase_url: str, service_role_key: str, period_start: datetime) -> tuple[str, str]:
+    period_start_iso = period_start.isoformat()
+    headers = {"apikey": service_role_key, "Authorization": f"Bearer {service_role_key}"}
+    jobs_status, jobs_payload = _http_json(
+        (
+            f"{supabase_url}/rest/v1/ai_design_jobs"
+            f"?select=id,created_at&created_at=gte.{urllib.parse.quote(period_start_iso)}"
+        ),
+        headers=headers,
+    )
+    if jobs_status != 200:
+        return "pending", f"jobs_status={jobs_status} details={jobs_payload}"
+
+    objects_status, objects_payload = _http_json(
+        (
+            f"{supabase_url}/rest/v1/objects"
+            "?select=metadata,created_at,bucket_id&bucket_id=eq.ai-designer"
+            f"&created_at=gte.{urllib.parse.quote(period_start_iso)}"
+        ),
+        headers={**headers, "Accept-Profile": "storage"},
+    )
+    jobs_count = len(jobs_payload) if isinstance(jobs_payload, list) else 0
+    if objects_status != 200:
+        return (
+            "ok",
+            f"jobs_28d={jobs_count} storage_probe_status={objects_status} storage_probe_details={objects_payload}",
+        )
+
+    object_count = len(objects_payload) if isinstance(objects_payload, list) else 0
+    bytes_total = 0
+    for row in objects_payload if isinstance(objects_payload, list) else []:
+        metadata = row.get("metadata") if isinstance(row, dict) else None
+        if isinstance(metadata, dict):
+            try:
+                bytes_total += int(metadata.get("size", 0) or 0)
+            except (TypeError, ValueError):
+                pass
+    mb_total = round(bytes_total / (1024 * 1024), 4)
+    return "ok", f"jobs_28d={jobs_count} storage_objects_28d={object_count} storage_mb_28d={mb_total}"
 
 
 def _pdfshift_audit(api_key: str) -> tuple[int | None, dict, str]:
@@ -366,11 +459,17 @@ def _merge_verified_costs(
     for provider, status, details, checked_at in audit_rows:
         previous = previous_audit_rows.get(provider)
         if previous and previous.get("status") == "ok" and status in {"pending", "missing", "error"}:
+            previous_details = str(previous.get("details", ""))
+            latest_segment = f"latest probe: {details}"
+            if latest_segment in previous_details:
+                merged_details = previous_details
+            else:
+                merged_details = f"{previous_details} | {latest_segment}"
             merged_audit_rows.append(
                 (
                     provider,
                     "ok",
-                    f"{previous.get('details', '')} | latest probe: {details}",
+                    merged_details,
                     checked_at,
                 )
             )
@@ -393,6 +492,7 @@ def cmd_audit(args: argparse.Namespace) -> None:
 
     checked_at = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
     period_days = max(1, int(args.days))
+    period_start = datetime.now(timezone.utc) - timedelta(days=period_days)
     previous_payload: dict = {}
     if AUX_AUDIT_PATH.exists():
         try:
@@ -481,16 +581,13 @@ def cmd_audit(args: argparse.Namespace) -> None:
                 else:
                     detail = f"status={status} details={payload}"
             elif provider == "Resend":
-                status, payload = _http_json(
-                    "https://api.resend.com/domains", headers={"Authorization": f"Bearer {env['RESEND_API_KEY']}"}
-                )
-                detail = f"status={status} details={payload}"
+                status_label, detail = _probe_resend_usage(env["RESEND_API_KEY"], period_start)
             elif provider == "Replicate":
-                status, payload = _http_json(
-                    "https://api.replicate.com/v1/account",
-                    headers={"Authorization": f"Token {env['REPLICATE_API_TOKEN']}"},
-                )
-                detail = f"status={status} details={payload}"
+                status_label, detail = _probe_replicate_usage(env["REPLICATE_API_TOKEN"], period_start)
+            elif provider == "Supabase":
+                supabase_key = env.get("SUPABASE_SERVICE_ROLE_KEY", "")
+                if supabase_key:
+                    status_label, detail = _probe_supabase_usage(env["SUPABASE_URL"], supabase_key, period_start)
             elif provider == "PDFShift":
                 status, payload, auth_mode = _pdfshift_audit(env["PDFSHIFT_API_KEY"])
                 if status == 200:
