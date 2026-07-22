@@ -1,6 +1,12 @@
 name: Cost Tracker Sync
 
 on:
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/cost-sync.yml"
+      - "scripts/cost_tracker.py"
   schedule:
     - cron: "17 */6 * * *"
   workflow_dispatch:
