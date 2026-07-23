@@ -86,6 +86,7 @@ export default function KitchenDesignerWizard({ initialStep = 1 }: KitchenDesign
   const [leadError, setLeadError] = useState<string | null>(null);
   const [infoMessage, setInfoMessage] = useState<string | null>(null);
   const [isDemoResult, setIsDemoResult] = useState(false);
+  const [demoReason, setDemoReason] = useState<string | null>(null);
   const [activeJobId, setActiveJobId] = useState<string | null>(null);
   const [generationStartedAt, setGenerationStartedAt] = useState<number | null>(null);
   const [generationNow, setGenerationNow] = useState<number>(Date.now());
@@ -119,7 +120,7 @@ export default function KitchenDesignerWizard({ initialStep = 1 }: KitchenDesign
       budget_min: 0,
       budget_max: 0,
       input_image_url: previewUrl ?? "",
-      generated_image_url: previewUrl ?? null,
+      generated_image_url: null,
       project_description:
         `Premium ${selectedSupplier.label} ${style} kitchen concept aligned with your chosen brochure options. ` +
         `Palette: ${palette.join(", ")}. Worktop: ${worktop}. Handles: ${handles}. Appliances: ${appliances.join(", ")}. ` +
@@ -175,6 +176,9 @@ export default function KitchenDesignerWizard({ initialStep = 1 }: KitchenDesign
             setLoading(false);
             setGenerationStartedAt(null);
             setIsDemoResult(true);
+            setDemoReason(
+              "Live generation is unavailable right now because AI provider credits are exhausted."
+            );
             setActiveJobId(null);
             setInfoMessage(
               "Live AI generation is temporarily unavailable (provider credit limit). Showing a local demo result so you can continue."
@@ -364,6 +368,7 @@ export default function KitchenDesignerWizard({ initialStep = 1 }: KitchenDesign
       setInfoMessage(null);
       setLeadSuccess(false);
       setIsDemoResult(false);
+      setDemoReason(null);
       setStep(8);
       setActiveJobId(null);
       setGenerationStartedAt(Date.now());
@@ -443,6 +448,11 @@ export default function KitchenDesignerWizard({ initialStep = 1 }: KitchenDesign
         return;
       }
       setIsDemoResult(true);
+      setDemoReason(
+        isProviderCreditError(message)
+          ? "Live generation is unavailable right now because AI provider credits are exhausted."
+          : "Live generation is currently unavailable."
+      );
       setActiveJobId(null);
       setInfoMessage(
         `Live AI services are currently unavailable (${message}). Showing a local demo result so you can continue all steps.`
@@ -1125,7 +1135,7 @@ export default function KitchenDesignerWizard({ initialStep = 1 }: KitchenDesign
           <h2 className="text-2xl font-bold">Step 9: Your AI kitchen project</h2>
           {isDemoResult && (
             <div className="rounded-2xl border border-amber-400/40 bg-amber-400/10 p-3 text-sm text-amber-100">
-              Demo result mode (local). Live generation will work after backend/API env setup.
+              {demoReason ?? "Demo result mode (local). Live generation is temporarily unavailable."}
             </div>
           )}
 
