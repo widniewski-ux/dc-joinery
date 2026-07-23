@@ -1,3 +1,5 @@
+import { after } from "next/server";
+
 import { runKitchenDesignPipeline } from "@/lib/ai-designer/ai-pipeline";
 import {
   assertRateLimit,
@@ -7,6 +9,7 @@ import {
 import { getKitchenDesignJob } from "@/lib/ai-designer/supabase-rest";
 
 export const runtime = "nodejs";
+export const maxDuration = 300;
 
 export async function POST(
   request: Request,
@@ -32,12 +35,21 @@ export async function POST(
       existing.status === "describing" ||
       existing.status === "estimating"
     ) {
-      const completedJob = await runKitchenDesignPipeline(jobId);
-      return Response.json({ job: completedJob, processing: false }, { status: 200 });
+      return Response.json({ job: existing, processing: true }, { status: 202 });
     }
 
-    const completedJob = await runKitchenDesignPipeline(jobId);
-    return Response.json({ job: completedJob, processing: false }, { status: 200 });
+    after(async () => {
+      try {
+        await runKitchenDesignPipeline(jobId);
+      } catch (error) {
+        console.error("Background AI kitchen generation failed", {
+          jobId,
+          error: error instanceof Error ? error.message : error,
+        });
+      }
+    });
+
+    return Response.json({ job: existing, processing: true }, { status: 202 });
   } catch (error) {
     if (error instanceof RateLimitError) {
       return Response.json({ error: error.message }, { status: 429 });

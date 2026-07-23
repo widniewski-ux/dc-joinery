@@ -319,6 +319,7 @@ export default function KitchenDesignerWizard({ initialStep = 1 }: KitchenDesign
   }
 
   async function handleGenerate() {
+    let createdJob: Job | null = null;
     if (!photo) {
       setError("Please upload a kitchen photo first.");
       setStep(1);
@@ -373,6 +374,7 @@ export default function KitchenDesignerWizard({ initialStep = 1 }: KitchenDesign
       if (!createResponse.ok || !createPayload.job) {
         throw new Error(createPayload.error || "Failed to create AI design job");
       }
+      createdJob = createPayload.job;
       setJob(createPayload.job);
       setActiveJobId(createPayload.job.id);
 
@@ -406,6 +408,14 @@ export default function KitchenDesignerWizard({ initialStep = 1 }: KitchenDesign
         setStep(7);
         setLoading(false);
         setGenerationStartedAt(null);
+        return;
+      }
+      if (createdJob) {
+        setJob(createdJob);
+        setActiveJobId(createdJob.id);
+        setInfoMessage(
+          `Connection interrupted while starting live generation (${message}). We are checking your project status now.`
+        );
         return;
       }
       setIsDemoResult(true);
