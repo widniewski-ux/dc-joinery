@@ -7,11 +7,17 @@ import {
 } from "@/lib/ai-designer/rate-limit";
 import { createKitchenDesignJob, uploadAssetToStorage } from "@/lib/ai-designer/supabase-rest";
 import {
-  validateBudget,
+  validateAppliances,
   validatePalette,
-  validateStyle,
+  validateSingleSupplierOption,
+  validateSupplierId,
+  validateSupplierStyle,
   validateUploadFile,
 } from "@/lib/ai-designer/validation";
+import { getSupplierCatalogById } from "@/lib/ai-designer/supplier-catalog";
+
+const INTERNAL_BUDGET_MIN = 5000;
+const INTERNAL_BUDGET_MAX = 25000;
 
 export const runtime = "nodejs";
 
@@ -22,13 +28,36 @@ export async function POST(request: Request) {
 
     const formData = await request.formData();
     const imageFile = validateUploadFile(formData.get("photo") as File | null);
-    const style = validateStyle(String(formData.get("style") || ""));
-    const palette = validatePalette(String(formData.get("palette") || ""));
-    const { min, max } = validateBudget(
-      String(formData.get("budgetMin") || ""),
-      String(formData.get("budgetMax") || "")
+    const supplierId = validateSupplierId(String(formData.get("supplier") || ""));
+    const style = validateSupplierStyle(supplierId, String(formData.get("style") || ""));
+    const supplier = getSupplierCatalogById(supplierId);
+    if (!supplier) {
+      throw new Error("Please choose a valid supplier");
+    }
+    const palette = validatePalette(supplierId, String(formData.get("palette") || ""));
+    const worktop = validateSingleSupplierOption(
+      supplierId,
+      String(formData.get("worktop") || ""),
+      "worktops"
     );
-    const customerNotes = String(formData.get("notes") || "").trim() || null;
+    const handles = validateSingleSupplierOption(
+      supplierId,
+      String(formData.get("handles") || ""),
+      "handles"
+    );
+    const appliances = validateAppliances(supplierId, String(formData.get("appliances") || ""));
+    const userNotes = String(formData.get("notes") || "").trim();
+    const customerNotes =
+      [
+        `Supplier: ${supplierId}`,
+        `Style: ${style}`,
+        `Worktop: ${worktop}`,
+        `Handles: ${handles}`,
+        `Appliances: ${appliances.join(", ")}`,
+        userNotes ? `Client note: ${userNotes}` : "",
+      ]
+        .filter(Boolean)
+        .join(" | ") || null;
 
     const uploadPath = `inputs/${Date.now()}-${randomUUID()}-${imageFile.name}`;
     const imageBuffer = await imageFile.arrayBuffer();
@@ -36,10 +65,10 @@ export async function POST(request: Request) {
 
     const job = await createKitchenDesignJob({
       inputImageUrl,
-      style,
+      style: `${supplier.label} - ${style}`,
       colorPalette: palette,
-      budgetMin: min,
-      budgetMax: max,
+      budgetMin: INTERNAL_BUDGET_MIN,
+      budgetMax: INTERNAL_BUDGET_MAX,
       customerNotes,
     });
 

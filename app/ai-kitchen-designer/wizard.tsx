@@ -1,41 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-
-const STYLE_OPTIONS = [
-  { value: "Modern Minimal", label: "Modern Minimal (Howdens-inspired)" },
-  { value: "Shaker", label: "Shaker (Wren-inspired)" },
-  { value: "Industrial", label: "Industrial (B&Q-inspired)" },
-  { value: "Classic Luxury", label: "Classic Luxury" },
-  { value: "Scandinavian", label: "Scandinavian (IKEA-inspired)" },
-] as const;
-
-const COLORS = [
-  "Warm White",
-  "Graphite",
-  "Navy Blue",
-  "Sage Green",
-  "Natural Oak",
-  "Walnut",
-  "Stone Grey",
-  "Black Matt",
-];
-
-const WORKTOPS = [
-  "Laminate (B&Q / IKEA range)",
-  "Compact Laminate (Howdens range)",
-  "Quartz (Wren premium range)",
-  "Granite (Howdens premium range)",
-  "Solid Wood (IKEA / bespoke range)",
-] as const;
-
-const HANDLES = [
-  "Handleless (Wren style)",
-  "Slim Bar Handles (Howdens style)",
-  "Knobs (IKEA style)",
-  "Integrated Rail (modern catalog style)",
-  "Brushed Brass Pulls (premium catalog style)",
-] as const;
+import { SUPPLIER_CATALOG, type SupplierId } from "@/lib/ai-designer/supplier-catalog";
 
 const EDIT_INTENSITY_OPTIONS = [
   "Subtle refresh",
@@ -46,15 +12,17 @@ const EDIT_INTENSITY_OPTIONS = [
 const GENERATION_TARGET_SECONDS = 90;
 
 const MAX_IMAGE_SIZE_BYTES = 50 * 1024 * 1024;
+const ALLOWED_IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp", "image/avif"]);
 
 const STEP_LABELS = [
   "Add Photo",
   "Photo Analysis",
+  "Supplier",
   "Style",
   "Colors",
   "Worktops",
   "Handles",
-  "Budget",
+  "Appliances",
   "Generate",
   "Project",
   "Contact",
@@ -87,15 +55,15 @@ export default function KitchenDesignerWizard({ initialStep = 1 }: KitchenDesign
   const [step, setStep] = useState<WizardStep>(initialStep);
   const [photo, setPhoto] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const [style, setStyle] = useState<(typeof STYLE_OPTIONS)[number]["value"]>("Modern Minimal");
-  const [palette, setPalette] = useState<string[]>(["Warm White", "Natural Oak"]);
-  const [worktop, setWorktop] = useState<(typeof WORKTOPS)[number]>("Quartz (Wren premium range)");
-  const [handles, setHandles] = useState<(typeof HANDLES)[number]>("Handleless (Wren style)");
+  const [supplierId, setSupplierId] = useState<SupplierId>(SUPPLIER_CATALOG[0].id);
+  const [style, setStyle] = useState<string>(SUPPLIER_CATALOG[0].styles[0]);
+  const [palette, setPalette] = useState<string[]>(SUPPLIER_CATALOG[0].colors.slice(0, 2));
+  const [worktop, setWorktop] = useState<string>(SUPPLIER_CATALOG[0].worktops[0]);
+  const [handles, setHandles] = useState<string>(SUPPLIER_CATALOG[0].handles[0]);
+  const [appliances, setAppliances] = useState<string[]>(SUPPLIER_CATALOG[0].appliances.slice(0, 2));
   const [editIntensity, setEditIntensity] =
     useState<(typeof EDIT_INTENSITY_OPTIONS)[number]>("Balanced redesign");
   const [preserveLayout, setPreserveLayout] = useState(true);
-  const [budgetMin, setBudgetMin] = useState(8000);
-  const [budgetMax, setBudgetMax] = useState(18000);
   const [notes, setNotes] = useState("");
   const [analysisRunning, setAnalysisRunning] = useState(false);
   const [analysisDone, setAnalysisDone] = useState(false);
@@ -125,6 +93,11 @@ export default function KitchenDesignerWizard({ initialStep = 1 }: KitchenDesign
       if (previewUrl) URL.revokeObjectURL(previewUrl);
     };
   }, [previewUrl]);
+
+  const selectedSupplier = useMemo(
+    () => SUPPLIER_CATALOG.find((entry) => entry.id === supplierId) ?? SUPPLIER_CATALOG[0],
+    [supplierId]
+  );
 
   useEffect(() => {
     if (!loading || step !== 8) return;
@@ -205,6 +178,26 @@ export default function KitchenDesignerWizard({ initialStep = 1 }: KitchenDesign
     });
   }
 
+  function toggleAppliance(appliance: string) {
+    setAppliances((prev) => {
+      if (prev.includes(appliance)) {
+        if (prev.length === 1) return prev;
+        return prev.filter((item) => item !== appliance);
+      }
+      return [...prev, appliance];
+    });
+  }
+
+  function setSupplierAndReset(supplier: SupplierId) {
+    const source = SUPPLIER_CATALOG.find((entry) => entry.id === supplier) ?? SUPPLIER_CATALOG[0];
+    setSupplierId(source.id);
+    setStyle(source.styles[0]);
+    setPalette(source.colors.slice(0, 2));
+    setWorktop(source.worktops[0]);
+    setHandles(source.handles[0]);
+    setAppliances(source.appliances.slice(0, 2));
+  }
+
   function validateClientPhoto(file: File | null): File | null {
     if (!file) {
       setError("Please upload a kitchen photo first.");
@@ -214,30 +207,32 @@ export default function KitchenDesignerWizard({ initialStep = 1 }: KitchenDesign
       setError("Image size must be 50MB or less.");
       return null;
     }
+    if (!ALLOWED_IMAGE_TYPES.has(file.type)) {
+      setError(
+        "Use JPG, PNG, WEBP, or AVIF. HEIC/HEIF from iPhone is not supported by live AI services."
+      );
+      return null;
+    }
     return file;
   }
 
   function createDemoJob(): Job {
-    const estimatedMin = Math.max(5000, Math.round(budgetMin * 0.95));
-    const estimatedMax = Math.max(estimatedMin + 1000, Math.round(budgetMax * 1.15));
-
     return {
       id: `demo-${Date.now()}`,
       status: "report_ready",
-      style,
+      style: `${selectedSupplier.label} - ${style}`,
       color_palette: palette,
-      budget_min: budgetMin,
-      budget_max: budgetMax,
+      budget_min: 0,
+      budget_max: 0,
       input_image_url: previewUrl ?? "",
       generated_image_url: previewUrl ?? null,
       project_description:
-        `Premium ${style} kitchen concept inspired by Howdens, Wren, B&Q and IKEA directions. ` +
-        `Palette: ${palette.join(", ")}. Worktop: ${worktop}. Handles: ${handles}. ` +
+        `Premium ${selectedSupplier.label} ${style} kitchen concept aligned with your chosen brochure options. ` +
+        `Palette: ${palette.join(", ")}. Worktop: ${worktop}. Handles: ${handles}. Appliances: ${appliances.join(", ")}. ` +
         `Intensity: ${editIntensity}. Layout keeps your room geometry and improves storage zoning and workflow.`,
-      estimated_cost_min: estimatedMin,
-      estimated_cost_max: estimatedMax,
-      estimate_explanation:
-        "Demo estimate based on your selected budget, style complexity, and supplier-inspired finish level.",
+      estimated_cost_min: null,
+      estimated_cost_max: null,
+      estimate_explanation: "Demo mode result.",
       pdf_report_url: null,
     };
   }
@@ -299,12 +294,6 @@ export default function KitchenDesignerWizard({ initialStep = 1 }: KitchenDesign
         return;
       }
     }
-    if (!Number.isFinite(budgetMin) || !Number.isFinite(budgetMax) || budgetMin < 2000 || budgetMax > 100000 || budgetMin >= budgetMax) {
-      setError("Please choose a realistic budget range.");
-      setStep(7);
-      return;
-    }
-
     try {
       setLoading(true);
       setError(null);
@@ -318,14 +307,17 @@ export default function KitchenDesignerWizard({ initialStep = 1 }: KitchenDesign
 
       const createForm = new FormData();
       createForm.append("photo", photo);
+      createForm.append("supplier", supplierId);
       createForm.append("style", style);
       createForm.append("palette", palette.join(","));
-      createForm.append("budgetMin", String(budgetMin));
-      createForm.append("budgetMax", String(budgetMax));
+      createForm.append("worktop", worktop);
+      createForm.append("handles", handles);
+      createForm.append("appliances", appliances.join(","));
       const fullNotes = [
         notes.trim(),
         `Preferred worktop: ${worktop}`,
         `Preferred handles: ${handles}`,
+        `Preferred appliances: ${appliances.join(", ")}`,
         `Edit intensity: ${editIntensity}`,
         `Preserve current layout: ${preserveLayout ? "yes" : "no"}`,
       ]
@@ -550,12 +542,12 @@ export default function KitchenDesignerWizard({ initialStep = 1 }: KitchenDesign
         <div className="space-y-5">
           <h2 className="text-2xl font-bold">Step 1: Add kitchen photo</h2>
           <p className="text-neutral-300">
-            Use a clear wide shot. JPG, PNG, WEBP, HEIC or AVIF, max 50MB.
+            Use a clear wide shot. JPG, PNG, WEBP or AVIF, max 50MB.
           </p>
           <input
             ref={fileInputRef}
             type="file"
-            accept=".jpg,.jpeg,.png,.webp,.heic,.heif,.avif,image/*"
+            accept=".jpg,.jpeg,.png,.webp,.avif,image/*"
             onChange={(event) => {
               const selected = event.currentTarget.files?.[0] ?? null;
               const validPhoto = validateClientPhoto(selected);
@@ -611,7 +603,7 @@ export default function KitchenDesignerWizard({ initialStep = 1 }: KitchenDesign
               <input
                 ref={fileInputRef}
                 type="file"
-                accept=".jpg,.jpeg,.png,.webp,.heic,.heif,.avif,image/*"
+                accept=".jpg,.jpeg,.png,.webp,.avif,image/*"
                 onChange={(event) => {
                   const selected = event.currentTarget.files?.[0] ?? null;
                   const validPhoto = validateClientPhoto(selected);
@@ -669,20 +661,26 @@ export default function KitchenDesignerWizard({ initialStep = 1 }: KitchenDesign
 
       {step === 3 && (
         <div className="space-y-5">
-          <h2 className="text-2xl font-bold">Step 3: Choose style</h2>
+          <h2 className="text-2xl font-bold">Step 3: Choose supplier</h2>
+          <p className="text-neutral-300">
+            Select the brochure family first. All next options are filtered to that supplier.
+          </p>
           <div className="grid gap-3 md:grid-cols-2">
-            {STYLE_OPTIONS.map((item) => (
+            {SUPPLIER_CATALOG.map((supplier) => (
               <button
-                key={item.value}
+                key={supplier.id}
                 type="button"
-                onClick={() => setStyle(item.value)}
+                onClick={() => setSupplierAndReset(supplier.id)}
                 className={`rounded-2xl border px-4 py-4 text-left ${
-                  style === item.value
+                  supplierId === supplier.id
                     ? "border-amber-400 bg-amber-400/15 text-amber-100"
                     : "border-white/10 bg-white/5 text-white"
                 }`}
               >
-                <p className="font-semibold">{item.label}</p>
+                <p className="font-semibold">{supplier.label}</p>
+                <p className="mt-1 text-sm text-neutral-300">
+                  Sources: {supplier.sourceFiles.join(" | ")}
+                </p>
               </button>
             ))}
           </div>
@@ -699,21 +697,20 @@ export default function KitchenDesignerWizard({ initialStep = 1 }: KitchenDesign
 
       {step === 4 && (
         <div className="space-y-5">
-          <h2 className="text-2xl font-bold">Step 4: Select colors</h2>
-          <p className="text-neutral-300">Choose up to 6 colors for doors, walls, and accents.</p>
+          <h2 className="text-2xl font-bold">Step 4: Choose style</h2>
           <div className="grid gap-3 md:grid-cols-2">
-            {COLORS.map((color) => (
+            {selectedSupplier.styles.map((item) => (
               <button
-                key={color}
+                key={item}
                 type="button"
-                onClick={() => toggleColor(color)}
+                onClick={() => setStyle(item)}
                 className={`rounded-2xl border px-4 py-4 text-left ${
-                  palette.includes(color)
+                  style === item
                     ? "border-amber-400 bg-amber-400/15 text-amber-100"
                     : "border-white/10 bg-white/5 text-white"
                 }`}
               >
-                <p className="font-semibold">{color}</p>
+                <p className="font-semibold">{item}</p>
               </button>
             ))}
           </div>
@@ -730,15 +727,16 @@ export default function KitchenDesignerWizard({ initialStep = 1 }: KitchenDesign
 
       {step === 5 && (
         <div className="space-y-5">
-          <h2 className="text-2xl font-bold">Step 5: Pick worktops</h2>
+          <h2 className="text-2xl font-bold">Step 5: Select colors</h2>
+          <p className="text-neutral-300">Choose up to 6 colors from {selectedSupplier.label} options.</p>
           <div className="grid gap-3 md:grid-cols-2">
-            {WORKTOPS.map((item) => (
+            {selectedSupplier.colors.map((item) => (
               <button
                 key={item}
                 type="button"
-                onClick={() => setWorktop(item)}
+                onClick={() => toggleColor(item)}
                 className={`rounded-2xl border px-4 py-4 text-left ${
-                  worktop === item
+                  palette.includes(item)
                     ? "border-amber-400 bg-amber-400/15 text-amber-100"
                     : "border-white/10 bg-white/5 text-white"
                 }`}
@@ -760,15 +758,15 @@ export default function KitchenDesignerWizard({ initialStep = 1 }: KitchenDesign
 
       {step === 6 && (
         <div className="space-y-5">
-          <h2 className="text-2xl font-bold">Step 6: Choose handles</h2>
+          <h2 className="text-2xl font-bold">Step 6: Pick worktops</h2>
           <div className="grid gap-3 md:grid-cols-2">
-            {HANDLES.map((item) => (
+            {selectedSupplier.worktops.map((item) => (
               <button
                 key={item}
                 type="button"
-                onClick={() => setHandles(item)}
+                onClick={() => setWorktop(item)}
                 className={`rounded-2xl border px-4 py-4 text-left ${
-                  handles === item
+                  worktop === item
                     ? "border-amber-400 bg-amber-400/15 text-amber-100"
                     : "border-white/10 bg-white/5 text-white"
                 }`}
@@ -790,7 +788,7 @@ export default function KitchenDesignerWizard({ initialStep = 1 }: KitchenDesign
 
       {step === 7 && (
         <div className="space-y-6">
-          <h2 className="text-2xl font-bold">Step 7: Set budget</h2>
+          <h2 className="text-2xl font-bold">Step 7: Handles, appliances and notes</h2>
           <div className="rounded-2xl border border-white/10 bg-white/5 p-5 space-y-4">
             <p className="text-sm uppercase tracking-[0.2em] text-amber-300">
               AI edit tools
@@ -820,27 +818,45 @@ export default function KitchenDesignerWizard({ initialStep = 1 }: KitchenDesign
               Keep room geometry and appliance positions as close as possible
             </label>
           </div>
-          <div className="grid gap-4 md:grid-cols-2">
-            <label className="grid gap-2">
-              <span className="text-sm text-neutral-300">Budget minimum (£)</span>
-              <input
-                type="number"
-                min={2000}
-                value={budgetMin}
-                onChange={(event) => setBudgetMin(Number(event.target.value))}
-                className="input"
-              />
-            </label>
-            <label className="grid gap-2">
-              <span className="text-sm text-neutral-300">Budget maximum (£)</span>
-              <input
-                type="number"
-                min={3000}
-                value={budgetMax}
-                onChange={(event) => setBudgetMax(Number(event.target.value))}
-                className="input"
-              />
-            </label>
+          <div className="space-y-3">
+            <p className="text-sm uppercase tracking-[0.2em] text-amber-300">Handles</p>
+            <div className="grid gap-3 md:grid-cols-2">
+              {selectedSupplier.handles.map((item) => (
+                <button
+                  key={item}
+                  type="button"
+                  onClick={() => setHandles(item)}
+                  className={`rounded-2xl border px-4 py-4 text-left ${
+                    handles === item
+                      ? "border-amber-400 bg-amber-400/15 text-amber-100"
+                      : "border-white/10 bg-white/5 text-white"
+                  }`}
+                >
+                  <p className="font-semibold">{item}</p>
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="space-y-3">
+            <p className="text-sm uppercase tracking-[0.2em] text-amber-300">
+              Appliances (select one or more)
+            </p>
+            <div className="grid gap-3 md:grid-cols-2">
+              {selectedSupplier.appliances.map((item) => (
+                <button
+                  key={item}
+                  type="button"
+                  onClick={() => toggleAppliance(item)}
+                  className={`rounded-2xl border px-4 py-4 text-left ${
+                    appliances.includes(item)
+                      ? "border-amber-400 bg-amber-400/15 text-amber-100"
+                      : "border-white/10 bg-white/5 text-white"
+                  }`}
+                >
+                  <p className="font-semibold">{item}</p>
+                </button>
+              ))}
+            </div>
           </div>
           <label className="grid gap-2">
             <span className="text-sm text-neutral-300">Extra notes (optional)</span>
@@ -870,9 +886,9 @@ export default function KitchenDesignerWizard({ initialStep = 1 }: KitchenDesign
           </p>
           <div className="rounded-2xl border border-white/10 bg-white/5 p-5 space-y-3">
             <p className="text-neutral-200">• Analyzing kitchen geometry and constraints</p>
-            <p className="text-neutral-200">• Applying selected style, colors, worktop and handles</p>
+            <p className="text-neutral-200">• Applying selected supplier brochure options</p>
             <p className="text-neutral-200">• Rendering realistic concept image</p>
-            <p className="text-neutral-200">• Calculating indicative cost range and report</p>
+            <p className="text-neutral-200">• Producing consultation-ready design report</p>
           </div>
           {loading && (
             <div className="space-y-3">
@@ -970,17 +986,15 @@ export default function KitchenDesignerWizard({ initialStep = 1 }: KitchenDesign
                   <p className="text-sm uppercase text-amber-300 tracking-[0.2em] mb-2">
                     Configuration summary
                   </p>
-                  <p className="text-neutral-300">Style: {job.style}</p>
+                  <p className="text-neutral-300">Supplier: {selectedSupplier.label}</p>
+                  <p className="text-neutral-300">Style: {style}</p>
                   <p className="text-neutral-300">Palette: {job.color_palette.join(", ")}</p>
                   <p className="text-neutral-300">Worktop: {worktop}</p>
                   <p className="text-neutral-300">Handles: {handles}</p>
+                  <p className="text-neutral-300">Appliances: {appliances.join(", ")}</p>
                   <p className="text-neutral-300">Edit intensity: {editIntensity}</p>
                   <p className="text-neutral-300">
                     Preserve layout: {preserveLayout ? "Yes" : "No"}
-                  </p>
-                  <p className="text-neutral-300">
-                    Budget target: £{job.budget_min.toLocaleString()} - £
-                    {job.budget_max.toLocaleString()}
                   </p>
                 </div>
 
@@ -993,18 +1007,6 @@ export default function KitchenDesignerWizard({ initialStep = 1 }: KitchenDesign
                   </p>
                 </div>
 
-                <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-                  <p className="text-sm uppercase text-amber-300 tracking-[0.2em] mb-2">
-                    Indicative cost
-                  </p>
-                  <p className="text-2xl font-bold">
-                    £{(job.estimated_cost_min ?? 0).toLocaleString()} - £
-                    {(job.estimated_cost_max ?? 0).toLocaleString()}
-                  </p>
-                  <p className="text-neutral-300 mt-3">
-                    {job.estimate_explanation ?? "Cost explanation pending."}
-                  </p>
-                </div>
                 </div>
                 <div className="space-y-4">
                   <div className="rounded-2xl border border-white/10 bg-white/5 p-4">

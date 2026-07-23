@@ -112,14 +112,7 @@ export default async function AiLeadsAdminPage({ searchParams }: Props) {
 
               <div className="grid gap-3 md:grid-cols-3 mt-5 text-sm">
                 <p>Palette: {job.color_palette.join(", ")}</p>
-                <p>
-                  Budget: £{job.budget_min.toLocaleString()} - £
-                  {job.budget_max.toLocaleString()}
-                </p>
-                <p>
-                  Estimate: £{(job.estimated_cost_min ?? 0).toLocaleString()} - £
-                  {(job.estimated_cost_max ?? 0).toLocaleString()}
-                </p>
+                <p className="md:col-span-2">Selections: {job.customer_notes ?? "N/A"}</p>
               </div>
 
               <p className="text-neutral-300 mt-4">

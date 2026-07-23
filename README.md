@@ -30,10 +30,10 @@ npm run build
 ### User flow
 
 1. Customer uploads kitchen photo
-2. Customer picks style, colors, and budget
+2. Customer picks supplier and brochure-based options (style, colors, worktops, handles, appliances)
 3. AI analyzes image
 4. AI generates redesigned kitchen visual
-5. AI creates professional description + indicative cost
+5. AI creates professional design summary based on selected supplier options
 6. PDF report is generated
 7. Customer submits enquiry
 8. Admin receives full report by email

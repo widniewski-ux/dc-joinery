@@ -1,29 +1,22 @@
-import type { KitchenStyle, LeadInput } from "./types";
+import type { LeadInput } from "./types";
+import { getSupplierCatalogById } from "./supplier-catalog";
 
 const ALLOWED_UPLOAD_TYPES = new Set([
   "image/jpeg",
   "image/png",
   "image/webp",
   "image/avif",
-  "image/heic",
-  "image/heif",
 ]);
 const MAX_UPLOAD_SIZE = 50 * 1024 * 1024;
-
-export const KITCHEN_STYLES: KitchenStyle[] = [
-  "Modern Minimal",
-  "Shaker",
-  "Industrial",
-  "Classic Luxury",
-  "Scandinavian",
-];
 
 export function validateUploadFile(file: File | null): File {
   if (!file) {
     throw new Error("Please upload a kitchen photo");
   }
   if (!ALLOWED_UPLOAD_TYPES.has(file.type)) {
-    throw new Error("Only JPG, PNG, WEBP, AVIF, and HEIC/HEIF files are supported");
+    throw new Error(
+      "Only JPG, PNG, WEBP, and AVIF files are supported. HEIC/HEIF is not supported in live AI generation."
+    );
   }
   if (file.size > MAX_UPLOAD_SIZE) {
     throw new Error("Image size must be 50MB or less");
@@ -31,14 +24,29 @@ export function validateUploadFile(file: File | null): File {
   return file;
 }
 
-export function validateStyle(style: string): KitchenStyle {
-  if (!KITCHEN_STYLES.includes(style as KitchenStyle)) {
-    throw new Error("Please choose a valid kitchen style");
+export function validateSupplierId(supplierId: string): string {
+  if (!getSupplierCatalogById(supplierId)) {
+    throw new Error("Please choose a valid supplier");
   }
-  return style as KitchenStyle;
+  return supplierId;
 }
 
-export function validatePalette(rawPalette: string): string[] {
+export function validateSupplierStyle(supplierId: string, style: string): string {
+  const supplier = getSupplierCatalogById(supplierId);
+  if (!supplier) {
+    throw new Error("Please choose a valid supplier");
+  }
+  if (!supplier.styles.includes(style)) {
+    throw new Error("Please choose a valid style for selected supplier");
+  }
+  return style;
+}
+
+export function validatePalette(supplierId: string, rawPalette: string): string[] {
+  const supplier = getSupplierCatalogById(supplierId);
+  if (!supplier) {
+    throw new Error("Please choose a valid supplier");
+  }
   const palette = rawPalette
     .split(",")
     .map((item) => item.trim())
@@ -49,19 +57,48 @@ export function validatePalette(rawPalette: string): string[] {
   if (palette.length > 6) {
     throw new Error("Please choose up to 6 colors");
   }
+  for (const color of palette) {
+    if (!supplier.colors.includes(color)) {
+      throw new Error(`Color "${color}" is not available for ${supplier.label}`);
+    }
+  }
   return palette;
 }
 
-export function validateBudget(rawMin: string, rawMax: string): { min: number; max: number } {
-  const min = Number(rawMin);
-  const max = Number(rawMax);
-  if (!Number.isFinite(min) || !Number.isFinite(max)) {
-    throw new Error("Budget values are invalid");
+export function validateSingleSupplierOption(
+  supplierId: string,
+  value: string,
+  optionType: "worktops" | "handles"
+): string {
+  const supplier = getSupplierCatalogById(supplierId);
+  if (!supplier) {
+    throw new Error("Please choose a valid supplier");
   }
-  if (min < 2000 || max > 100000 || min >= max) {
-    throw new Error("Please choose a realistic budget range");
+  const source = optionType === "worktops" ? supplier.worktops : supplier.handles;
+  if (!source.includes(value)) {
+    throw new Error(`Selected ${optionType.slice(0, -1)} is not available for ${supplier.label}`);
   }
-  return { min, max };
+  return value;
+}
+
+export function validateAppliances(supplierId: string, rawAppliances: string): string[] {
+  const supplier = getSupplierCatalogById(supplierId);
+  if (!supplier) {
+    throw new Error("Please choose a valid supplier");
+  }
+  const selected = rawAppliances
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean);
+  if (selected.length === 0) {
+    throw new Error("Please choose at least one appliance preference");
+  }
+  for (const item of selected) {
+    if (!supplier.appliances.includes(item)) {
+      throw new Error(`Appliance "${item}" is not available for ${supplier.label}`);
+    }
+  }
+  return selected;
 }
 
 export function validateLeadInput(payload: unknown): LeadInput {

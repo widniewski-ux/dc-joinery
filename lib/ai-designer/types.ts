@@ -8,18 +8,11 @@ export type KitchenDesignStatus =
   | "lead_submitted"
   | "failed";
 
-export type KitchenStyle =
-  | "Modern Minimal"
-  | "Shaker"
-  | "Industrial"
-  | "Classic Luxury"
-  | "Scandinavian";
-
 export interface KitchenDesignJob {
   id: string;
   status: KitchenDesignStatus;
   input_image_url: string;
-  style: KitchenStyle;
+  style: string;
   color_palette: string[];
   budget_min: number;
   budget_max: number;
@@ -41,7 +34,7 @@ export interface KitchenDesignJob {
 
 export interface CreateKitchenDesignJobInput {
   inputImageUrl: string;
-  style: KitchenStyle;
+  style: string;
   colorPalette: string[];
   budgetMin: number;
   budgetMax: number;

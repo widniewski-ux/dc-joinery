@@ -4,7 +4,7 @@ import KitchenDesignerWizard from "./wizard";
 export const metadata: Metadata = {
   title: "AI Kitchen Designer",
   description:
-    "Upload your kitchen photo and get an AI-generated concept, design summary, indicative cost, and downloadable PDF report.",
+    "Upload your kitchen photo and build a brochure-aligned concept using supplier options from Howdens, Wren, IKEA and B&Q.",
 };
 
 type PageProps = {
@@ -27,9 +27,9 @@ export default async function AiKitchenDesignerPage({ searchParams }: PageProps)
         </p>
         <h1 className="text-4xl md:text-6xl font-bold mb-6">AI Kitchen Designer</h1>
         <p className="text-neutral-300 text-lg max-w-3xl mb-10 leading-relaxed">
-          Upload your current kitchen, choose style and budget, and receive a premium AI
-          concept with realistic visualization, professional project summary, and an
-          indicative UK cost range.
+          Upload your current kitchen, select supplier brochure options (style, colours,
+          worktops, handles and appliances), and receive a premium AI concept with
+          realistic visualization and a professional project summary.
         </p>
 
         <KitchenDesignerWizard initialStep={initialStep} />

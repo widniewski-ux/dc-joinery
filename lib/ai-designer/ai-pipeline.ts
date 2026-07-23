@@ -18,12 +18,6 @@ interface VisionAnalysis extends Record<string, unknown> {
   applianceNotes: string;
 }
 
-interface CostEstimate {
-  min: number;
-  max: number;
-  explanation: string;
-}
-
 const openAiApiKey = () => requiredEnv("OPENAI_API_KEY");
 const replicateToken = () => requiredEnv("REPLICATE_API_TOKEN");
 const replicateModelVersion = () => requiredEnv("REPLICATE_MODEL_VERSION");
@@ -134,7 +128,6 @@ function buildRenderPrompt(job: KitchenDesignJob, analysis: VisionAnalysis): str
   return `Photorealistic kitchen redesign based on real room constraints.
 Style: ${job.style}
 Color palette: ${job.color_palette.join(", ")}
-Budget range: £${job.budget_min}-${job.budget_max}
 Layout summary: ${analysis.layoutSummary}
 Constraints: ${analysis.constraints.join("; ")}
 Opportunities: ${analysis.opportunities.join("; ")}
@@ -315,10 +308,7 @@ async function generateKitchenRender(job: KitchenDesignJob, analysis: VisionAnal
   return generateKitchenRenderWithReplicate(job, analysis);
 }
 
-async function generateDescriptionAndEstimate(
-  job: KitchenDesignJob,
-  analysis: VisionAnalysis
-): Promise<{ description: string; estimate: CostEstimate }> {
+async function generateDescription(job: KitchenDesignJob, analysis: VisionAnalysis): Promise<string> {
   const response = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
     headers: {
@@ -331,21 +321,19 @@ async function generateDescriptionAndEstimate(
       messages: [
         {
           role: "system",
-          content:
-            "You are a UK kitchen consultant preparing client-facing concept summaries and indicative cost ranges.",
+          content: "You are a UK kitchen consultant preparing client-facing concept summaries.",
         },
         {
           role: "user",
           content: `Return JSON with fields:
-description (string, 120-220 words, professional UK tone),
-estimateMin (number),
-estimateMax (number),
-estimateExplanation (string, include assumptions and exclusions).
+description (string, 140-260 words, professional UK tone),
+selectionSummary (string, concise summary of selected brochure options),
+consultationNotes (string, include what should be confirmed during site survey).
 
 Input:
 Style: ${job.style}
 Palette: ${job.color_palette.join(", ")}
-Budget target: £${job.budget_min}-${job.budget_max}
+Customer selections notes: ${job.customer_notes ?? "none"}
 Room analysis: ${JSON.stringify(analysis)}`,
         },
       ],
@@ -356,7 +344,7 @@ Room analysis: ${JSON.stringify(analysis)}`,
 
   if (!response.ok) {
     const body = await response.text();
-    throw new Error(`Description/estimate generation failed: ${response.status} ${body}`);
+    throw new Error(`Description generation failed: ${response.status} ${body}`);
   }
 
   const data = (await response.json()) as {
@@ -365,19 +353,11 @@ Room analysis: ${JSON.stringify(analysis)}`,
   const content = data.choices?.[0]?.message?.content ?? "";
   const parsed = extractJson<{
     description: string;
-    estimateMin: number;
-    estimateMax: number;
-    estimateExplanation: string;
+    selectionSummary: string;
+    consultationNotes: string;
   }>(content);
 
-  return {
-    description: parsed.description,
-    estimate: {
-      min: parsed.estimateMin,
-      max: parsed.estimateMax,
-      explanation: parsed.estimateExplanation,
-    },
-  };
+  return `${parsed.description}\n\nSelected options summary: ${parsed.selectionSummary}\n\nConsultation notes: ${parsed.consultationNotes}`;
 }
 
 export async function runKitchenDesignPipeline(jobId: string): Promise<KitchenDesignJob> {
@@ -400,15 +380,15 @@ export async function runKitchenDesignPipeline(jobId: string): Promise<KitchenDe
     const generatedImageUrl = await generateKitchenRender(job, analysis);
 
     await setKitchenDesignStatus(jobId, "describing");
-    const { description, estimate } = await generateDescriptionAndEstimate(job, analysis);
+    const description = await generateDescription(job, analysis);
 
     await setKitchenDesignStatus(jobId, "estimating");
     const refreshed = await updateKitchenDesignJob(jobId, {
       generated_image_url: generatedImageUrl,
       project_description: description,
-      estimated_cost_min: estimate.min,
-      estimated_cost_max: estimate.max,
-      estimate_explanation: estimate.explanation,
+      estimated_cost_min: null,
+      estimated_cost_max: null,
+      estimate_explanation: null,
     });
 
     let pdfUrl: string | null = null;
@@ -425,10 +405,7 @@ export async function runKitchenDesignPipeline(jobId: string): Promise<KitchenDe
     return updateKitchenDesignJob(jobId, {
       pdf_report_url: pdfUrl,
       status: "report_ready",
-      estimate_explanation:
-        pdfErrorNote && refreshed.estimate_explanation
-          ? `${refreshed.estimate_explanation}\n\nPDF note: ${pdfErrorNote}`
-          : refreshed.estimate_explanation,
+      estimate_explanation: pdfErrorNote ? `PDF note: ${pdfErrorNote}` : null,
     });
   } catch (error) {
     await updateKitchenDesignJob(jobId, {
@@ -467,8 +444,7 @@ Design details
 Job ID: ${job.id}
 Style: ${job.style}
 Palette: ${job.color_palette.join(", ")}
-Budget: £${job.budget_min} - £${job.budget_max}
-Estimated cost: £${job.estimated_cost_min ?? 0} - £${job.estimated_cost_max ?? 0}
+Selections: ${job.customer_notes ?? "N/A"}
 
 Generated image: ${job.generated_image_url ?? "N/A"}
 PDF report: ${job.pdf_report_url ?? "N/A"}

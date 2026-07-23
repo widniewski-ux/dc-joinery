@@ -234,9 +234,9 @@ export default function Home() {
             Upload your kitchen photo and get a premium concept in minutes.
           </h2>
           <p className="text-neutral-200 text-lg max-w-3xl leading-relaxed mb-8">
-            Our new AI Kitchen Designer generates a realistic visual concept, professional
-            design summary, indicative cost range, and downloadable PDF you can send directly
-            to DC Joinery for a quick quote.
+            Our new AI Kitchen Designer generates a realistic visual concept and professional
+            design summary based on brochure options from Howdens, Wren, IKEA, and B&Q, with
+            a downloadable PDF you can send directly to DC Joinery for consultation.
           </p>
           <div className="flex flex-col sm:flex-row gap-4">
             <Link

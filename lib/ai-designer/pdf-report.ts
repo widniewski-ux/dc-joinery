@@ -40,17 +40,12 @@ function buildReportHtml(job: KitchenDesignJob): string {
         <div class="value">${escapeHtml(job.style)}</div>
         <div class="label" style="margin-top: 12px;">Color palette</div>
         <div class="value">${escapeHtml(colors)}</div>
-        <div class="label" style="margin-top: 12px;">Budget</div>
-        <div class="value">£${job.budget_min.toLocaleString()} - £${job.budget_max.toLocaleString()}</div>
+        <div class="label" style="margin-top: 12px;">Supplier selections</div>
+        <div class="value">${escapeHtml(job.customer_notes ?? "Not provided")}</div>
       </div>
       <div class="section card">
         <div class="label">Professional concept description</div>
         <p>${escapeHtml(job.project_description ?? "No description generated.")}</p>
-      </div>
-      <div class="section card">
-        <div class="label">AI estimated cost</div>
-        <div class="value">£${(job.estimated_cost_min ?? 0).toLocaleString()} - £${(job.estimated_cost_max ?? 0).toLocaleString()}</div>
-        <p>${escapeHtml(job.estimate_explanation ?? "No explanation generated.")}</p>
       </div>
       ${
         job.generated_image_url
@@ -60,7 +55,7 @@ function buildReportHtml(job: KitchenDesignJob): string {
           : ""
       }
       <p style="margin-top: 24px; color: #555; font-size: 12px;">
-        Disclaimer: This is an AI-assisted concept and indicative budget only. Final scope and pricing require a site survey and technical review.
+        Disclaimer: This is an AI-assisted concept based on selected supplier brochure options. Final scope requires a site survey and technical review.
       </p>
     </body>
   </html>
