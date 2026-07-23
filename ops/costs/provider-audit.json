@@ -1,53 +1,53 @@
 {
-  "checked_at": "2026-07-22T19:45:42Z",
+  "checked_at": "2026-07-23T03:46:07Z",
   "period_days": 28,
   "audit_rows": [
     {
       "provider": "Vercel",
       "status": "ok",
       "details": "Team dc-joinery plan=hobby",
-      "checked_at": "2026-07-22T19:45:42Z"
+      "checked_at": "2026-07-23T03:46:07Z"
     },
     {
       "provider": "Supabase",
       "status": "ok",
       "details": "jobs_28d=16 storage_probe_status=406 storage_probe_details={'code': 'PGRST106', 'details': None, 'hint': 'Only the following schemas are exposed: public, graphql_public', 'message': 'Invalid schema: storage'}",
-      "checked_at": "2026-07-22T19:45:42Z"
+      "checked_at": "2026-07-23T03:46:07Z"
     },
     {
       "provider": "Resend",
       "status": "ok",
       "details": "emails_28d=7 api_status=200",
-      "checked_at": "2026-07-22T19:45:42Z"
+      "checked_at": "2026-07-23T03:46:07Z"
     },
     {
       "provider": "OpenAI",
       "status": "pending",
       "details": "status=403 details={'error': \"You have insufficient permissions for this operation. Missing scopes: api.usage.read. Check that you have the correct role in your organization, and if you're using a restricted API key, that it has the necessary scopes.\"}",
-      "checked_at": "2026-07-22T19:45:42Z"
+      "checked_at": "2026-07-23T03:46:07Z"
     },
     {
       "provider": "Replicate",
       "status": "ok",
       "details": "predictions_28d=7 predict_time_sec_28d=255.93",
-      "checked_at": "2026-07-22T19:45:42Z"
+      "checked_at": "2026-07-23T03:46:07Z"
     },
     {
       "provider": "PDFShift",
       "status": "pending",
       "details": "status=None mode=x-api-key details={'error': 'Expecting value: line 1 column 1 (char 0)'}",
-      "checked_at": "2026-07-22T19:45:42Z"
+      "checked_at": "2026-07-23T03:46:07Z"
     },
     {
       "provider": "Domain Registrar",
       "status": "pending",
       "details": "Credential present, invoice/usage amount still required.",
-      "checked_at": "2026-07-22T19:45:42Z"
+      "checked_at": "2026-07-23T03:46:07Z"
     }
   ],
   "cost_rows": [
     {
-      "date": "2026-07-22",
+      "date": "2026-07-23",
       "vendor": "Vercel",
       "service": "Hosting plan (Hobby)",
       "category": "Hosting",
@@ -59,7 +59,7 @@
       "evidence": "Vercel team billing.plan=hobby"
     },
     {
-      "date": "2026-07-22",
+      "date": "2026-07-23",
       "vendor": "Supabase",
       "service": "Database + storage",
       "category": "Hosting",
@@ -71,7 +71,7 @@
       "evidence": "jobs_28d=16 storage_probe_status=406 storage_probe_details={'code': 'PGRST106', 'details': None, 'hint': 'Only the following schemas are exposed: public, graphql_public', 'message': 'Invalid schema: storage'}"
     },
     {
-      "date": "2026-07-22",
+      "date": "2026-07-23",
       "vendor": "Resend",
       "service": "Transactional email",
       "category": "Email",
@@ -83,7 +83,7 @@
       "evidence": "emails_28d=7 api_status=200"
     },
     {
-      "date": "2026-07-22",
+      "date": "2026-07-23",
       "vendor": "OpenAI",
       "service": "Model usage",
       "category": "AI/API",
@@ -95,7 +95,7 @@
       "evidence": "status=403 details={'error': \"You have insufficient permissions for this operation. Missing scopes: api.usage.read. Check that you have the correct role in your organization, and if you're using a restricted API key, that it has the necessary scopes.\"}"
     },
     {
-      "date": "2026-07-22",
+      "date": "2026-07-23",
       "vendor": "Replicate",
       "service": "Image generation usage",
       "category": "AI/API",
@@ -107,7 +107,7 @@
       "evidence": "predictions_28d=7 predict_time_sec_28d=255.93"
     },
     {
-      "date": "2026-07-22",
+      "date": "2026-07-23",
       "vendor": "PDFShift",
       "service": "PDF generation usage",
       "category": "Tools",
@@ -119,7 +119,7 @@
       "evidence": "status=None mode=x-api-key details={'error': 'Expecting value: line 1 column 1 (char 0)'}"
     },
     {
-      "date": "2026-07-22",
+      "date": "2026-07-23",
       "vendor": "Domain Registrar",
       "service": "dcjoineryni.uk domain",
       "category": "Domain",
