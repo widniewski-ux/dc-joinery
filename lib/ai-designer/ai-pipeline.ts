@@ -18,6 +18,44 @@ interface VisionAnalysis extends Record<string, unknown> {
   applianceNotes: string;
 }
 
+function isOpenAiQuotaErrorText(input: string): boolean {
+  const text = input.toLowerCase();
+  return (
+    text.includes("insufficient_quota") ||
+    text.includes("exceeded your current quota") ||
+    (text.includes("429") && text.includes("openai"))
+  );
+}
+
+function fallbackVisionAnalysis(job: KitchenDesignJob): VisionAnalysis {
+  return {
+    layoutSummary:
+      "Existing room layout is retained and treated as fixed. Keep all windows, doors, and circulation paths unchanged.",
+    constraints: [
+      "Do not move or resize windows, doors, wall openings, or camera perspective.",
+      "Keep appliance zones practical and consistent with existing utility points.",
+      "Respect current room envelope and furniture clearances.",
+    ],
+    opportunities: [
+      "Upgrade door fronts, colour palette, handles, and worktop finishes to match selected supplier options.",
+      "Improve task lighting and storage accessories without changing structural layout.",
+      "Use brochure-aligned finishes for a cohesive, quote-ready concept.",
+    ],
+    applianceNotes: `Selected style: ${job.style}. Preferred palette: ${job.color_palette.join(", ")}.`,
+  };
+}
+
+function fallbackDescription(job: KitchenDesignJob, analysis: VisionAnalysis): string {
+  return [
+    `This kitchen concept follows the selected ${job.style} direction with a ${job.color_palette.join(
+      ", "
+    )} palette and brochure-aligned materials. The design approach keeps the existing room geometry fixed, including all window and door positions, while refreshing cabinetry, handles, worktops, and finish details. The proposal prioritises practical day-to-day use, clear work zones, and a cohesive visual style suitable for a quotation and site-survey discussion.`,
+    `Selected options summary: ${job.customer_notes ?? "Supplier options captured in the project notes."}`,
+    `Consultation notes: Confirm final dimensions on site, appliance integration clearances, and finish availability before installation scheduling. Layout openings and perspective are intended to remain unchanged.`,
+    `Layout summary: ${analysis.layoutSummary}`,
+  ].join("\n\n");
+}
+
 const openAiApiKey = () => requiredEnv("OPENAI_API_KEY");
 const replicateToken = () => requiredEnv("REPLICATE_API_TOKEN");
 const replicateModelVersion = () => requiredEnv("REPLICATE_MODEL_VERSION");
@@ -347,6 +385,12 @@ async function validateGeometryConsistency(
 
   if (!response.ok) {
     const body = await response.text();
+    if (isOpenAiQuotaErrorText(body)) {
+      return {
+        ok: true,
+        reason: "Geometry consistency check skipped due OpenAI quota limits.",
+      };
+    }
     return {
       ok: false,
       reason: `Geometry consistency check failed: ${response.status} ${body}`,
@@ -478,8 +522,21 @@ export async function runKitchenDesignPipeline(jobId: string): Promise<KitchenDe
   }
 
   try {
+    const pipelineNotes: string[] = [];
     await setKitchenDesignStatus(jobId, "analyzing");
-    const analysis = await analyzeKitchenPhoto(job);
+    let analysis: VisionAnalysis;
+    try {
+      analysis = await analyzeKitchenPhoto(job);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      if (!isOpenAiQuotaErrorText(message)) {
+        throw error;
+      }
+      analysis = fallbackVisionAnalysis(job);
+      pipelineNotes.push(
+        "OpenAI quota limit reached during photo analysis. Used fallback analysis summary."
+      );
+    }
     await updateKitchenDesignJob(jobId, {
       vision_analysis: analysis,
     });
@@ -488,7 +545,19 @@ export async function runKitchenDesignPipeline(jobId: string): Promise<KitchenDe
     const generatedImageUrl = await generateKitchenRender(job, analysis);
 
     await setKitchenDesignStatus(jobId, "describing");
-    const description = await generateDescription(job, analysis);
+    let description: string;
+    try {
+      description = await generateDescription(job, analysis);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      if (!isOpenAiQuotaErrorText(message)) {
+        throw error;
+      }
+      description = fallbackDescription(job, analysis);
+      pipelineNotes.push(
+        "OpenAI quota limit reached during text description. Used fallback consultation summary."
+      );
+    }
 
     await setKitchenDesignStatus(jobId, "estimating");
     const refreshed = await updateKitchenDesignJob(jobId, {
@@ -496,7 +565,7 @@ export async function runKitchenDesignPipeline(jobId: string): Promise<KitchenDe
       project_description: description,
       estimated_cost_min: null,
       estimated_cost_max: null,
-      estimate_explanation: null,
+      estimate_explanation: pipelineNotes.length > 0 ? pipelineNotes.join(" | ") : null,
     });
 
     let pdfUrl: string | null = null;
@@ -510,10 +579,14 @@ export async function runKitchenDesignPipeline(jobId: string): Promise<KitchenDe
         error instanceof Error ? error.message : "PDF report could not be generated";
     }
 
+    const combinedNote = [refreshed.estimate_explanation, pdfErrorNote ? `PDF note: ${pdfErrorNote}` : null]
+      .filter(Boolean)
+      .join(" | ");
+
     return updateKitchenDesignJob(jobId, {
       pdf_report_url: pdfUrl,
       status: "report_ready",
-      estimate_explanation: pdfErrorNote ? `PDF note: ${pdfErrorNote}` : null,
+      estimate_explanation: combinedNote || null,
     });
   } catch (error) {
     await updateKitchenDesignJob(jobId, {
