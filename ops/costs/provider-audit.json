@@ -1,63 +1,51 @@
 {
-  "checked_at": "2026-07-23T14:33:52Z",
+  "checked_at": "2026-07-23T18:28:20Z",
   "period_days": 28,
   "audit_rows": [
     {
       "provider": "Vercel",
       "status": "ok",
-      "details": "Team dc-joinery plan=hobby",
-      "checked_at": "2026-07-23T14:33:52Z"
+      "details": "Team dc-joinery plan=hobby | latest probe: Missing VERCEL_TOKEN for billing audit.",
+      "checked_at": "2026-07-23T18:28:20Z"
     },
     {
       "provider": "Supabase",
       "status": "ok",
-      "details": "jobs_28d=17 storage_probe_status=406 storage_probe_details={'code': 'PGRST106', 'details': None, 'hint': 'Only the following schemas are exposed: public, graphql_public', 'message': 'Invalid schema: storage'}",
-      "checked_at": "2026-07-23T14:33:52Z"
+      "details": "jobs_28d=17 storage_probe_status=406 storage_probe_details={'code': 'PGRST106', 'details': None, 'hint': 'Only the following schemas are exposed: public, graphql_public', 'message': 'Invalid schema: storage'} | latest probe: Missing env key: SUPABASE_URL",
+      "checked_at": "2026-07-23T18:28:20Z"
     },
     {
       "provider": "Resend",
       "status": "ok",
-      "details": "emails_28d=6 api_status=200",
-      "checked_at": "2026-07-23T14:33:52Z"
+      "details": "emails_28d=6 api_status=200 | latest probe: Missing env key: RESEND_API_KEY",
+      "checked_at": "2026-07-23T18:28:20Z"
     },
     {
       "provider": "OpenAI",
-      "status": "pending",
-      "details": "status=403 details={'error': \"You have insufficient permissions for this operation. Missing scopes: api.usage.read. Check that you have the correct role in your organization, and if you're using a restricted API key, that it has the necessary scopes.\"}",
-      "checked_at": "2026-07-23T14:33:52Z"
+      "status": "missing",
+      "details": "Missing env key: OPENAI_API_KEY",
+      "checked_at": "2026-07-23T18:28:20Z"
     },
     {
       "provider": "Replicate",
       "status": "ok",
-      "details": "predictions_28d=7 predict_time_sec_28d=255.93",
-      "checked_at": "2026-07-23T14:33:52Z"
+      "details": "predictions_28d=7 predict_time_sec_28d=255.93 | latest probe: Missing env key: REPLICATE_API_TOKEN",
+      "checked_at": "2026-07-23T18:28:20Z"
     },
     {
       "provider": "PDFShift",
-      "status": "pending",
-      "details": "status=None mode=x-api-key details={'error': 'Expecting value: line 1 column 1 (char 0)'}",
-      "checked_at": "2026-07-23T14:33:52Z"
+      "status": "missing",
+      "details": "Missing env key: PDFSHIFT_API_KEY",
+      "checked_at": "2026-07-23T18:28:20Z"
     },
     {
       "provider": "Domain Registrar",
-      "status": "pending",
-      "details": "Credential present, invoice/usage amount still required.",
-      "checked_at": "2026-07-23T14:33:52Z"
+      "status": "missing",
+      "details": "Missing env key: DOMAIN_INVOICE_REFERENCE",
+      "checked_at": "2026-07-23T18:28:20Z"
     }
   ],
   "cost_rows": [
-    {
-      "date": "2026-07-23",
-      "vendor": "Vercel",
-      "service": "Hosting plan (Hobby)",
-      "category": "Hosting",
-      "billing_cycle": "monthly",
-      "unit_cost_gbp": 0,
-      "qty": 1,
-      "notes": "Plan detected from Vercel API (28-day audit window).",
-      "verification_status": "verified",
-      "evidence": "Vercel team billing.plan=hobby"
-    },
     {
       "date": "2026-07-23",
       "vendor": "Supabase",
@@ -66,9 +54,9 @@
       "billing_cycle": "monthly",
       "unit_cost_gbp": 0,
       "qty": 1,
-      "notes": "Real amount not inferred. Fill from invoice/export.",
-      "verification_status": "pending",
-      "evidence": "jobs_28d=17 storage_probe_status=406 storage_probe_details={'code': 'PGRST106', 'details': None, 'hint': 'Only the following schemas are exposed: public, graphql_public', 'message': 'Invalid schema: storage'}"
+      "notes": "Missing credential/invoice source.",
+      "verification_status": "missing",
+      "evidence": "Missing env key: SUPABASE_URL"
     },
     {
       "date": "2026-07-23",
@@ -78,9 +66,9 @@
       "billing_cycle": "monthly",
       "unit_cost_gbp": 0,
       "qty": 1,
-      "notes": "Real amount not inferred. Fill from invoice/export.",
-      "verification_status": "pending",
-      "evidence": "emails_28d=6 api_status=200"
+      "notes": "Missing credential/invoice source.",
+      "verification_status": "missing",
+      "evidence": "Missing env key: RESEND_API_KEY"
     },
     {
       "date": "2026-07-23",
@@ -90,9 +78,9 @@
       "billing_cycle": "monthly",
       "unit_cost_gbp": 0,
       "qty": 1,
-      "notes": "Real amount not inferred. Fill from invoice/export.",
-      "verification_status": "pending",
-      "evidence": "status=403 details={'error': \"You have insufficient permissions for this operation. Missing scopes: api.usage.read. Check that you have the correct role in your organization, and if you're using a restricted API key, that it has the necessary scopes.\"}"
+      "notes": "Missing credential/invoice source.",
+      "verification_status": "missing",
+      "evidence": "Missing env key: OPENAI_API_KEY"
     },
     {
       "date": "2026-07-23",
@@ -102,9 +90,9 @@
       "billing_cycle": "monthly",
       "unit_cost_gbp": 0,
       "qty": 1,
-      "notes": "Real amount not inferred. Fill from invoice/export.",
-      "verification_status": "pending",
-      "evidence": "predictions_28d=7 predict_time_sec_28d=255.93"
+      "notes": "Missing credential/invoice source.",
+      "verification_status": "missing",
+      "evidence": "Missing env key: REPLICATE_API_TOKEN"
     },
     {
       "date": "2026-07-23",
@@ -114,9 +102,9 @@
       "billing_cycle": "monthly",
       "unit_cost_gbp": 0,
       "qty": 1,
-      "notes": "Real amount not inferred. Fill from invoice/export.",
-      "verification_status": "pending",
-      "evidence": "status=None mode=x-api-key details={'error': 'Expecting value: line 1 column 1 (char 0)'}"
+      "notes": "Missing credential/invoice source.",
+      "verification_status": "missing",
+      "evidence": "Missing env key: PDFSHIFT_API_KEY"
     },
     {
       "date": "2026-07-23",
@@ -126,9 +114,9 @@
       "billing_cycle": "yearly",
       "unit_cost_gbp": 0,
       "qty": 1,
-      "notes": "Real amount not inferred. Fill from invoice/export.",
-      "verification_status": "pending",
-      "evidence": "Credential present, invoice/usage amount still required."
+      "notes": "Missing credential/invoice source.",
+      "verification_status": "missing",
+      "evidence": "Missing env key: DOMAIN_INVOICE_REFERENCE"
     }
   ]
 }
