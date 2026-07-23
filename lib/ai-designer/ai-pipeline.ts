@@ -107,6 +107,53 @@ function extractJson<T>(input: string): T {
   return JSON.parse(input.slice(start, end + 1)) as T;
 }
 
+type ParsedSelections = {
+  supplier: string;
+  style: string;
+  worktop: string;
+  handles: string;
+  appliances: string[];
+};
+
+function parseSelectionsFromNotes(job: KitchenDesignJob): ParsedSelections {
+  const defaults: ParsedSelections = {
+    supplier: "Unknown supplier",
+    style: job.style,
+    worktop: "Not specified",
+    handles: "Not specified",
+    appliances: [],
+  };
+  const notes = (job.customer_notes || "").split("|").map((item) => item.trim());
+  for (const item of notes) {
+    const lower = item.toLowerCase();
+    if (lower.startsWith("supplier:")) {
+      defaults.supplier = item.slice(item.indexOf(":") + 1).trim() || defaults.supplier;
+      continue;
+    }
+    if (lower.startsWith("style:")) {
+      defaults.style = item.slice(item.indexOf(":") + 1).trim() || defaults.style;
+      continue;
+    }
+    if (lower.startsWith("worktop:")) {
+      defaults.worktop = item.slice(item.indexOf(":") + 1).trim() || defaults.worktop;
+      continue;
+    }
+    if (lower.startsWith("handles:")) {
+      defaults.handles = item.slice(item.indexOf(":") + 1).trim() || defaults.handles;
+      continue;
+    }
+    if (lower.startsWith("appliances:")) {
+      const raw = item.slice(item.indexOf(":") + 1).trim();
+      defaults.appliances = raw
+        .split(",")
+        .map((part) => part.trim())
+        .filter(Boolean);
+      continue;
+    }
+  }
+  return defaults;
+}
+
 async function analyzeKitchenPhoto(job: KitchenDesignJob): Promise<VisionAnalysis> {
   const response = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
@@ -163,17 +210,27 @@ Focus on practical renovation decisions and installation constraints.`,
 }
 
 function buildRenderPrompt(job: KitchenDesignJob, analysis: VisionAnalysis): string {
+  const selected = parseSelectionsFromNotes(job);
+  const applianceLine =
+    selected.appliances.length > 0 ? selected.appliances.join(", ") : "Use existing appliance set";
   return `Photorealistic kitchen redesign based on real room constraints.
-Style: ${job.style}
-Color palette: ${job.color_palette.join(", ")}
+Supplier: ${selected.supplier}
+Style (mandatory): ${selected.style}
+Color palette (mandatory): ${job.color_palette.join(", ")}
+Worktop finish (mandatory): ${selected.worktop}
+Handle type (mandatory): ${selected.handles}
+Appliances (must respect): ${applianceLine}
 Layout summary: ${analysis.layoutSummary}
 Constraints: ${analysis.constraints.join("; ")}
 Opportunities: ${analysis.opportunities.join("; ")}
 Appliance notes: ${analysis.applianceNotes}
 Customer notes: ${job.customer_notes ?? "none"}
 
-Create a realistic, premium UK kitchen outcome inspired by established catalog directions (Howdens, Wren, B&Q, IKEA) while preserving room geometry and perspective from the source image.
-IMPORTANT: Keep this as the same kitchen photo edited in place, not a new unrelated room.`;
+Create a realistic, premium UK kitchen outcome aligned to the chosen supplier brochure options while preserving room geometry and perspective from the source image.
+IMPORTANT:
+- Keep this as the same kitchen photo edited in place, not a new unrelated room.
+- Follow the mandatory selections exactly. Do not substitute unselected style/colour/worktop/handle options.
+- Keep doors, windows, and openings in the exact same position, size, and perspective.`;
 }
 
 function generatedImageStoragePath(jobId: string): string {
@@ -385,12 +442,6 @@ async function validateGeometryConsistency(
 
   if (!response.ok) {
     const body = await response.text();
-    if (isOpenAiQuotaErrorText(body)) {
-      return {
-        ok: true,
-        reason: "Geometry consistency check skipped due OpenAI quota limits.",
-      };
-    }
     return {
       ok: false,
       reason: `Geometry consistency check failed: ${response.status} ${body}`,
