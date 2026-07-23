@@ -340,22 +340,46 @@ ${strictnessNote}`;
   };
   const replicateRequest = resolveReplicatePredictionRequest(requestInput);
 
-  const predictionResponse = await fetch(replicateRequest.url, {
-    method: "POST",
-    headers: {
-      Authorization: `Token ${replicateToken()}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(replicateRequest.body),
-    cache: "no-store",
-  });
+  let prediction: { id: string; status: string } | null = null;
+  for (let attempt = 0; attempt < 5; attempt += 1) {
+    const predictionResponse = await fetch(replicateRequest.url, {
+      method: "POST",
+      headers: {
+        Authorization: `Token ${replicateToken()}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(replicateRequest.body),
+      cache: "no-store",
+    });
 
-  if (!predictionResponse.ok) {
+    if (predictionResponse.ok) {
+      prediction = (await predictionResponse.json()) as { id: string; status: string };
+      break;
+    }
+
     const body = await predictionResponse.text();
+    if (predictionResponse.status === 402) {
+      throw new Error(`Replicate credit issue: ${body}`);
+    }
+
+    if (predictionResponse.status === 429) {
+      const retryAfterMatch = body.match(/"retry_after"\s*:\s*(\d+)/i);
+      const retryAfterSeconds = retryAfterMatch ? Number(retryAfterMatch[1]) : 3;
+      if (attempt < 4) {
+        await new Promise((resolve) =>
+          setTimeout(resolve, Math.max(1, retryAfterSeconds) * 1000)
+        );
+        continue;
+      }
+      throw new Error(`Replicate rate limit: ${body}`);
+    }
+
     throw new Error(`Image generation failed to start: ${predictionResponse.status} ${body}`);
   }
 
-  const prediction = (await predictionResponse.json()) as { id: string; status: string };
+  if (!prediction) {
+    throw new Error("Replicate prediction could not be started");
+  }
   let status = prediction.status;
   let output: string | string[] | null = null;
 
