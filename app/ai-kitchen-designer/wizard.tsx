@@ -222,6 +222,21 @@ export default function KitchenDesignerWizard({ initialStep = 1 }: KitchenDesign
     return base;
   }
 
+  function formatSourceLabel(fileName: string): string {
+    const decoded = (() => {
+      try {
+        return decodeURIComponent(fileName);
+      } catch {
+        return fileName;
+      }
+    })();
+    const noExtension = decoded.replace(/\.(pdf|png|jpe?g|webp|avif)$/i, "");
+    const withoutHash = noExtension.replace(/~[a-f0-9]{12,}\w*$/i, "");
+    const normalized = withoutHash.replace(/[-_]+/g, " ").replace(/\s+/g, " ").trim();
+    if (normalized.length <= 54) return normalized;
+    return `${normalized.slice(0, 51)}...`;
+  }
+
   function validateClientPhoto(file: File | null): File | null {
     if (!file) {
       setError("Please upload a kitchen photo first.");
@@ -703,8 +718,16 @@ export default function KitchenDesignerWizard({ initialStep = 1 }: KitchenDesign
               >
                 <p className="font-semibold">{supplier.label}</p>
                 <p className="mt-1 text-sm text-neutral-300">
-                  Sources: {supplier.documents.map((doc) => doc.name).join(" | ")}
+                  Sources: {supplier.documents.length} brochure
+                  {supplier.documents.length === 1 ? "" : "s"}
                 </p>
+                <div className="mt-2 space-y-1 text-xs text-neutral-400">
+                  {supplier.documents.slice(0, 2).map((doc) => (
+                    <p key={doc.name} className="break-all leading-snug">
+                      {formatSourceLabel(doc.name)}
+                    </p>
+                  ))}
+                </div>
               </button>
             ))}
           </div>
@@ -720,9 +743,10 @@ export default function KitchenDesignerWizard({ initialStep = 1 }: KitchenDesign
                     href={getBrochureHref(doc.name)}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="rounded-lg border border-white/20 px-3 py-2"
+                    className="max-w-full rounded-lg border border-white/20 px-3 py-2 text-xs leading-snug break-all"
+                    title={doc.name}
                   >
-                    {doc.name}
+                    {formatSourceLabel(doc.name)}
                   </a>
                 ) : (
                   <a
@@ -730,9 +754,10 @@ export default function KitchenDesignerWizard({ initialStep = 1 }: KitchenDesign
                     href={getBrochureHref(doc.samples?.[0] || "")}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="rounded-lg border border-white/20 px-3 py-2"
+                    className="max-w-full rounded-lg border border-white/20 px-3 py-2 text-xs leading-snug break-all"
+                    title={doc.name}
                   >
-                    {doc.name}
+                    {formatSourceLabel(doc.name)}
                   </a>
                 )
               ))}
