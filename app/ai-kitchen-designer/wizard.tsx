@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { SUPPLIER_CATALOG, type SupplierId } from "@/lib/ai-designer/supplier-catalog";
 
 const EDIT_INTENSITY_OPTIONS = [
@@ -110,6 +110,26 @@ export default function KitchenDesignerWizard({ initialStep = 1 }: KitchenDesign
   const worktopOptions = selectedSupplier.worktops;
   const handleOptions = selectedSupplier.handles;
   const applianceOptions = selectedSupplier.appliances;
+  const createDemoJob = useCallback((): Job => {
+    return {
+      id: `demo-${Date.now()}`,
+      status: "report_ready",
+      style: `${selectedSupplier.label} - ${style}`,
+      color_palette: palette,
+      budget_min: 0,
+      budget_max: 0,
+      input_image_url: previewUrl ?? "",
+      generated_image_url: previewUrl ?? null,
+      project_description:
+        `Premium ${selectedSupplier.label} ${style} kitchen concept aligned with your chosen brochure options. ` +
+        `Palette: ${palette.join(", ")}. Worktop: ${worktop}. Handles: ${handles}. Appliances: ${appliances.join(", ")}. ` +
+        `Intensity: ${editIntensity}. Layout keeps your room geometry and improves storage zoning and workflow.`,
+      estimated_cost_min: null,
+      estimated_cost_max: null,
+      estimate_explanation: "Demo mode result.",
+      pdf_report_url: null,
+    };
+  }, [appliances, editIntensity, handles, palette, previewUrl, selectedSupplier.label, style, worktop]);
 
   useEffect(() => {
     if (!loading || step !== 8) return;
@@ -150,9 +170,22 @@ export default function KitchenDesignerWizard({ initialStep = 1 }: KitchenDesign
         }
 
         if (payload.job.status === "failed") {
+          const failureNote = payload.job.estimate_explanation ?? "Generation failed. Please try again.";
+          if (isProviderCreditError(failureNote)) {
+            setLoading(false);
+            setGenerationStartedAt(null);
+            setIsDemoResult(true);
+            setActiveJobId(null);
+            setInfoMessage(
+              "Live AI generation is temporarily unavailable (provider credit limit). Showing a local demo result so you can continue."
+            );
+            setJob(createDemoJob());
+            setStep(9);
+            return;
+          }
           setLoading(false);
           setGenerationStartedAt(null);
-          setError(payload.job.estimate_explanation ?? "Generation failed. Please try again.");
+          setError(failureNote);
           setStep(7);
           return;
         }
@@ -177,7 +210,7 @@ export default function KitchenDesignerWizard({ initialStep = 1 }: KitchenDesign
         clearTimeout(timeoutHandle);
       }
     };
-  }, [activeJobId, loading]);
+  }, [activeJobId, createDemoJob, loading]);
 
   function toggleColor(color: string) {
     setPalette((prev) => {
@@ -255,25 +288,16 @@ export default function KitchenDesignerWizard({ initialStep = 1 }: KitchenDesign
     return file;
   }
 
-  function createDemoJob(): Job {
-    return {
-      id: `demo-${Date.now()}`,
-      status: "report_ready",
-      style: `${selectedSupplier.label} - ${style}`,
-      color_palette: palette,
-      budget_min: 0,
-      budget_max: 0,
-      input_image_url: previewUrl ?? "",
-      generated_image_url: previewUrl ?? null,
-      project_description:
-        `Premium ${selectedSupplier.label} ${style} kitchen concept aligned with your chosen brochure options. ` +
-        `Palette: ${palette.join(", ")}. Worktop: ${worktop}. Handles: ${handles}. Appliances: ${appliances.join(", ")}. ` +
-        `Intensity: ${editIntensity}. Layout keeps your room geometry and improves storage zoning and workflow.`,
-      estimated_cost_min: null,
-      estimated_cost_max: null,
-      estimate_explanation: "Demo mode result.",
-      pdf_report_url: null,
-    };
+  function isProviderCreditError(message: string | null | undefined): boolean {
+    if (!message) return false;
+    const text = message.toLowerCase();
+    return (
+      text.includes("insufficient_quota") ||
+      text.includes("exceeded your current quota") ||
+      text.includes("insufficient credit") ||
+      text.includes("replicate.com/account/billing") ||
+      (text.includes("status") && text.includes("402"))
+    );
   }
 
   async function runPhotoAnalysis(): Promise<boolean> {
