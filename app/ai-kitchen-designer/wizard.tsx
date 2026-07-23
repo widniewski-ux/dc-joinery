@@ -217,7 +217,7 @@ export default function KitchenDesignerWizard({ initialStep = 1 }: KitchenDesign
       supplierId
     )}&file=${encodeURIComponent(file)}`;
     if (page && !image) {
-      return `${base}#page=${page}`;
+      return `${base}&page=${page}#page=${page}`;
     }
     return base;
   }
