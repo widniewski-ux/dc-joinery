@@ -101,7 +101,12 @@ def main() -> None:
 
     suppliers_dir = Path(args.suppliers_dir)
     env = load_env(Path(args.env_file))
-    catalog = json.loads(Path(args.catalog_file).read_text(encoding="utf-8"))
+    catalog_payload = json.loads(Path(args.catalog_file).read_text(encoding="utf-8"))
+    suppliers_catalog = (
+        catalog_payload["suppliers"]
+        if isinstance(catalog_payload, dict) and "suppliers" in catalog_payload
+        else catalog_payload
+    )
     base_url = env["SUPABASE_URL"].rstrip("/")
     service_key = env["SUPABASE_SERVICE_ROLE_KEY"]
 
@@ -126,7 +131,7 @@ def main() -> None:
         upload_file(base_url, service_key, file_path, key, ctype)
 
     pages_by_source: dict[tuple[str, str], set[int]] = {}
-    for supplier in catalog["suppliers"]:
+    for supplier in suppliers_catalog:
         sid = supplier["id"]
         for group_name in ("styles", "colors", "handles", "worktops", "appliances"):
             for option in supplier.get(group_name, []):
