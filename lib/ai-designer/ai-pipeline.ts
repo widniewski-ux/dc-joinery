@@ -155,7 +155,8 @@ async function downloadAndStoreImageFromUrl(imageUrl: string, jobId: string): Pr
 
 async function generateKitchenRenderWithOpenAi(
   job: KitchenDesignJob,
-  analysis: VisionAnalysis
+  analysis: VisionAnalysis,
+  strictnessNote: string
 ): Promise<string> {
   const sourceImageResponse = await fetch(job.input_image_url, { cache: "no-store" });
   if (!sourceImageResponse.ok) {
@@ -174,10 +175,12 @@ async function generateKitchenRenderWithOpenAi(
     `${buildRenderPrompt(job, analysis)}
 
 Editing constraints:
-- Keep wall geometry, windows, ceiling lines, and camera perspective.
+- DO NOT move, resize, remove, add, or reshape any window, external/internal door, or wall opening.
+- Keep wall geometry, windows, ceiling lines, and camera perspective pixel-consistent.
 - Keep sink/cooker/fridge positions unless customer notes explicitly request changes.
 - Redesign cabinetry, finishes, handles, worktops, and lighting only.
-- Output must look like a real renovation of this exact room.`
+- Output must look like a real renovation of this exact room.
+${strictnessNote}`
   );
   formData.append("size", "1536x1024");
   formData.append("quality", "high");
@@ -223,11 +226,22 @@ Editing constraints:
 
 async function generateKitchenRenderWithReplicate(
   job: KitchenDesignJob,
-  analysis: VisionAnalysis
+  analysis: VisionAnalysis,
+  strictnessNote: string
 ): Promise<string> {
+  const strictPrompt = `${buildRenderPrompt(job, analysis)}
+
+Editing constraints:
+- DO NOT move, resize, remove, add, or reshape any window, external/internal door, or wall opening.
+- Keep wall geometry, windows, ceiling lines, and camera perspective pixel-consistent.
+- Keep sink/cooker/fridge positions unless customer notes explicitly request changes.
+- Redesign cabinetry, finishes, handles, worktops, and lighting only.
+- Output must look like a real renovation of this exact room.
+${strictnessNote}`;
+
   const requestInput = {
     image: job.input_image_url,
-    prompt: buildRenderPrompt(job, analysis),
+    prompt: strictPrompt,
   };
   const replicateRequest = resolveReplicatePredictionRequest(requestInput);
 
@@ -295,17 +309,111 @@ async function generateKitchenRenderWithReplicate(
   return downloadAndStoreImageFromUrl(outputUrl, job.id);
 }
 
-async function generateKitchenRender(job: KitchenDesignJob, analysis: VisionAnalysis): Promise<string> {
+async function validateGeometryConsistency(
+  originalImageUrl: string,
+  generatedImageUrl: string
+): Promise<{ ok: boolean; reason: string }> {
+  const response = await fetch("https://api.openai.com/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${openAiApiKey()}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      model: "gpt-4.1-mini",
+      response_format: { type: "json_object" },
+      messages: [
+        {
+          role: "system",
+          content:
+            "You compare two photos and check whether room openings and geometry stayed unchanged.",
+        },
+        {
+          role: "user",
+          content: [
+            {
+              type: "text",
+              text: "Return JSON only: { ok: boolean, reason: string }. ok=true only if windows, doors, wall openings, room geometry, and camera perspective are preserved.",
+            },
+            { type: "image_url", image_url: { url: originalImageUrl } },
+            { type: "image_url", image_url: { url: generatedImageUrl } },
+          ],
+        },
+      ],
+      temperature: 0,
+    }),
+    cache: "no-store",
+  });
+
+  if (!response.ok) {
+    const body = await response.text();
+    return {
+      ok: false,
+      reason: `Geometry consistency check failed: ${response.status} ${body}`,
+    };
+  }
+
+  const payload = (await response.json()) as {
+    choices?: Array<{ message?: { content?: string } }>;
+  };
+  const content = payload.choices?.[0]?.message?.content ?? "";
   try {
-    return await generateKitchenRenderWithOpenAi(job, analysis);
+    const parsed = extractJson<{ ok: boolean; reason: string }>(content);
+    return parsed;
+  } catch {
+    return { ok: false, reason: "Geometry consistency parser could not read AI response" };
+  }
+}
+
+async function generateKitchenRender(job: KitchenDesignJob, analysis: VisionAnalysis): Promise<string> {
+  const strictnessNotes = [
+    "CRITICAL: Any changed window/door position is a hard failure.",
+    "CRITICAL: Keep every window and door in the exact same place and dimensions as source.",
+    "CRITICAL: Preserve all openings and perspective exactly; change only kitchen finishes and units.",
+  ];
+
+  let openAiGenerationError: unknown = null;
+  try {
+    for (const strictnessNote of strictnessNotes) {
+      const imageUrl = await generateKitchenRenderWithOpenAi(job, analysis, strictnessNote);
+      const check = await validateGeometryConsistency(job.input_image_url, imageUrl);
+      if (check.ok) {
+        return imageUrl;
+      }
+      console.warn("Generated image rejected by geometry consistency check", {
+        jobId: job.id,
+        reason: check.reason,
+      });
+    }
   } catch (openAiError) {
+    openAiGenerationError = openAiError;
     console.warn("OpenAI image edit failed, falling back to Replicate", {
       jobId: job.id,
       error: openAiError instanceof Error ? openAiError.message : openAiError,
     });
   }
 
-  return generateKitchenRenderWithReplicate(job, analysis);
+  let replicateFailureReason = "Replicate render did not preserve room geometry.";
+  for (const strictnessNote of strictnessNotes) {
+    const imageUrl = await generateKitchenRenderWithReplicate(job, analysis, strictnessNote);
+    const check = await validateGeometryConsistency(job.input_image_url, imageUrl);
+    if (check.ok) {
+      return imageUrl;
+    }
+    replicateFailureReason = check.reason;
+    console.warn("Replicate image rejected by geometry consistency check", {
+      jobId: job.id,
+      reason: check.reason,
+    });
+  }
+
+  const openAiMessage =
+    openAiGenerationError instanceof Error ? openAiGenerationError.message : null;
+  throw new Error(
+    openAiMessage
+      ? `Could not generate geometry-safe render. OpenAI error: ${openAiMessage}. Last check: ${replicateFailureReason}`
+      : `Could not generate geometry-safe render. Last check: ${replicateFailureReason}`
+  );
 }
 
 async function generateDescription(job: KitchenDesignJob, analysis: VisionAnalysis): Promise<string> {

@@ -21,8 +21,7 @@ const STEP_LABELS = [
   "Style",
   "Colors",
   "Worktops",
-  "Handles",
-  "Appliances",
+  "Selections",
   "Generate",
   "Project",
   "Contact",
@@ -45,7 +44,7 @@ type Job = {
 };
 
 type WizardStep = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
-const WIZARD_BUILD = "2026-07-21-fix6";
+const WIZARD_BUILD = "2026-07-23-suppliers-v2";
 
 type KitchenDesignerWizardProps = {
   initialStep?: WizardStep;
@@ -56,11 +55,19 @@ export default function KitchenDesignerWizard({ initialStep = 1 }: KitchenDesign
   const [photo, setPhoto] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [supplierId, setSupplierId] = useState<SupplierId>(SUPPLIER_CATALOG[0].id);
-  const [style, setStyle] = useState<string>(SUPPLIER_CATALOG[0].styles[0]);
-  const [palette, setPalette] = useState<string[]>(SUPPLIER_CATALOG[0].colors.slice(0, 2));
-  const [worktop, setWorktop] = useState<string>(SUPPLIER_CATALOG[0].worktops[0]);
-  const [handles, setHandles] = useState<string>(SUPPLIER_CATALOG[0].handles[0]);
-  const [appliances, setAppliances] = useState<string[]>(SUPPLIER_CATALOG[0].appliances.slice(0, 2));
+  const [style, setStyle] = useState<string>(SUPPLIER_CATALOG[0].styles[0]?.value ?? "Shaker");
+  const [palette, setPalette] = useState<string[]>(
+    SUPPLIER_CATALOG[0].colors.slice(0, 2).map((item) => item.value)
+  );
+  const [worktop, setWorktop] = useState<string>(
+    SUPPLIER_CATALOG[0].worktops[0]?.value ?? "Laminate"
+  );
+  const [handles, setHandles] = useState<string>(
+    SUPPLIER_CATALOG[0].handles[0]?.value ?? "Handleless"
+  );
+  const [appliances, setAppliances] = useState<string[]>(
+    SUPPLIER_CATALOG[0].appliances.slice(0, 2).map((item) => item.value)
+  );
   const [editIntensity, setEditIntensity] =
     useState<(typeof EDIT_INTENSITY_OPTIONS)[number]>("Balanced redesign");
   const [preserveLayout, setPreserveLayout] = useState(true);
@@ -98,6 +105,11 @@ export default function KitchenDesignerWizard({ initialStep = 1 }: KitchenDesign
     () => SUPPLIER_CATALOG.find((entry) => entry.id === supplierId) ?? SUPPLIER_CATALOG[0],
     [supplierId]
   );
+  const styleOptions = selectedSupplier.styles;
+  const colorOptions = selectedSupplier.colors;
+  const worktopOptions = selectedSupplier.worktops;
+  const handleOptions = selectedSupplier.handles;
+  const applianceOptions = selectedSupplier.appliances;
 
   useEffect(() => {
     if (!loading || step !== 8) return;
@@ -191,11 +203,23 @@ export default function KitchenDesignerWizard({ initialStep = 1 }: KitchenDesign
   function setSupplierAndReset(supplier: SupplierId) {
     const source = SUPPLIER_CATALOG.find((entry) => entry.id === supplier) ?? SUPPLIER_CATALOG[0];
     setSupplierId(source.id);
-    setStyle(source.styles[0]);
-    setPalette(source.colors.slice(0, 2));
-    setWorktop(source.worktops[0]);
-    setHandles(source.handles[0]);
-    setAppliances(source.appliances.slice(0, 2));
+    setStyle(source.styles[0]?.value ?? "Shaker");
+    setPalette(source.colors.slice(0, 2).map((item) => item.value));
+    setWorktop(source.worktops[0]?.value ?? "Laminate");
+    setHandles(source.handles[0]?.value ?? "Handleless");
+    setAppliances(source.appliances.slice(0, 2).map((item) => item.value));
+  }
+
+  function getBrochureHref(documentName: string, page?: number, image?: string): string {
+    const file = image || documentName;
+    if (!file) return "#";
+    const base = `/api/ai-designer/suppliers/source?supplier=${encodeURIComponent(
+      supplierId
+    )}&file=${encodeURIComponent(file)}`;
+    if (page && !image) {
+      return `${base}#page=${page}`;
+    }
+    return base;
   }
 
   function validateClientPhoto(file: File | null): File | null {
@@ -679,10 +703,40 @@ export default function KitchenDesignerWizard({ initialStep = 1 }: KitchenDesign
               >
                 <p className="font-semibold">{supplier.label}</p>
                 <p className="mt-1 text-sm text-neutral-300">
-                  Sources: {supplier.sourceFiles.join(" | ")}
+                  Sources: {supplier.documents.map((doc) => doc.name).join(" | ")}
                 </p>
               </button>
             ))}
+          </div>
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+            <p className="text-sm uppercase tracking-[0.2em] text-amber-300 mb-2">
+              Active supplier sources
+            </p>
+            <div className="flex flex-wrap gap-3 text-sm">
+              {selectedSupplier.documents.map((doc) => (
+                doc.type === "pdf" ? (
+                  <a
+                    key={doc.name}
+                    href={getBrochureHref(doc.name)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="rounded-lg border border-white/20 px-3 py-2"
+                  >
+                    {doc.name}
+                  </a>
+                ) : (
+                  <a
+                    key={doc.name}
+                    href={getBrochureHref(doc.samples?.[0] || "")}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="rounded-lg border border-white/20 px-3 py-2"
+                  >
+                    {doc.name}
+                  </a>
+                )
+              ))}
+            </div>
           </div>
           <div className="flex gap-3">
             <button type="button" onClick={() => goNext(2)} className="rounded-xl border border-white/20 px-5 py-3">
@@ -699,18 +753,33 @@ export default function KitchenDesignerWizard({ initialStep = 1 }: KitchenDesign
         <div className="space-y-5">
           <h2 className="text-2xl font-bold">Step 4: Choose style</h2>
           <div className="grid gap-3 md:grid-cols-2">
-            {selectedSupplier.styles.map((item) => (
+            {styleOptions.map((item) => (
               <button
-                key={item}
+                key={item.value}
                 type="button"
-                onClick={() => setStyle(item)}
+                onClick={() => setStyle(item.value)}
                 className={`rounded-2xl border px-4 py-4 text-left ${
-                  style === item
+                  style === item.value
                     ? "border-amber-400 bg-amber-400/15 text-amber-100"
                     : "border-white/10 bg-white/5 text-white"
                 }`}
               >
-                <p className="font-semibold">{item}</p>
+                <p className="font-semibold">{item.value}</p>
+                {item.references[0] && (
+                  <a
+                    href={getBrochureHref(
+                      item.references[0].document,
+                      item.references[0].page,
+                      item.references[0].image
+                    )}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-2 inline-block text-xs underline"
+                    onClick={(event) => event.stopPropagation()}
+                  >
+                    Example in brochure
+                  </a>
+                )}
               </button>
             ))}
           </div>
@@ -730,18 +799,33 @@ export default function KitchenDesignerWizard({ initialStep = 1 }: KitchenDesign
           <h2 className="text-2xl font-bold">Step 5: Select colors</h2>
           <p className="text-neutral-300">Choose up to 6 colors from {selectedSupplier.label} options.</p>
           <div className="grid gap-3 md:grid-cols-2">
-            {selectedSupplier.colors.map((item) => (
+            {colorOptions.map((item) => (
               <button
-                key={item}
+                key={item.value}
                 type="button"
-                onClick={() => toggleColor(item)}
+                onClick={() => toggleColor(item.value)}
                 className={`rounded-2xl border px-4 py-4 text-left ${
-                  palette.includes(item)
+                  palette.includes(item.value)
                     ? "border-amber-400 bg-amber-400/15 text-amber-100"
                     : "border-white/10 bg-white/5 text-white"
                 }`}
               >
-                <p className="font-semibold">{item}</p>
+                <p className="font-semibold">{item.value}</p>
+                {item.references[0] && (
+                  <a
+                    href={getBrochureHref(
+                      item.references[0].document,
+                      item.references[0].page,
+                      item.references[0].image
+                    )}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-2 inline-block text-xs underline"
+                    onClick={(event) => event.stopPropagation()}
+                  >
+                    Example in brochure
+                  </a>
+                )}
               </button>
             ))}
           </div>
@@ -760,18 +844,33 @@ export default function KitchenDesignerWizard({ initialStep = 1 }: KitchenDesign
         <div className="space-y-5">
           <h2 className="text-2xl font-bold">Step 6: Pick worktops</h2>
           <div className="grid gap-3 md:grid-cols-2">
-            {selectedSupplier.worktops.map((item) => (
+            {worktopOptions.map((item) => (
               <button
-                key={item}
+                key={item.value}
                 type="button"
-                onClick={() => setWorktop(item)}
+                onClick={() => setWorktop(item.value)}
                 className={`rounded-2xl border px-4 py-4 text-left ${
-                  worktop === item
+                  worktop === item.value
                     ? "border-amber-400 bg-amber-400/15 text-amber-100"
                     : "border-white/10 bg-white/5 text-white"
                 }`}
               >
-                <p className="font-semibold">{item}</p>
+                <p className="font-semibold">{item.value}</p>
+                {item.references[0] && (
+                  <a
+                    href={getBrochureHref(
+                      item.references[0].document,
+                      item.references[0].page,
+                      item.references[0].image
+                    )}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-2 inline-block text-xs underline"
+                    onClick={(event) => event.stopPropagation()}
+                  >
+                    Example in brochure
+                  </a>
+                )}
               </button>
             ))}
           </div>
@@ -821,18 +920,33 @@ export default function KitchenDesignerWizard({ initialStep = 1 }: KitchenDesign
           <div className="space-y-3">
             <p className="text-sm uppercase tracking-[0.2em] text-amber-300">Handles</p>
             <div className="grid gap-3 md:grid-cols-2">
-              {selectedSupplier.handles.map((item) => (
+              {handleOptions.map((item) => (
                 <button
-                  key={item}
+                  key={item.value}
                   type="button"
-                  onClick={() => setHandles(item)}
+                  onClick={() => setHandles(item.value)}
                   className={`rounded-2xl border px-4 py-4 text-left ${
-                    handles === item
+                    handles === item.value
                       ? "border-amber-400 bg-amber-400/15 text-amber-100"
                       : "border-white/10 bg-white/5 text-white"
                   }`}
                 >
-                  <p className="font-semibold">{item}</p>
+                  <p className="font-semibold">{item.value}</p>
+                  {item.references[0] && (
+                    <a
+                      href={getBrochureHref(
+                        item.references[0].document,
+                        item.references[0].page,
+                        item.references[0].image
+                      )}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-2 inline-block text-xs underline"
+                      onClick={(event) => event.stopPropagation()}
+                    >
+                      Example in brochure
+                    </a>
+                  )}
                 </button>
               ))}
             </div>
@@ -842,18 +956,33 @@ export default function KitchenDesignerWizard({ initialStep = 1 }: KitchenDesign
               Appliances (select one or more)
             </p>
             <div className="grid gap-3 md:grid-cols-2">
-              {selectedSupplier.appliances.map((item) => (
+              {applianceOptions.map((item) => (
                 <button
-                  key={item}
+                  key={item.value}
                   type="button"
-                  onClick={() => toggleAppliance(item)}
+                  onClick={() => toggleAppliance(item.value)}
                   className={`rounded-2xl border px-4 py-4 text-left ${
-                    appliances.includes(item)
+                    appliances.includes(item.value)
                       ? "border-amber-400 bg-amber-400/15 text-amber-100"
                       : "border-white/10 bg-white/5 text-white"
                   }`}
                 >
-                  <p className="font-semibold">{item}</p>
+                  <p className="font-semibold">{item.value}</p>
+                  {item.references[0] && (
+                    <a
+                      href={getBrochureHref(
+                        item.references[0].document,
+                        item.references[0].page,
+                        item.references[0].image
+                      )}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-2 inline-block text-xs underline"
+                      onClick={(event) => event.stopPropagation()}
+                    >
+                      Example in brochure
+                    </a>
+                  )}
                 </button>
               ))}
             </div>

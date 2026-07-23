@@ -1,5 +1,5 @@
 import type { LeadInput } from "./types";
-import { getSupplierCatalogById } from "./supplier-catalog";
+import { getSupplierCatalogById, getSupplierOptionValues } from "./supplier-catalog";
 
 const ALLOWED_UPLOAD_TYPES = new Set([
   "image/jpeg",
@@ -36,7 +36,8 @@ export function validateSupplierStyle(supplierId: string, style: string): string
   if (!supplier) {
     throw new Error("Please choose a valid supplier");
   }
-  if (!supplier.styles.includes(style)) {
+  const availableStyles = getSupplierOptionValues(supplier, "styles");
+  if (!availableStyles.includes(style)) {
     throw new Error("Please choose a valid style for selected supplier");
   }
   return style;
@@ -57,8 +58,9 @@ export function validatePalette(supplierId: string, rawPalette: string): string[
   if (palette.length > 6) {
     throw new Error("Please choose up to 6 colors");
   }
+  const availableColors = getSupplierOptionValues(supplier, "colors");
   for (const color of palette) {
-    if (!supplier.colors.includes(color)) {
+    if (!availableColors.includes(color)) {
       throw new Error(`Color "${color}" is not available for ${supplier.label}`);
     }
   }
@@ -74,7 +76,10 @@ export function validateSingleSupplierOption(
   if (!supplier) {
     throw new Error("Please choose a valid supplier");
   }
-  const source = optionType === "worktops" ? supplier.worktops : supplier.handles;
+  const source = getSupplierOptionValues(
+    supplier,
+    optionType === "worktops" ? "worktops" : "handles"
+  );
   if (!source.includes(value)) {
     throw new Error(`Selected ${optionType.slice(0, -1)} is not available for ${supplier.label}`);
   }
@@ -93,8 +98,9 @@ export function validateAppliances(supplierId: string, rawAppliances: string): s
   if (selected.length === 0) {
     throw new Error("Please choose at least one appliance preference");
   }
+  const availableAppliances = getSupplierOptionValues(supplier, "appliances");
   for (const item of selected) {
-    if (!supplier.appliances.includes(item)) {
+    if (!availableAppliances.includes(item)) {
       throw new Error(`Appliance "${item}" is not available for ${supplier.label}`);
     }
   }
