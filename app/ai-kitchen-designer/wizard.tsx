@@ -1259,6 +1259,11 @@ export default function KitchenDesignerWizard({ initialStep = 1 }: KitchenDesign
                     )}
                   </div>
                 </div>
+                <div className="mt-4 rounded-2xl border border-amber-400/30 bg-amber-400/10 p-4 text-sm text-amber-100">
+                  Images are for preview purposes only. All selected options and project information
+                  are captured and used in your project. The final project is prepared after an
+                  on-site visit, accurate measurements, and a full consultation with the customer.
+                </div>
               </div>
 
               <div className="grid gap-8 lg:grid-cols-2">
