@@ -26,8 +26,70 @@ const socialLinks = [
   },
 ];
 
+const languageOptions = [
+  { value: "en", label: "English" },
+  { value: "pl", label: "Polski" },
+  { value: "ro", label: "Romana" },
+  { value: "pt", label: "Portugues" },
+  { value: "uk", label: "Ukrainska" },
+] as const;
+
+type LanguageCode = (typeof languageOptions)[number]["value"];
+const DEFAULT_LANGUAGE: LanguageCode = "en";
+
+function parseGoogTransCookie(raw: string | undefined): LanguageCode | null {
+  if (!raw) return null;
+  const match = raw.match(/\/[a-z-]+\/([a-z-]+)/i);
+  if (!match) return null;
+  const candidate = match[1].toLowerCase();
+  return languageOptions.some((option) => option.value === candidate)
+    ? (candidate as LanguageCode)
+    : null;
+}
+
+function writeGoogTransCookie(value: string, expires: string, domain?: string): void {
+  const domainPart = domain ? `;domain=${domain}` : "";
+  document.cookie = `googtrans=${value};path=/;expires=${expires}${domainPart}`;
+}
+
+function getInitialLanguage(): LanguageCode {
+  if (typeof window === "undefined") {
+    return DEFAULT_LANGUAGE;
+  }
+
+  const saved = window.localStorage.getItem("dcjoinery-language");
+  const savedLanguage = languageOptions.some((option) => option.value === saved)
+    ? (saved as LanguageCode)
+    : null;
+  if (savedLanguage) {
+    return savedLanguage;
+  }
+
+  const cookieMatch = document.cookie
+    .split("; ")
+    .find((entry) => entry.startsWith("googtrans="))
+    ?.split("=")[1];
+  return parseGoogTransCookie(cookieMatch) ?? DEFAULT_LANGUAGE;
+}
+
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [language, setLanguage] = useState<LanguageCode>(getInitialLanguage);
+
+  function handleLanguageChange(nextLanguage: LanguageCode) {
+    setLanguage(nextLanguage);
+    window.localStorage.setItem("dcjoinery-language", nextLanguage);
+
+    const expires = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toUTCString();
+    const expired = "Thu, 01 Jan 1970 00:00:00 GMT";
+    const cookieValue = `/en/${nextLanguage}`;
+    const cookieExpiry = nextLanguage === DEFAULT_LANGUAGE ? expired : expires;
+    writeGoogTransCookie(cookieValue, cookieExpiry);
+    writeGoogTransCookie(cookieValue, cookieExpiry, window.location.hostname);
+    writeGoogTransCookie(cookieValue, cookieExpiry, `.${window.location.hostname}`);
+
+    window.location.reload();
+  }
 
   return (
     <header className="sticky top-0 z-50 border-b border-white/10 bg-black/95 backdrop-blur-xl">
@@ -77,10 +139,40 @@ export default function Header() {
             >
               WhatsApp
             </Link>
+            <label className="flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-4 py-2 text-xs text-neutral-200">
+              <span className="uppercase tracking-[0.15em]">Lang</span>
+              <select
+                value={language}
+                onChange={(event) => handleLanguageChange(event.target.value as LanguageCode)}
+                className="bg-transparent text-sm text-white outline-none"
+                aria-label="Select language"
+              >
+                {languageOptions.map((option) => (
+                  <option key={option.value} value={option.value} className="bg-neutral-900 text-white">
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </label>
           </div>
         </div>
 
         <div className="flex items-center gap-3 lg:hidden">
+          <label className="flex items-center gap-2 rounded-full border border-white/20 bg-white/5 px-3 py-2 text-xs text-neutral-200">
+            <span className="uppercase tracking-[0.15em]">Lang</span>
+            <select
+              value={language}
+              onChange={(event) => handleLanguageChange(event.target.value as LanguageCode)}
+              className="bg-transparent text-sm text-white outline-none"
+              aria-label="Select language"
+            >
+              {languageOptions.map((option) => (
+                <option key={option.value} value={option.value} className="bg-neutral-900 text-white">
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </label>
           <Link
             href="https://wa.me/447500779126"
             target="_blank"

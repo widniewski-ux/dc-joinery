@@ -155,3 +155,15 @@ button:disabled {
   border-radius: 12px;
   margin-bottom: 20px;
 }
+
+body {
+  top: 0 !important;
+}
+
+.goog-te-banner-frame.skiptranslate {
+  display: none !important;
+}
+
+#google_translate_element_hidden {
+  display: none !important;
+}
