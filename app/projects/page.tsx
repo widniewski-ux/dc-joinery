@@ -9,27 +9,27 @@ export const metadata = {
 const portfolioSections = [
   {
     category: "Wren Kitchens",
-    description: "Wren kitchen installations completed by DC Joinery.",
+    description: "Wren installations delivered with clean finishes, accurate scribing and practical handover.",
     projects: [
       {
-        title: "Wren Kitchen - Just Fit",
-        details: "Just fit kitchen installation.",
+        title: "Wren Kitchen - Precision Dry Fit",
+        details: "Complete dry-fit installation with panel alignment, appliance housing checks and a tidy handover, prepared for quartz templating.",
         images: ["/projects/kitchen10.jpg", "/projects/kitchen11.jpg"],
       },
       {
-        title: "Wren Kitchen - Fit, Floor Tiles & Splashback Tiles",
-        details: "Kitchen installation with floor tiles and splashback tiles.",
+        title: "Wren Kitchen - Fit + Tile Package",
+        details: "Full install package including kitchen fit, splashback tiling, and LVT flooring for a seamless, ready-to-use finish.",
         images: ["/projects/kitchen13.jpeg", "/projects/kitchen14.jpeg", "/projects/kitchen15.jpeg"],
       },
     ],
   },
   {
     category: "Howdens Kitchens",
-    description: "Howdens kitchen installations with practical layouts and quality finish.",
+    description: "Howdens projects focused on storage efficiency, robust fittings and day-to-day practicality.",
     projects: [
       {
-        title: "Large Howdens Kitchen with Walk-In Corner Storage",
-        details: "Just fit installation with walk-in corner pantry/storage and laminate worktop.",
+        title: "Large Howdens Kitchen with Walk-In Corner Pantry",
+        details: "Large-format installation with walk-in corner storage, clean worktop joints and appliance spacing planned for easy daily workflow.",
         images: [
           "/projects/kitchen1.jpg",
           "/projects/kitchen2.jpg",
@@ -41,11 +41,11 @@ const portfolioSections = [
   },
   {
     category: "Bespoke Kitchens",
-    description: "Bespoke kitchen projects fitted with attention to detail.",
+    description: "Bespoke kitchens tailored to each room, client goals and supplier specification.",
     projects: [
       {
-        title: "U-Shaped Bespoke Kitchen - Renovated Rental Apartment",
-        details: "Beautiful U-shaped bespoke kitchen fitted in a fully renovated rental apartment.",
+        title: "U-Shaped Bespoke Kitchen - Rental Renovation",
+        details: "U-shaped kitchen fitted for a rental refurbishment with durable materials, practical storage and straightforward maintenance.",
         images: [
           "/projects/kitchen5.jpg",
           "/projects/kitchen6.jpg",
@@ -55,8 +55,8 @@ const portfolioSections = [
         ],
       },
       {
-        title: "Bespoke Kitchen Projects - Just Fit",
-        details: "Three bespoke kitchen fitting projects completed to a clean finish.",
+        title: "Bespoke Kitchen Series - Installation Only",
+        details: "Three bespoke kitchen installs completed with consistent finish standards, accurate panel fitting and coordinated appliance clearances.",
         images: [
           "/projects/kitchen12.jpg",
           "/projects/kitchen21.jpeg",
@@ -65,7 +65,7 @@ const portfolioSections = [
       },
       {
         title: "Bespoke Kitchen - HMO Renovation",
-        details: "Beautiful bespoke kitchen fitted in a fully renovated home prepared for HMO use.",
+        details: "HMO-focused renovation with layout planning for multi-tenant durability, easy cleaning and reliable appliance access.",
         images: [
           "/projects/kitchen25.jpeg",
           "/projects/kitchen26.jpeg",
@@ -80,12 +80,12 @@ const portfolioSections = [
   },
   {
     category: "IKEA / B&Q Kitchens & Utility Rooms",
-    description: "Flat pack kitchens and practical utility room installations.",
+    description: "Flat-pack kitchens and utility spaces installed for practical use and long-term reliability.",
     projects: [
       {
-        title: "IKEA / B&Q Kitchen & Utility Projects",
+        title: "IKEA / B&Q Kitchen + Utility Programme",
         details:
-          "Three different projects: two kitchens and one utility room with steel finishings, red worktop and sink.",
+          "Three projects delivered: two kitchens and one utility room, with careful fitting around existing services and consistent finishing detail.",
         images: [
           "/projects/kitchen16.jpg",
           "/projects/kitchen35.jpeg",
@@ -97,21 +97,21 @@ const portfolioSections = [
   },
   {
     category: "Bespoke Built-In Furniture, Wardrobes & Bedroom Joinery",
-    description: "Custom fitted furniture and wardrobes for interiors.",
+    description: "Custom fitted furniture and wardrobes designed to maximise awkward spaces and daily usability.",
     projects: [
       {
         title: "Bespoke Wall Feature",
-        details: "Custom built wall feature.",
+        details: "Custom wall feature unit fitted to room dimensions for a clean focal point and integrated storage.",
         images: ["/projects/kitchen20.jpeg"],
       },
       {
         title: "Office Wardrobe",
-        details: "Bespoke fitted wardrobe for an office space.",
+        details: "Fitted office wardrobe with tailored shelving and hanging layout matched to client storage needs.",
         images: ["/projects/kitchen18.jpeg"],
       },
       {
         title: "Trophy Display Unit",
-        details: "Custom made trophy display unit.",
+        details: "Purpose-built display unit engineered for safe presentation, visual balance and long-term durability.",
         images: ["/projects/kitchen19.JPG"],
       },
     ],
@@ -142,7 +142,7 @@ export default function ProjectsPage() {
           </h1>
 
           <p className="text-neutral-300 text-lg mb-14 max-w-3xl">
-            Browse a selection of recent UK kitchen and fitted furniture projects completed to a professional standard across Northern Ireland. Built on 7 years of experience in furniture production and installations, with 30+ installations completed in the UK.
+            Browse recent kitchen and fitted furniture projects delivered across Northern Ireland, including HMO upgrades, rental refurbishments and private residential kitchens. Built on 7 years of production and installation experience with 30+ completed UK installations.
           </p>
 
           <div className="grid gap-16">

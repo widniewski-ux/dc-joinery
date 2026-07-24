@@ -36,10 +36,10 @@ export default function ContactPage() {
 
           <div className="bg-white/[0.04] border border-white/10 rounded-3xl p-6 mb-10">
             <h2 className="text-2xl font-bold mb-4">A little about me</h2>
-            <p className="text-neutral-600 leading-relaxed">
+            <p className="text-neutral-300 leading-relaxed">
               I trained as a furniture joiner in Poland and worked in production and installation. After moving abroad, I built my experience step by step and returned to my real passion: kitchen fitting and full project coordination.
             </p>
-            <p className="text-neutral-600 leading-relaxed mt-4">
+            <p className="mt-4 text-neutral-300 leading-relaxed">
               I have 7 years of experience in furniture production and installations, plus over 30 installations completed in the UK. I offer kitchen fitting and full project logistics from design and orders to electric, plumbing, gas and tiling coordination.
             </p>
           </div>
@@ -70,7 +70,7 @@ export default function ContactPage() {
 
           <form
             action={sendContactForm}
-            className="form-container grid gap-5 bg-white text-black rounded-3xl p-8 md:p-10"
+            className="form-container grid gap-5 rounded-3xl border border-white/10 bg-white/[0.04] p-8 text-white md:p-10"
           >
             <input type="text" name="botField" autoComplete="off" className="hidden" />
             <input
@@ -102,7 +102,7 @@ export default function ContactPage() {
               required
             />
 
-            <button className="bg-black text-white py-4 rounded-xl font-semibold hover:bg-neutral-800 transition">
+            <button className="rounded-xl bg-amber-400 py-4 font-semibold text-black transition hover:bg-amber-300">
               Send Message
             </button>
           </form>

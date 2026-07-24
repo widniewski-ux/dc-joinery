@@ -68,17 +68,17 @@ export default function KitchenFittingPage() {
 
           <form
             action={sendKitchenFittingForm}
-            className="form-container bg-white text-black rounded-[2rem] p-6 md:p-10 shadow-2xl border border-white/10"
+            className="form-container rounded-[2rem] border border-white/10 bg-white/[0.04] p-6 text-white shadow-2xl md:p-10"
           >
             <input type="text" name="botField" autoComplete="off" className="hidden" />
             <div className="mb-8">
-              <p className="text-sm uppercase tracking-[0.25em] text-neutral-500 mb-3">
+              <p className="mb-3 text-sm uppercase tracking-[0.25em] text-neutral-400">
                 Quote request
               </p>
               <h2 className="text-3xl font-bold mb-3">
                 Kitchen Details
               </h2>
-              <p className="text-neutral-600">
+              <p className="text-neutral-300">
                 The more information you add, the faster and more accurate the quote will be.
               </p>
             </div>
@@ -158,12 +158,12 @@ export default function KitchenFittingPage() {
 
                 <input
                   name="documents"
-                  className="block w-full border border-neutral-300 rounded-xl p-4 bg-white"
+                  className="block w-full rounded-xl border border-white/20 bg-white/5 p-4 text-sm text-neutral-200"
                   type="file" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
                   multiple
                 />
 
-                <p className="text-sm text-neutral-600 mt-3">
+                <p className="mt-3 text-sm text-neutral-400">
                   PDF, JPG or PNG plans are best. Please include measurements where possible.
                 </p>
               </section>
@@ -179,11 +179,11 @@ export default function KitchenFittingPage() {
                 />
               </section>
 
-              <button className="bg-black text-white py-4 rounded-xl font-semibold hover:bg-neutral-800 transition">
+              <button className="rounded-xl bg-amber-400 py-4 font-semibold text-black transition hover:bg-amber-300">
                 Send Kitchen Fitting Quote Request
               </button>
 
-              <p className="text-xs text-neutral-500 text-center">
+              <p className="text-center text-xs text-neutral-400">
                 Your enquiry will be sent directly to DC Joinery.
               </p>
             </div>

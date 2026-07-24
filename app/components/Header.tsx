@@ -32,7 +32,7 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-50 border-b border-white/10 bg-black/95 backdrop-blur-xl">
       <div className="max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
-        <Link href="/" className="flex items-center gap-3">
+        <Link href="/" className="flex items-center">
           <Image
             src="/logo.png"
             alt="DC Joinery Logo"
@@ -40,17 +40,14 @@ export default function Header() {
             height={65}
             className="h-12 w-auto"
           />
-          <span className="hidden text-sm font-semibold uppercase tracking-[0.35em] text-amber-400 sm:block">
-            DC Joinery
-          </span>
         </Link>
 
-        <div className="hidden items-center gap-8 lg:flex">
+        <div className="hidden items-center gap-4 lg:flex">
           {links.map((link) => (
             <Link
               key={link.href}
               href={link.href}
-              className="text-sm font-semibold text-white transition hover:text-amber-400"
+              className="rounded-full border border-white/15 px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-neutral-100 transition hover:border-amber-400/70 hover:text-amber-300"
             >
               {link.label}
             </Link>
@@ -118,7 +115,7 @@ export default function Header() {
               <Link
                 key={link.href}
                 href={link.href}
-                className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
+                className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-xs font-semibold uppercase tracking-[0.14em] text-white transition hover:bg-white/10"
                 onClick={() => setMenuOpen(false)}
               >
                 {link.label}
