@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -52,6 +52,25 @@ function writeGoogTransCookie(value: string, expires: string, domain?: string): 
   document.cookie = `googtrans=${value};path=/;expires=${expires}${domainPart}`;
 }
 
+function persistLanguageCookie(nextLanguage: LanguageCode): void {
+  const expires = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toUTCString();
+  const cookieValue = `/en/${nextLanguage}`;
+  writeGoogTransCookie(cookieValue, expires);
+  writeGoogTransCookie(cookieValue, expires, window.location.hostname);
+  writeGoogTransCookie(cookieValue, expires, `.${window.location.hostname}`);
+}
+
+function applyGoogleTranslateLanguage(nextLanguage: LanguageCode): boolean {
+  const combo = document.querySelector<HTMLSelectElement>(".goog-te-combo");
+  if (!combo) {
+    return false;
+  }
+
+  combo.value = nextLanguage === DEFAULT_LANGUAGE ? "" : nextLanguage;
+  combo.dispatchEvent(new Event("change", { bubbles: true }));
+  return true;
+}
+
 function getInitialLanguage(): LanguageCode {
   if (typeof window === "undefined") {
     return DEFAULT_LANGUAGE;
@@ -76,20 +95,35 @@ export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [language, setLanguage] = useState<LanguageCode>(getInitialLanguage);
 
+  function scheduleLanguageApply(nextLanguage: LanguageCode) {
+    let attempts = 0;
+    const maxAttempts = 20;
+    const intervalId = window.setInterval(() => {
+      attempts += 1;
+      if (applyGoogleTranslateLanguage(nextLanguage) || attempts >= maxAttempts) {
+        window.clearInterval(intervalId);
+      }
+    }, 200);
+  }
+
   function handleLanguageChange(nextLanguage: LanguageCode) {
     setLanguage(nextLanguage);
     window.localStorage.setItem("dcjoinery-language", nextLanguage);
+    persistLanguageCookie(nextLanguage);
 
-    const expires = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toUTCString();
-    const expired = "Thu, 01 Jan 1970 00:00:00 GMT";
-    const cookieValue = `/en/${nextLanguage}`;
-    const cookieExpiry = nextLanguage === DEFAULT_LANGUAGE ? expired : expires;
-    writeGoogTransCookie(cookieValue, cookieExpiry);
-    writeGoogTransCookie(cookieValue, cookieExpiry, window.location.hostname);
-    writeGoogTransCookie(cookieValue, cookieExpiry, `.${window.location.hostname}`);
-
-    window.location.reload();
+    if (!applyGoogleTranslateLanguage(nextLanguage)) {
+      scheduleLanguageApply(nextLanguage);
+    }
   }
+
+  useEffect(() => {
+    if (language === DEFAULT_LANGUAGE) {
+      return;
+    }
+    if (!applyGoogleTranslateLanguage(language)) {
+      scheduleLanguageApply(language);
+    }
+  }, [language]);
 
   return (
     <header className="sticky top-0 z-50 border-b border-white/10 bg-black/95 backdrop-blur-xl">

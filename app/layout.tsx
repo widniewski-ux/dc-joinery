@@ -112,7 +112,7 @@ export default function RootLayout({
           strategy="afterInteractive"
         />
 
-        <div id="google_translate_element_hidden" className="hidden" />
+        <div id="google_translate_element_hidden" />
         <Header />
         {children}
         <Footer />
