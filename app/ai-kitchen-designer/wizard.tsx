@@ -90,6 +90,8 @@ export default function KitchenDesignerWizard({ initialStep = 1 }: KitchenDesign
   const [activeJobId, setActiveJobId] = useState<string | null>(null);
   const [generationStartedAt, setGenerationStartedAt] = useState<number | null>(null);
   const [generationNow, setGenerationNow] = useState<number>(Date.now());
+  const [zoomImage, setZoomImage] = useState<{ src: string; alt: string } | null>(null);
+  const [zoomLevel, setZoomLevel] = useState<number>(1);
 
   const previewUrl = useMemo(() => {
     if (!photo) return null;
@@ -101,6 +103,18 @@ export default function KitchenDesignerWizard({ initialStep = 1 }: KitchenDesign
       if (previewUrl) URL.revokeObjectURL(previewUrl);
     };
   }, [previewUrl]);
+
+  useEffect(() => {
+    if (!zoomImage) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setZoomImage(null);
+        setZoomLevel(1);
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [zoomImage]);
 
   const selectedSupplier = useMemo(
     () => SUPPLIER_CATALOG.find((entry) => entry.id === supplierId) ?? SUPPLIER_CATALOG[0],
@@ -355,6 +369,16 @@ export default function KitchenDesignerWizard({ initialStep = 1 }: KitchenDesign
       return null;
     }
     return file;
+  }
+
+  function openZoom(src: string, alt: string) {
+    setZoomImage({ src, alt });
+    setZoomLevel(1);
+  }
+
+  function closeZoom() {
+    setZoomImage(null);
+    setZoomLevel(1);
   }
 
   async function runPhotoAnalysis(): Promise<boolean> {
@@ -701,7 +725,12 @@ export default function KitchenDesignerWizard({ initialStep = 1 }: KitchenDesign
           )}
           {previewUrl && (
             <div className="relative aspect-[16/10] w-full max-w-2xl overflow-hidden rounded-2xl border border-white/10">
-              <img src={previewUrl} alt="Kitchen preview" className="h-full w-full object-cover" />
+              <img
+                src={previewUrl}
+                alt="Kitchen preview"
+                className="h-full w-full cursor-zoom-in object-cover"
+                onClick={() => openZoom(previewUrl, "Kitchen preview")}
+              />
             </div>
           )}
           <button
@@ -1202,7 +1231,8 @@ export default function KitchenDesignerWizard({ initialStep = 1 }: KitchenDesign
                         <img
                           src={previewUrl}
                           alt="Uploaded kitchen photo"
-                          className="h-full w-full object-cover"
+                          className="h-full w-full cursor-zoom-in object-cover"
+                          onClick={() => openZoom(previewUrl, "Uploaded kitchen photo")}
                         />
                       </div>
                     ) : (
@@ -1218,7 +1248,10 @@ export default function KitchenDesignerWizard({ initialStep = 1 }: KitchenDesign
                         <img
                           src={job.generated_image_url}
                           alt="Generated kitchen concept"
-                          className="h-full w-full object-cover"
+                          className="h-full w-full cursor-zoom-in object-cover"
+                          onClick={() =>
+                            openZoom(job.generated_image_url ?? "", "Generated kitchen concept")
+                          }
                         />
                       </div>
                     ) : (
@@ -1348,6 +1381,56 @@ export default function KitchenDesignerWizard({ initialStep = 1 }: KitchenDesign
                 </p>
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {zoomImage && (
+        <div className="fixed inset-0 z-[70] bg-black/90 p-4">
+          <div className="mx-auto flex h-full w-full max-w-6xl flex-col gap-3">
+            <div className="flex items-center justify-between">
+              <p className="text-sm text-neutral-200">Zoom: {Math.round(zoomLevel * 100)}%</p>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setZoomLevel((current) => Math.max(0.5, current - 0.25))}
+                  className="rounded-lg border border-white/20 px-3 py-2 text-white"
+                >
+                  -
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setZoomLevel((current) => Math.min(4, current + 0.25))}
+                  className="rounded-lg border border-white/20 px-3 py-2 text-white"
+                >
+                  +
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setZoomLevel(1)}
+                  className="rounded-lg border border-white/20 px-3 py-2 text-white"
+                >
+                  Reset
+                </button>
+                <button
+                  type="button"
+                  onClick={closeZoom}
+                  className="rounded-lg bg-white/10 px-3 py-2 text-white"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+            <div className="flex-1 overflow-auto rounded-2xl border border-white/10 bg-black/40">
+              <div className="flex min-h-full min-w-full items-center justify-center p-4">
+                <img
+                  src={zoomImage.src}
+                  alt={zoomImage.alt}
+                  className="max-w-none"
+                  style={{ transform: `scale(${zoomLevel})`, transformOrigin: "center center" }}
+                />
+              </div>
+            </div>
           </div>
         </div>
       )}
