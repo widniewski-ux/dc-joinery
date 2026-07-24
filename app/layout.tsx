@@ -19,11 +19,11 @@ const googleAnalyticsId = "G-9KQJMDZTE6";
 
 export const metadata: Metadata = {
   title: {
-    default: "DC Joinery | Kitchen Fitting & Bespoke Joinery Northern Ireland",
+    default: "DC Joinery | Kitchen Fitting & Bespoke Kitchens Northern Ireland",
     template: "%s | DC Joinery",
   },
   description:
-    "Professional kitchen fitting, kitchen supply and installation, fitted bedrooms, wardrobes and bespoke joinery across Northern Ireland.",
+    "Professional kitchen fitting, kitchen supply and installation, fitted bedrooms, wardrobes and bespoke kitchens across Northern Ireland.",
 
   verification: {
     google: "hyUv2x_MicAMsMar7uTGKXwRzHZrC8NulgJylGxhiQo",
@@ -40,7 +40,7 @@ export const metadata: Metadata = {
     "IKEA kitchen fitter",
     "B&Q kitchen fitting",
     "Fitted bedrooms Northern Ireland",
-    "Bespoke joinery Northern Ireland",
+    "Bespoke kitchens Northern Ireland",
   ],
   icons: {
     icon: "/icon.png",
@@ -49,7 +49,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "DC Joinery | Kitchen Fitting Northern Ireland",
     description:
-      "Kitchen fitting, supply and installation, fitted bedrooms and bespoke joinery across Northern Ireland.",
+      "Kitchen fitting, supply and installation, fitted bedrooms and bespoke kitchens across Northern Ireland.",
     url: "https://dcjoineryni.uk",
     siteName: "DC Joinery",
     images: [
