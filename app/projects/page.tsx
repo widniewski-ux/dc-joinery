@@ -3,7 +3,7 @@ import Link from "next/link";
 
 export const metadata = {
   title: "Projects | DC Joinery Portfolio",
-  description: "Browse DC Joinery project examples: kitchens, fitted furniture, wardrobes and bespoke joinery across Northern Ireland.",
+  description: "Browse DC Joinery project examples: kitchens, fitted furniture, wardrobes and bespoke kitchens across Northern Ireland.",
 };
 
 const portfolioSections = [
@@ -97,7 +97,7 @@ const portfolioSections = [
   },
   {
     category: "Bespoke Built-In Furniture, Wardrobes & Bedroom Joinery",
-    description: "Custom fitted furniture, wardrobes and bespoke joinery for interiors.",
+    description: "Custom fitted furniture and wardrobes for interiors.",
     projects: [
       {
         title: "Bespoke Wall Feature",
@@ -142,7 +142,7 @@ export default function ProjectsPage() {
           </h1>
 
           <p className="text-neutral-300 text-lg mb-14 max-w-3xl">
-            Browse a selection of recent UK kitchen and bespoke joinery projects completed to a professional standard across Northern Ireland. Built on 7 years of experience in furniture production and installations, with 30+ installations completed in the UK.
+            Browse a selection of recent UK kitchen and fitted furniture projects completed to a professional standard across Northern Ireland. Built on 7 years of experience in furniture production and installations, with 30+ installations completed in the UK.
           </p>
 
           <div className="grid gap-16">

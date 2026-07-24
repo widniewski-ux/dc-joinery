@@ -2,8 +2,8 @@ import Image from "next/image";
 import Link from "next/link";
 
 export const metadata = {
-  title: "DC Joinery | Kitchen Fitting & Bespoke Joinery Northern Ireland",
-  description: "Professional kitchen fitting, kitchen supply and installation, fitted bedrooms and bespoke joinery across Northern Ireland.",
+  title: "DC Joinery | Kitchen Fitting & Bespoke Kitchens Northern Ireland",
+  description: "Professional kitchen fitting, kitchen supply and installation, fitted bedrooms and bespoke kitchens across Northern Ireland.",
 };
 
 const facebookUrl = "https://www.facebook.com/share/1Dfc738uhx/?mibextid=wwXIfr";
@@ -44,7 +44,7 @@ const suppliers = [
   { name: "Howdens", logo: "/logos/Howdens.png" },
   { name: "IKEA", logo: "/logos/Ikea.svg" },
   { name: "B&Q", logo: "/logos/bq.png" },
-  { name: "Bespoke Joinery", logo: "/logo.png" },
+  { name: "Bespoke Kitchens", logo: "/logo.png" },
 ];
 
 const reviews = [
@@ -107,7 +107,7 @@ export default function Home() {
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold leading-[1] max-w-3xl mb-8">
               KITCHENS.<br />
               BEDROOMS.<br />
-              BESPOKE JOINERY.
+              BESPOKE KITCHENS.
             </h1>
 
             <p className="text-neutral-100 text-lg md:text-xl max-w-2xl mb-10 leading-relaxed">
@@ -454,7 +454,7 @@ export default function Home() {
 
           <p className="text-neutral-300 text-lg leading-8 max-w-4xl">
             DC Joinery provides kitchen fitting, kitchen supply & installation,
-            fitted bedrooms and bespoke joinery services across Belfast,
+            fitted bedrooms and bespoke kitchen services across Belfast,
             Craigavon, Lurgan, Portadown, Banbridge, Lisburn, Armagh, Newry and
             throughout Northern Ireland.
           </p>

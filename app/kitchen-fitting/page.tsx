@@ -119,7 +119,7 @@ export default function KitchenFittingPage() {
                     <option>Howdens</option>
                     <option>B&Q</option>
                     <option>IKEA</option>
-                    <option>Local bespoke joiner</option>
+                    <option>Local bespoke kitchen studio</option>
                     <option>Other</option>
                     <option>Not sure yet</option>
                   </select>

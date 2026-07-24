@@ -3,7 +3,7 @@ import { sendContactForm } from "../actions";
 
 export const metadata = {
   title: "Contact DC Joinery | Free Quote for Kitchen Fitting in Northern Ireland",
-  description: "Contact DC Joinery for kitchen fitting, kitchen supply and bespoke joinery projects across Northern Ireland.",
+  description: "Contact DC Joinery for kitchen fitting, kitchen supply and bespoke kitchen projects across Northern Ireland.",
 };
 
 export default function ContactPage() {
@@ -30,7 +30,7 @@ export default function ContactPage() {
           </h1>
 
           <p className="text-neutral-300 text-lg mb-10">
-            Looking for a kitchen fitter, kitchen renovation, fitted bedroom or bespoke joinery project?
+            Looking for a kitchen fitter, kitchen renovation, fitted bedroom or bespoke kitchen project?
             Complete the form below and we&apos;ll get back to you, usually within 24 hours.
           </p>
 
@@ -63,7 +63,7 @@ export default function ContactPage() {
                 <p>✔ Kitchen Supply & Installation</p>
                 <p>✔ Kitchen Renovations</p>
                 <p>✔ Fitted Bedrooms</p>
-                <p>✔ Bespoke Joinery</p>
+                <p>✔ Bespoke Kitchens</p>
               </div>
             </div>
           </div>

@@ -3,7 +3,7 @@ import { sendFitAndSupplyForm } from "../actions";
 
 export const metadata = {
   title: "Fit & Supply Consultation | DC Joinery",
-  description: "Fit & Supply service for kitchens, bedrooms and bespoke joinery with design, supply and installation coordination in Northern Ireland.",
+  description: "Fit & Supply service for kitchens, bedrooms and bespoke kitchens with design, supply and installation coordination in Northern Ireland.",
 };
 
 export default function FitAndSupplyPage() {
@@ -31,7 +31,7 @@ export default function FitAndSupplyPage() {
             </h1>
 
             <p className="text-neutral-300 text-lg mb-8 leading-relaxed">
-              Looking for a full kitchen, bedroom or bespoke joinery solution? Tell us what you need and we&apos;ll discuss design, supply and installation options.
+              Looking for a full kitchen, bedroom or bespoke kitchen solution? Tell us what you need and we&apos;ll discuss design, supply and installation options.
             </p>
 
             <div className="grid gap-4">
@@ -39,7 +39,7 @@ export default function FitAndSupplyPage() {
                 <h2 className="text-2xl font-bold mb-4">What can be included?</h2>
                 <div className="grid gap-3 text-neutral-300">
                   <p>✔ Kitchen supply & fitting</p>
-                  <p>✔ Bespoke joinery supply & fitting</p>
+                  <p>✔ Bespoke kitchen supply & fitting</p>
                   <p>✔ Removal of old kitchen if required</p>
                   <p>✔ Electrician, plumber or tiler coordination</p>
                   <p>✔ Worktop and finish options</p>
@@ -104,8 +104,7 @@ export default function FitAndSupplyPage() {
                     <option>Full kitchen renovation</option>
                     <option>Bedroom / fitted wardrobes</option>
                     <option>Utility room</option>
-                    <option>Media wall</option>
-                    <option>Bespoke joinery</option>
+                    <option>Bespoke kitchen design</option>
                     <option>Other</option>
                   </select>
 
@@ -122,7 +121,7 @@ export default function FitAndSupplyPage() {
                     <option>Howdens</option>
                     <option>B&Q</option>
                     <option>IKEA</option>
-                    <option>Local bespoke joiner</option>
+                    <option>Local bespoke kitchen studio</option>
                     <option>Not sure yet</option>
                   </select>
 
