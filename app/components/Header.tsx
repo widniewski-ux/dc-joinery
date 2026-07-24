@@ -71,6 +71,26 @@ function applyGoogleTranslateLanguage(nextLanguage: LanguageCode): boolean {
   return true;
 }
 
+function getSourcePageUrl(): string {
+  try {
+    const current = new URL(window.location.href);
+    const fromQuery = current.searchParams.get("u");
+    return fromQuery ? decodeURIComponent(fromQuery) : window.location.href;
+  } catch {
+    return window.location.href;
+  }
+}
+
+function redirectViaGoogleTranslate(nextLanguage: LanguageCode): void {
+  const sourceUrl = getSourcePageUrl();
+  if (nextLanguage === DEFAULT_LANGUAGE) {
+    window.location.href = sourceUrl;
+    return;
+  }
+  const translatedUrl = `https://translate.google.com/translate?sl=en&tl=${nextLanguage}&u=${encodeURIComponent(sourceUrl)}`;
+  window.location.href = translatedUrl;
+}
+
 function getInitialLanguage(): LanguageCode {
   if (typeof window === "undefined") {
     return DEFAULT_LANGUAGE;
@@ -102,6 +122,9 @@ export default function Header() {
       attempts += 1;
       if (applyGoogleTranslateLanguage(nextLanguage) || attempts >= maxAttempts) {
         window.clearInterval(intervalId);
+        if (attempts >= maxAttempts) {
+          redirectViaGoogleTranslate(nextLanguage);
+        }
       }
     }, 200);
   }
@@ -110,6 +133,11 @@ export default function Header() {
     setLanguage(nextLanguage);
     window.localStorage.setItem("dcjoinery-language", nextLanguage);
     persistLanguageCookie(nextLanguage);
+
+    if (nextLanguage === DEFAULT_LANGUAGE) {
+      redirectViaGoogleTranslate(nextLanguage);
+      return;
+    }
 
     if (!applyGoogleTranslateLanguage(nextLanguage)) {
       scheduleLanguageApply(nextLanguage);
