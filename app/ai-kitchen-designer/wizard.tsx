@@ -608,18 +608,51 @@ export default function KitchenDesignerWizard({ initialStep = 1 }: KitchenDesign
   }
 
   function goNext(nextStep: WizardStep) {
+    const isForwardMove = nextStep > step;
+    if (isForwardMove && nextStep !== (step + 1 as WizardStep)) {
+      setError("Please complete the wizard step by step.");
+      return;
+    }
+    if (isForwardMove) {
+      if (step === 1 && !photo) {
+        setError("Please upload a kitchen photo first.");
+        return;
+      }
+      if (step === 2 && !analysisDone) {
+        setError("Please complete photo analysis before continuing.");
+        return;
+      }
+      if (step === 3 && !supplierId) {
+        setError("Please choose a supplier before continuing.");
+        return;
+      }
+      if (step === 4 && !style) {
+        setError("Please choose a style before continuing.");
+        return;
+      }
+      if (step === 5 && palette.length < 1) {
+        setError("Please select at least one colour before continuing.");
+        return;
+      }
+      if (step === 6 && !worktop) {
+        setError("Please choose a worktop before continuing.");
+        return;
+      }
+      if (step === 7 && (!handles || appliances.length < 1)) {
+        setError("Please choose handles and at least one appliance before continuing.");
+        return;
+      }
+      if (step === 8 && (loading || !job)) {
+        setError("Please wait for generation to finish before continuing.");
+        return;
+      }
+      if (step === 9 && !job) {
+        setError("Please generate your project before continuing.");
+        return;
+      }
+    }
     setError(null);
     setStep(nextStep);
-  }
-
-  function goRelative(delta: -1 | 1) {
-    setError(null);
-    setStep((prev) => {
-      const next = prev + delta;
-      if (next < 1) return 1;
-      if (next > 10) return 10;
-      return next as WizardStep;
-    });
   }
 
   const generationElapsedSeconds = generationStartedAt
@@ -643,38 +676,26 @@ export default function KitchenDesignerWizard({ initialStep = 1 }: KitchenDesign
           <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-neutral-300">
             Step: {step}
           </span>
-          <button
-            type="button"
-            onClick={() => goRelative(-1)}
-            className="rounded-lg border border-white/20 px-3 py-1 text-neutral-200"
-          >
-            Force Back
-          </button>
-          <button
-            type="button"
-            onClick={() => goRelative(1)}
-            className="rounded-lg border border-white/20 px-3 py-1 text-neutral-200"
-          >
-            Force Next
-          </button>
         </div>
         <div className="grid gap-2 md:grid-cols-5 lg:grid-cols-10">
           {STEP_LABELS.map((label, index) => {
             const number = index + 1;
             const active = step === number;
             const done = step > number;
+            const blocked = number > step + 1;
             return (
               <button
                 key={label}
                 type="button"
-                onClick={() => setStep(number as WizardStep)}
+                onClick={() => goNext(number as WizardStep)}
+                disabled={blocked}
                 className={`rounded-xl border px-2 py-2 text-center text-[11px] font-semibold ${
                   active
                     ? "border-amber-400 bg-amber-400/20 text-amber-200"
                     : done
                     ? "border-emerald-400/30 bg-emerald-400/10 text-emerald-200"
                     : "border-white/10 bg-white/5 text-neutral-400"
-                }`}
+                } ${blocked ? "cursor-not-allowed opacity-50" : ""}`}
               >
                 {number}. {label}
               </button>
@@ -809,13 +830,6 @@ export default function KitchenDesignerWizard({ initialStep = 1 }: KitchenDesign
               className="rounded-xl bg-amber-400 px-6 py-3 font-bold text-black"
             >
               {analysisDone ? "Continue" : "Run analysis and continue"}
-            </button>
-            <button
-              type="button"
-              onClick={() => goNext(3)}
-              className="rounded-xl border border-white/20 px-5 py-3 text-sm"
-            >
-              Continue without analysis
             </button>
           </div>
         </div>

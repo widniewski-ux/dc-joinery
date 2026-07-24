@@ -2,17 +2,17 @@
 
 .input {
   width: 100%;
-  border: 1px solid #d4d4d4;
+  border: 1px solid rgba(255, 255, 255, 0.18);
   border-radius: 12px;
   padding: 14px 16px;
   outline: none;
-  background: #ffffff;
-  color: #0a0a0a;
-  caret-color: #0a0a0a;
+  background: rgba(255, 255, 255, 0.06);
+  color: #f5f5f5;
+  caret-color: #f5f5f5;
 }
 
 .input::placeholder {
-  color: #6b7280;
+  color: #a3a3a3;
 }
 
 .input:focus {
@@ -91,12 +91,12 @@
 
 .input {
   transition: all 0.3s ease;
-  border: 1px solid #d4d4d4;
+  border: 1px solid rgba(255, 255, 255, 0.18);
 }
 
 .input:focus {
   border-color: #f59e0b;
-  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.15);
   transform: translateY(-2px);
 }
 
@@ -120,15 +120,6 @@ button:active:not(:disabled) {
 .form-error {
   animation: slideUp 0.4s ease-out;
   color: #dc2626;
-}
-
-/* Form field validation feedback */
-.input:invalid {
-  border-color: #ef4444;
-}
-
-.input:valid {
-  border-color: #10b981;
 }
 
 /* Loading state */

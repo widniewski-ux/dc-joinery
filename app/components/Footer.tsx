@@ -19,7 +19,7 @@ export default function Footer() {
             </span>
           </div>
           <p className="max-w-lg text-neutral-300 leading-relaxed">
-            Professional kitchen fitting and bespoke kitchens in Northern Ireland. Built on 7 years of experience in furniture production and installations, with 30+ installations completed in the UK and trusted trade coordination.
+            Professional kitchen fitting and bespoke kitchens in Northern Ireland. DC Joinery has operated locally since 2025, built on 7 years of furniture production and installation experience with trusted trade coordination.
           </p>
         </div>
 
@@ -61,7 +61,7 @@ export default function Footer() {
       </div>
 
       <div className="border-t border-white/10 px-6 py-6 text-center text-sm text-neutral-500">
-        © {new Date().getFullYear()} DC Joinery. Built for a professional customer experience.
+        © {new Date().getFullYear()} DC Joinery (since 2025). Built for a professional customer experience.
       </div>
     </footer>
   );

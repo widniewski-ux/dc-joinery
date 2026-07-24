@@ -28,15 +28,15 @@ const recentProjects = [
 const stats = [
   ["30+", "Installations in UK"],
   ["7", "Years in Production & Installations"],
-  ["Free", "Quotes"],
-  ["NI", "Based"],
+  ["HMO / Flips / Rental", "Project Experience"],
+  ["Since 2025", "DC Joinery NI"],
 ];
 
 const trustPoints = [
   ["Polish Joinery Expertise", "Trained in furniture craftsmanship with hands-on production and installation experience."],
   ["End-to-End Service", "From design and ordering to trades coordination and completion."],
   ["Full Project Support", "We manage electric, plumbing, gas and tiling partners for a smooth install."],
-  ["Northern Ireland Based", "Local, trusted and proud of our work across NI."],
+  ["HMO & Investment Focus", "Experienced with HMO upgrades, flip timelines and rental-ready handovers."],
 ];
 
 const suppliers = [
@@ -116,7 +116,9 @@ export default function Home() {
 
             <div className="mb-10 flex flex-wrap gap-3">
               <span className="rounded-full border border-amber-400/30 bg-amber-400/10 px-4 py-2 text-sm text-amber-200">7 years in furniture production and installations</span>
+              <span className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/80">Established in Northern Ireland since 2025</span>
               <span className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/80">30+ installations completed in the UK</span>
+              <span className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/80">HMO, property flips and rental projects</span>
               <span className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/80">Trade coordination: electric, plumbing, gas, tiling</span>
             </div>
 
@@ -273,6 +275,9 @@ export default function Home() {
             <p className="text-neutral-400 leading-relaxed">
               Today I focus on kitchen fitting and full project logistics. I personally coordinate design, suppliers, electric, plumbing, gas and tiling partners so your project is delivered smoothly from first quote to final handover.
             </p>
+            <p className="text-neutral-400 leading-relaxed mt-5">
+              I regularly deliver projects for HMO conversions, buy-to-let improvements, property flips and rental refreshes where timing, durability and practical layouts matter most.
+            </p>
           </div>
 
           <div className="rounded-3xl overflow-hidden border border-white/10 bg-white/[0.04] p-6">
@@ -283,7 +288,7 @@ export default function Home() {
               <p>✔ Personal attention from first call to final handover.</p>
               <p>✔ 7 years in furniture production and installations, plus 30+ UK installations.</p>
               <p>✔ Full trade coordination including electric, plumbing, gas and tiling.</p>
-              <p>✔ Local Northern Ireland service with trusted partners.</p>
+              <p>✔ Active since 2025 in Northern Ireland with trusted local partners.</p>
             </div>
           </div>
         </div>
