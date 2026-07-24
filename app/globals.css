@@ -159,15 +159,3 @@ button:disabled {
 body {
   top: 0 !important;
 }
-
-.goog-te-banner-frame.skiptranslate {
-  display: none !important;
-}
-
-#google_translate_element_hidden {
-  position: absolute;
-  left: -9999px;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-}

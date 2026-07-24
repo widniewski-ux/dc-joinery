@@ -93,26 +93,6 @@ export default function RootLayout({
             gtag('config', '${googleAnalyticsId}');
           `}
         </Script>
-        <Script id="google-translate-init" strategy="afterInteractive">
-          {`
-            window.googleTranslateElementInit = function () {
-              if (!window.google || !window.google.translate) return;
-              new window.google.translate.TranslateElement(
-                {
-                  pageLanguage: "en",
-                  autoDisplay: false,
-                },
-                "google_translate_element_hidden"
-              );
-            };
-          `}
-        </Script>
-        <Script
-          src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"
-          strategy="afterInteractive"
-        />
-
-        <div id="google_translate_element_hidden" />
         <Header />
         {children}
         <Footer />
