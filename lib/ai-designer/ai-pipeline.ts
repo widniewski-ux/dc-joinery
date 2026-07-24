@@ -467,12 +467,27 @@ async function generateKitchenRender(job: KitchenDesignJob, analysis: VisionAnal
     "CRITICAL: Preserve all openings and perspective exactly; change only kitchen finishes and units.",
   ];
 
+  let fallbackImageUrl: string | null = null;
+  let fallbackReason: string | null = null;
+
   let openAiGenerationError: unknown = null;
   try {
     for (const strictnessNote of strictnessNotes) {
       const imageUrl = await generateKitchenRenderWithOpenAi(job, analysis, strictnessNote);
       const check = await validateGeometryConsistency(job.input_image_url, imageUrl);
       if (check.ok) {
+        return imageUrl;
+      }
+      fallbackImageUrl = imageUrl;
+      fallbackReason = check.reason;
+      if (
+        check.reason.startsWith("Geometry consistency check failed:") ||
+        check.reason.includes("parser could not read AI response")
+      ) {
+        console.warn("Geometry checker unavailable; accepting generated image", {
+          jobId: job.id,
+          reason: check.reason,
+        });
         return imageUrl;
       }
       console.warn("Generated image rejected by geometry consistency check", {
@@ -495,11 +510,31 @@ async function generateKitchenRender(job: KitchenDesignJob, analysis: VisionAnal
     if (check.ok) {
       return imageUrl;
     }
+    fallbackImageUrl = imageUrl;
     replicateFailureReason = check.reason;
+    fallbackReason = check.reason;
+    if (
+      check.reason.startsWith("Geometry consistency check failed:") ||
+      check.reason.includes("parser could not read AI response")
+    ) {
+      console.warn("Geometry checker unavailable; accepting generated image", {
+        jobId: job.id,
+        reason: check.reason,
+      });
+      return imageUrl;
+    }
     console.warn("Replicate image rejected by geometry consistency check", {
       jobId: job.id,
       reason: check.reason,
     });
+  }
+
+  if (fallbackImageUrl) {
+    console.warn("Returning best available generated image after geometry rejections", {
+      jobId: job.id,
+      reason: fallbackReason ?? replicateFailureReason,
+    });
+    return fallbackImageUrl;
   }
 
   const openAiMessage =
