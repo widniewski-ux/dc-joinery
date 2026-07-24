@@ -132,6 +132,57 @@ export default function KitchenDesignerWizard({ initialStep = 1 }: KitchenDesign
     };
   }, [appliances, editIntensity, handles, palette, previewUrl, selectedSupplier.label, style, worktop]);
 
+  const isProviderRateLimitError = useCallback((message: string | null | undefined): boolean => {
+    if (!message) return false;
+    const text = message.toLowerCase();
+    return (
+      text.includes("rate limit") ||
+      text.includes("rate-limited") ||
+      text.includes("request was throttled") ||
+      text.includes("requests per minute") ||
+      text.includes("retry_after") ||
+      text.includes("resets in") ||
+      text.includes("less than $5.0") ||
+      text.includes("below $5.0")
+    );
+  }, []);
+
+  const isProviderCreditError = useCallback(
+    (message: string | null | undefined): boolean => {
+      if (!message) return false;
+      if (isProviderRateLimitError(message)) {
+        return false;
+      }
+      const text = message.toLowerCase();
+      return (
+        text.includes("insufficient_quota") ||
+        text.includes("exceeded your current quota") ||
+        text.includes("insufficient credit") ||
+        text.includes("replicate credit issue") ||
+        text.includes("replicate.com/account/billing") ||
+        text.includes("payment required") ||
+        (text.includes("status") && text.includes("402"))
+      );
+    },
+    [isProviderRateLimitError]
+  );
+
+  const getProviderIssueSummary = useCallback(
+    (message: string | null | undefined): string => {
+      if (!message) {
+        return "Live generation is temporarily unavailable.";
+      }
+      if (isProviderRateLimitError(message)) {
+        return "Live generation is temporarily rate-limited by the AI provider. Please retry shortly.";
+      }
+      if (isProviderCreditError(message)) {
+        return "Live generation is currently blocked by AI provider billing or quota settings.";
+      }
+      return "Live generation is currently unavailable.";
+    },
+    [isProviderCreditError, isProviderRateLimitError]
+  );
+
   useEffect(() => {
     if (!loading || step !== 8) return;
 
@@ -172,16 +223,23 @@ export default function KitchenDesignerWizard({ initialStep = 1 }: KitchenDesign
 
         if (payload.job.status === "failed") {
           const failureNote = payload.job.estimate_explanation ?? "Generation failed. Please try again.";
+          if (isProviderRateLimitError(failureNote)) {
+            setLoading(false);
+            setGenerationStartedAt(null);
+            setError(getProviderIssueSummary(failureNote));
+            setStep(7);
+            return;
+          }
           if (isProviderCreditError(failureNote)) {
             setLoading(false);
             setGenerationStartedAt(null);
             setIsDemoResult(true);
-            setDemoReason(
-              "Live generation is unavailable right now because AI provider credits are exhausted."
-            );
+            setDemoReason(getProviderIssueSummary(failureNote));
             setActiveJobId(null);
             setInfoMessage(
-              "Live AI generation is temporarily unavailable (provider credit limit). Showing a local demo result so you can continue."
+              `${getProviderIssueSummary(
+                failureNote
+              )} Showing a local demo result so you can continue.`
             );
             setJob(createDemoJob());
             setStep(9);
@@ -214,7 +272,14 @@ export default function KitchenDesignerWizard({ initialStep = 1 }: KitchenDesign
         clearTimeout(timeoutHandle);
       }
     };
-  }, [activeJobId, createDemoJob, loading]);
+  }, [
+    activeJobId,
+    createDemoJob,
+    getProviderIssueSummary,
+    isProviderCreditError,
+    isProviderRateLimitError,
+    loading,
+  ]);
 
   function toggleColor(color: string) {
     setPalette((prev) => {
@@ -290,18 +355,6 @@ export default function KitchenDesignerWizard({ initialStep = 1 }: KitchenDesign
       return null;
     }
     return file;
-  }
-
-  function isProviderCreditError(message: string | null | undefined): boolean {
-    if (!message) return false;
-    const text = message.toLowerCase();
-    return (
-      text.includes("insufficient_quota") ||
-      text.includes("exceeded your current quota") ||
-      text.includes("insufficient credit") ||
-      text.includes("replicate.com/account/billing") ||
-      (text.includes("status") && text.includes("402"))
-    );
   }
 
   async function runPhotoAnalysis(): Promise<boolean> {
@@ -432,8 +485,8 @@ export default function KitchenDesignerWizard({ initialStep = 1 }: KitchenDesign
     } catch (caughtError) {
       const message =
         caughtError instanceof Error ? caughtError.message : "Failed to generate concept";
-      if (message.toLowerCase().includes("rate limit")) {
-        setError(message);
+      if (isProviderRateLimitError(message)) {
+        setError(getProviderIssueSummary(message));
         setStep(7);
         setLoading(false);
         setGenerationStartedAt(null);
@@ -448,14 +501,11 @@ export default function KitchenDesignerWizard({ initialStep = 1 }: KitchenDesign
         return;
       }
       setIsDemoResult(true);
-      setDemoReason(
-        isProviderCreditError(message)
-          ? "Live generation is unavailable right now because AI provider credits are exhausted."
-          : "Live generation is currently unavailable."
-      );
+      setDemoReason(getProviderIssueSummary(message));
       setActiveJobId(null);
+      const issueSummary = getProviderIssueSummary(message);
       setInfoMessage(
-        `Live AI services are currently unavailable (${message}). Showing a local demo result so you can continue all steps.`
+        `${issueSummary} Showing a local demo result so you can continue all steps.`
       );
       setJob(createDemoJob());
       setStep(9);
