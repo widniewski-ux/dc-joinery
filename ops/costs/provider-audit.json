@@ -1,53 +1,53 @@
 {
-  "checked_at": "2026-07-24T19:49:28Z",
+  "checked_at": "2026-07-25T03:42:11Z",
   "period_days": 28,
   "audit_rows": [
     {
       "provider": "Vercel",
       "status": "ok",
       "details": "Team dc-joinery plan=hobby | latest probe: Missing VERCEL_TOKEN for billing audit.",
-      "checked_at": "2026-07-24T19:49:28Z"
+      "checked_at": "2026-07-25T03:42:11Z"
     },
     {
       "provider": "Supabase",
       "status": "ok",
       "details": "jobs_28d=17 storage_probe_status=406 storage_probe_details={'code': 'PGRST106', 'details': None, 'hint': 'Only the following schemas are exposed: public, graphql_public', 'message': 'Invalid schema: storage'} | latest probe: Missing env key: SUPABASE_URL",
-      "checked_at": "2026-07-24T19:49:28Z"
+      "checked_at": "2026-07-25T03:42:11Z"
     },
     {
       "provider": "Resend",
       "status": "ok",
       "details": "emails_28d=6 api_status=200 | latest probe: Missing env key: RESEND_API_KEY",
-      "checked_at": "2026-07-24T19:49:28Z"
+      "checked_at": "2026-07-25T03:42:11Z"
     },
     {
       "provider": "OpenAI",
       "status": "missing",
       "details": "Missing env key: OPENAI_API_KEY",
-      "checked_at": "2026-07-24T19:49:28Z"
+      "checked_at": "2026-07-25T03:42:11Z"
     },
     {
       "provider": "Replicate",
       "status": "ok",
       "details": "predictions_28d=7 predict_time_sec_28d=255.93 | latest probe: Missing env key: REPLICATE_API_TOKEN",
-      "checked_at": "2026-07-24T19:49:28Z"
+      "checked_at": "2026-07-25T03:42:11Z"
     },
     {
       "provider": "PDFShift",
       "status": "missing",
       "details": "Missing env key: PDFSHIFT_API_KEY",
-      "checked_at": "2026-07-24T19:49:28Z"
+      "checked_at": "2026-07-25T03:42:11Z"
     },
     {
       "provider": "Domain Registrar",
       "status": "missing",
       "details": "Missing env key: DOMAIN_INVOICE_REFERENCE",
-      "checked_at": "2026-07-24T19:49:28Z"
+      "checked_at": "2026-07-25T03:42:11Z"
     }
   ],
   "cost_rows": [
     {
-      "date": "2026-07-24",
+      "date": "2026-07-25",
       "vendor": "Supabase",
       "service": "Database + storage",
       "category": "Hosting",
@@ -59,7 +59,7 @@
       "evidence": "Missing env key: SUPABASE_URL"
     },
     {
-      "date": "2026-07-24",
+      "date": "2026-07-25",
       "vendor": "Resend",
       "service": "Transactional email",
       "category": "Email",
@@ -71,7 +71,7 @@
       "evidence": "Missing env key: RESEND_API_KEY"
     },
     {
-      "date": "2026-07-24",
+      "date": "2026-07-25",
       "vendor": "OpenAI",
       "service": "Model usage",
       "category": "AI/API",
@@ -83,7 +83,7 @@
       "evidence": "Missing env key: OPENAI_API_KEY"
     },
     {
-      "date": "2026-07-24",
+      "date": "2026-07-25",
       "vendor": "Replicate",
       "service": "Image generation usage",
       "category": "AI/API",
@@ -95,7 +95,7 @@
       "evidence": "Missing env key: REPLICATE_API_TOKEN"
     },
     {
-      "date": "2026-07-24",
+      "date": "2026-07-25",
       "vendor": "PDFShift",
       "service": "PDF generation usage",
       "category": "Tools",
@@ -107,7 +107,7 @@
       "evidence": "Missing env key: PDFSHIFT_API_KEY"
     },
     {
-      "date": "2026-07-24",
+      "date": "2026-07-25",
       "vendor": "Domain Registrar",
       "service": "dcjoineryni.uk domain",
       "category": "Domain",
