@@ -1,48 +1,48 @@
 {
-  "checked_at": "2026-08-06T03:42:41Z",
+  "checked_at": "2026-08-06T09:08:59Z",
   "period_days": 28,
   "audit_rows": [
     {
       "provider": "Vercel",
       "status": "ok",
       "details": "Team dc-joinery plan=hobby | latest probe: Missing VERCEL_TOKEN for billing audit.",
-      "checked_at": "2026-08-06T03:42:41Z"
+      "checked_at": "2026-08-06T09:08:59Z"
     },
     {
       "provider": "Supabase",
       "status": "ok",
       "details": "jobs_28d=17 storage_probe_status=406 storage_probe_details={'code': 'PGRST106', 'details': None, 'hint': 'Only the following schemas are exposed: public, graphql_public', 'message': 'Invalid schema: storage'} | latest probe: Missing env key: SUPABASE_URL",
-      "checked_at": "2026-08-06T03:42:41Z"
+      "checked_at": "2026-08-06T09:08:59Z"
     },
     {
       "provider": "Resend",
       "status": "ok",
       "details": "emails_28d=6 api_status=200 | latest probe: Missing env key: RESEND_API_KEY",
-      "checked_at": "2026-08-06T03:42:41Z"
+      "checked_at": "2026-08-06T09:08:59Z"
     },
     {
       "provider": "OpenAI",
       "status": "missing",
       "details": "Missing env key: OPENAI_API_KEY",
-      "checked_at": "2026-08-06T03:42:41Z"
+      "checked_at": "2026-08-06T09:08:59Z"
     },
     {
       "provider": "Replicate",
       "status": "ok",
       "details": "predictions_28d=7 predict_time_sec_28d=255.93 | latest probe: Missing env key: REPLICATE_API_TOKEN",
-      "checked_at": "2026-08-06T03:42:41Z"
+      "checked_at": "2026-08-06T09:08:59Z"
     },
     {
       "provider": "PDFShift",
       "status": "missing",
       "details": "Missing env key: PDFSHIFT_API_KEY",
-      "checked_at": "2026-08-06T03:42:41Z"
+      "checked_at": "2026-08-06T09:08:59Z"
     },
     {
       "provider": "Domain Registrar",
       "status": "missing",
       "details": "Missing env key: DOMAIN_INVOICE_REFERENCE",
-      "checked_at": "2026-08-06T03:42:41Z"
+      "checked_at": "2026-08-06T09:08:59Z"
     }
   ],
   "cost_rows": [
