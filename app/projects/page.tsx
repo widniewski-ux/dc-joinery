@@ -12,6 +12,20 @@ const portfolioSections = [
     description: "Wren installations delivered with clean finishes, accurate scribing and practical handover.",
     projects: [
       {
+        title: "Compact Kitchen Fit - Rental Property Refresh",
+        details: "Small-space kitchen installation completed as part of a full home renovation for a rental property. The layout was planned for maximum storage, easy daily use and a durable finish that suits high-traffic, low-maintenance living.",
+        images: [
+          "/projects/Kitchen37.JPG",
+          "/projects/Kitchen38.JPG",
+          "/projects/Kitchen39.JPG",
+          "/projects/Kitchen40.JPG",
+          "/projects/Kitchen41.JPG",
+          "/projects/Kitchen42.JPG",
+          "/projects/Kitchen43.JPG",
+          "/projects/Kitchen44.JPG",
+        ],
+      },
+      {
         title: "Wren Kitchen - Precision Dry Fit",
         details: "Complete dry-fit installation with panel alignment, appliance housing checks and a tidy handover, prepared for quartz templating.",
         images: ["/projects/kitchen10.jpg", "/projects/kitchen11.jpg"],
@@ -74,6 +88,20 @@ const portfolioSections = [
           "/projects/kitchen29.jpeg",
           "/projects/kitchen30.jpeg",
           "/projects/kitchen31.jpeg",
+        ],
+      },
+      {
+        title: "Compact Kitchen Fit - Rental Property Refresh",
+        details: "Small-space kitchen installation completed as part of a full home renovation for a rental property. The layout was planned for maximum storage, easy daily use and a durable finish that suits high-traffic, low-maintenance living.",
+        images: [
+          "/projects/Kitchen37.JPG",
+          "/projects/Kitchen38.JPG",
+          "/projects/Kitchen39.JPG",
+          "/projects/Kitchen40.JPG",
+          "/projects/Kitchen41.JPG",
+          "/projects/Kitchen42.JPG",
+          "/projects/Kitchen43.JPG",
+          "/projects/Kitchen44.JPG",
         ],
       },
     ],
