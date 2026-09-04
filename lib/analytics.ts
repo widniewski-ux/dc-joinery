@@ -15,7 +15,7 @@ declare global {
 
 export function buildCampaignUrl(url: string, params: CampaignParams): string {
   try {
-    const targetUrl = new URL(url, "https://dcjoineryni.uk");
+    const targetUrl = new URL(url, "https://www.dcjoineryni.uk");
     const entries: Array<[string, string]> = [
       ["utm_source", params.source],
       ["utm_medium", params.medium],

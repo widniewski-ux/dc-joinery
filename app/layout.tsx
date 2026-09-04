@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 });
 
 const googleAnalyticsId = "G-9KQJMDZTE6";
-const siteUrl = "https://dcjoineryni.uk";
+const siteUrl = "https://www.dcjoineryni.uk";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -52,11 +52,11 @@ export const metadata: Metadata = {
     title: "DC Joinery | Kitchen Fitting Northern Ireland",
     description:
       "Kitchen fitting, supply and installation, fitted bedrooms and bespoke kitchens across Northern Ireland.",
-    url: "https://dcjoineryni.uk",
+    url: "https://www.dcjoineryni.uk",
     siteName: "DC Joinery",
     images: [
       {
-        url: "https://dcjoineryni.uk/projects/kitchen51.jpeg",
+        url: "https://www.dcjoineryni.uk/projects/kitchen51.jpeg",
         width: 1200,
         height: 630,
         alt: "DC Joinery finished kitchen project",

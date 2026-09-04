@@ -13,10 +13,10 @@ const nextConfig: NextConfig = {
         has: [
           {
             type: "host",
-            value: "www.dcjoineryni.uk",
+            value: "dcjoineryni.uk",
           },
         ],
-        destination: "https://dcjoineryni.uk/:path*",
+        destination: "https://www.dcjoineryni.uk/:path*",
         permanent: true,
       },
     ];
