@@ -1,9 +1,13 @@
 import Link from "next/link";
+import LeadCaptureForm from "../components/LeadCaptureForm";
 import { sendContactForm } from "../actions";
 
 export const metadata = {
-  title: "Contact DC Joinery | Free Quote for Kitchen Fitting in Northern Ireland",
+  title: "Free Quote for Kitchen Fitting in Northern Ireland",
   description: "Contact DC Joinery for kitchen fitting, kitchen supply and bespoke kitchen projects across Northern Ireland.",
+  alternates: {
+    canonical: "/contact",
+  },
 };
 
 export default function ContactPage() {
@@ -68,8 +72,10 @@ export default function ContactPage() {
             </div>
           </div>
 
-          <form
-            action={sendContactForm}
+          <LeadCaptureForm
+            formAction={sendContactForm}
+            formName="contact_form"
+            formType="contact"
             className="form-container grid gap-5 rounded-3xl border border-white/10 bg-white/[0.04] p-8 text-white md:p-10"
           >
             <input type="text" name="botField" autoComplete="off" className="hidden" />
@@ -105,7 +111,7 @@ export default function ContactPage() {
             <button className="rounded-xl bg-amber-400 py-4 font-semibold text-black transition hover:bg-amber-300">
               Send Message
             </button>
-          </form>
+          </LeadCaptureForm>
         </div>
       </section>
     </main>

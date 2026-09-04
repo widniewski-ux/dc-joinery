@@ -19,6 +19,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified: new Date(),
     },
     {
+      url: "https://dcjoineryni.uk/ai-kitchen-designer",
+      lastModified: new Date(),
+    },
+    {
       url: "https://dcjoineryni.uk/contact",
       lastModified: new Date(),
     },

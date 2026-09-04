@@ -1,6 +1,8 @@
 "use client";
 
+import Image from "next/image";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { trackEvent } from "@/lib/analytics";
 import { SUPPLIER_CATALOG, type SupplierId } from "@/lib/ai-designer/supplier-catalog";
 
 const EDIT_INTENSITY_OPTIONS = [
@@ -431,6 +433,14 @@ export default function KitchenDesignerWizard({ initialStep = 1 }: KitchenDesign
       return;
     }
 
+    trackEvent("ai_designer_generation_start", {
+      supplier_id: supplierId,
+      style,
+      palette_count: palette.length,
+      worktop,
+      step: 8,
+    });
+
     if (!analysisDone) {
       const analysisSuccess = await runPhotoAnalysis();
       if (!analysisSuccess) {
@@ -567,6 +577,12 @@ export default function KitchenDesignerWizard({ initialStep = 1 }: KitchenDesign
         setLeadError("Enter a valid phone number.");
         return;
       }
+
+      trackEvent("ai_designer_lead_submit", {
+        job_id: job.id,
+        supplier_id: supplierId,
+        has_message: Boolean(leadMessage.trim()),
+      });
 
       if (isDemoResult) {
         setLeadSuccess(true);
@@ -746,10 +762,13 @@ export default function KitchenDesignerWizard({ initialStep = 1 }: KitchenDesign
           )}
           {previewUrl && (
             <div className="relative aspect-[16/10] w-full max-w-2xl overflow-hidden rounded-2xl border border-white/10">
-              <img
+              <Image
                 src={previewUrl}
                 alt="Kitchen preview"
-                className="h-full w-full cursor-zoom-in object-cover"
+                fill
+                unoptimized
+                sizes="(max-width: 768px) 100vw, 700px"
+                className="cursor-zoom-in object-cover"
                 onClick={() => openZoom(previewUrl, "Kitchen preview")}
               />
             </div>
@@ -1242,10 +1261,13 @@ export default function KitchenDesignerWizard({ initialStep = 1 }: KitchenDesign
                     </p>
                     {photo && previewUrl ? (
                       <div className="relative aspect-[16/10] overflow-hidden rounded-xl">
-                        <img
+                        <Image
                           src={previewUrl}
                           alt="Uploaded kitchen photo"
-                          className="h-full w-full cursor-zoom-in object-cover"
+                          fill
+                          unoptimized
+                          sizes="(max-width: 1024px) 100vw, 640px"
+                          className="cursor-zoom-in object-cover"
                           onClick={() => openZoom(previewUrl, "Uploaded kitchen photo")}
                         />
                       </div>
@@ -1259,10 +1281,13 @@ export default function KitchenDesignerWizard({ initialStep = 1 }: KitchenDesign
                     </p>
                     {job.generated_image_url ? (
                       <div className="relative aspect-[16/10] overflow-hidden rounded-xl">
-                        <img
+                        <Image
                           src={job.generated_image_url}
                           alt="Generated kitchen concept"
-                          className="h-full w-full cursor-zoom-in object-cover"
+                          fill
+                          unoptimized
+                          sizes="(max-width: 1024px) 100vw, 640px"
+                          className="cursor-zoom-in object-cover"
                           onClick={() =>
                             openZoom(job.generated_image_url ?? "", "Generated kitchen concept")
                           }
@@ -1442,9 +1467,12 @@ export default function KitchenDesignerWizard({ initialStep = 1 }: KitchenDesign
             </div>
             <div className="flex-1 overflow-auto rounded-2xl border border-white/10 bg-black/40">
               <div className="flex min-h-full min-w-full items-center justify-center p-4">
-                <img
+                <Image
                   src={zoomImage.src}
                   alt={zoomImage.alt}
+                  width={1600}
+                  height={1200}
+                  unoptimized
                   className="max-w-none"
                   style={{ transform: `scale(${zoomLevel})`, transformOrigin: "center center" }}
                 />

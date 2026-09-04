@@ -47,6 +47,8 @@ export default function Header() {
             <Link
               key={link.href}
               href={link.href}
+              data-analytics="header_nav_click"
+              data-analytics-label={link.label}
               className="rounded-full border border-white/15 px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-neutral-100 transition hover:border-amber-400/70 hover:text-amber-300"
             >
               {link.label}
@@ -60,6 +62,8 @@ export default function Header() {
                 href={item.href}
                 target="_blank"
                 rel="noopener noreferrer"
+                data-analytics="social_click"
+                data-analytics-label={item.alt}
                 className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 transition hover:bg-white/10"
               >
                 <Image src={item.icon} alt={item.alt} width={24} height={24} className="h-5 w-5 object-contain" />
@@ -67,9 +71,11 @@ export default function Header() {
             ))}
 
             <Link
-              href="https://wa.me/447500779126"
+              href="https://wa.me/447500779126?utm_source=website&utm_medium=header&utm_campaign=dc_joinery_brand&utm_content=header_whatsapp"
               target="_blank"
               rel="noopener noreferrer"
+              data-analytics="whatsapp_cta_click"
+              data-analytics-label="Header WhatsApp"
               className="rounded-full bg-amber-400 px-5 py-3 text-sm font-bold text-black transition hover:bg-amber-300"
             >
               WhatsApp
@@ -79,9 +85,11 @@ export default function Header() {
 
         <div className="flex items-center gap-3 lg:hidden">
           <Link
-            href="https://wa.me/447500779126"
+            href="https://wa.me/447500779126?utm_source=website&utm_medium=mobile_header&utm_campaign=dc_joinery_brand&utm_content=mobile_whatsapp"
             target="_blank"
             rel="noopener noreferrer"
+            data-analytics="whatsapp_cta_click"
+            data-analytics-label="Mobile header WhatsApp"
             className="rounded-full bg-amber-400 px-4 py-2 text-sm font-bold text-black transition hover:bg-amber-300"
           >
             WhatsApp
@@ -115,6 +123,8 @@ export default function Header() {
               <Link
                 key={link.href}
                 href={link.href}
+                data-analytics="mobile_header_nav_click"
+                data-analytics-label={link.label}
                 className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-xs font-semibold uppercase tracking-[0.14em] text-white transition hover:bg-white/10"
                 onClick={() => setMenuOpen(false)}
               >
@@ -129,6 +139,8 @@ export default function Header() {
                 href={item.href}
                 target="_blank"
                 rel="noopener noreferrer"
+                data-analytics="social_click"
+                data-analytics-label={item.alt}
                 className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/5 transition hover:bg-white/10"
               >
                 <Image src={item.icon} alt={item.alt} width={22} height={22} className="h-5 w-5 object-contain" />

@@ -1,12 +1,51 @@
-import Image from "next/image";
 import Link from "next/link";
+import ProjectGallery from "../components/ProjectGallery";
 
 export const metadata = {
-  title: "Projects | DC Joinery Portfolio",
+  title: "Projects",
   description: "Browse DC Joinery project examples: kitchens, fitted furniture, wardrobes and bespoke kitchens across Northern Ireland.",
+  alternates: {
+    canonical: "/projects",
+  },
 };
 
 const portfolioSections = [
+  {
+    category: "Recent Finished Kitchens",
+    description: "Freshly completed residential kitchens covering first-home renovations and a larger premium flat-pack installation with upgraded flooring and stone finishes.",
+    projects: [
+      {
+        title: "Robyn's First Home Kitchen Renovation",
+        details: "A bright, practical kitchen completed for Robyn's first home renovation. The room was finished with a clean, durable layout that feels fresh and ready for everyday use while still keeping the space easy to maintain.",
+        images: [
+          "/projects/kitchen46.JPG",
+          "/projects/kitchen47.JPG",
+          "/projects/kitchen48.JPG",
+          "/projects/kitchen49.JPG",
+          "/projects/kitchen50.JPG",
+        ],
+      },
+      {
+        title: "Premium Flat-Pack Kitchen with Stone Finishes",
+        details: "A larger finished kitchen featuring tile removal, self-levelling, herringbone flooring, stone worktops and splashback, plus premium appliances and hidden storage details. The result is a polished, high-spec kitchen with strong everyday usability.",
+        images: [
+          "/projects/kitchen51.jpeg",
+          "/projects/kitchen52.jpg",
+          "/projects/kitchen53.jpeg",
+          "/projects/kitchen54.jpeg",
+          "/projects/kitchen55.jpeg",
+          "/projects/kitchen56.jpeg",
+          "/projects/kitchen57.JPG",
+          "/projects/kitchen58.JPG",
+          "/projects/kitchen59.JPG",
+          "/projects/kitchen60.JPG",
+          "/projects/kitchen61.jpeg",
+          "/projects/kitchen62.JPG",
+          "/projects/kitchen63.JPG",
+        ],
+      },
+    ],
+  },
   {
     category: "Wren Kitchens",
     description: "Wren installations delivered with clean finishes, accurate scribing and practical handover.",
@@ -173,94 +212,7 @@ export default function ProjectsPage() {
             Browse recent kitchen and fitted furniture projects delivered across Northern Ireland, including HMO upgrades, rental refurbishments and private residential kitchens. Built on 7 years of production and installation experience with 30+ completed UK installations.
           </p>
 
-          <div className="grid gap-16">
-            {portfolioSections.map((section) => (
-              <section key={section.category}>
-                <div className="mb-8">
-                  <p className="uppercase tracking-[0.25em] text-xs text-amber-400 mb-3">
-                    DC Joinery Portfolio
-                  </p>
-
-                  <h2 className="text-3xl md:text-4xl font-bold mb-3">
-                    {section.category}
-                  </h2>
-
-                  <p className="text-neutral-400 max-w-3xl">
-                    {section.description}
-                  </p>
-                </div>
-
-                <div className="grid gap-8">
-                  {section.projects.map((project) => (
-                    <article
-                      key={project.title}
-                      className="bg-white/5 border border-white/10 rounded-3xl overflow-hidden"
-                    >
-                      <div className="grid lg:grid-cols-[1.1fr_0.9fr] gap-0">
-                        <div className="relative min-h-[320px]">
-                          <Image
-                            src={project.images[0]}
-                            alt={project.title}
-                            fill
-                            className="object-cover"
-                          />
-                        </div>
-
-                        <div className="p-8 md:p-10 flex flex-col justify-center">
-                          <h3 className="text-2xl md:text-3xl font-bold mb-4">
-                            {project.title}
-                          </h3>
-
-                          <p className="text-neutral-300 text-lg mb-8">
-                            {project.details}
-                          </p>
-
-                          <Link
-                            href="/contact"
-                            className="inline-block w-fit bg-amber-400 text-black px-7 py-4 rounded-full font-semibold hover:bg-amber-300 transition"
-                          >
-                            Get a Quote
-                          </Link>
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3 p-4 md:p-6 bg-black/30">
-                        {project.images.map((image) => (
-                          <a
-                            key={image}
-                            href={image}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="relative aspect-square overflow-hidden rounded-2xl border border-white/10"
-                          >
-                            <Image
-                              src={image}
-                              alt={project.title}
-                              fill
-                              className="object-cover hover:scale-110 transition duration-700"
-                            />
-                          </a>
-                        ))}
-
-                        {"video" in project && project.video && (
-                          <a
-                            href={project.video}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-center justify-center aspect-square rounded-2xl border border-white/10 bg-neutral-900 text-center p-4 hover:bg-neutral-800 transition"
-                          >
-                            <span className="text-sm font-semibold">
-                              ▶ View Utility Room Video
-                            </span>
-                          </a>
-                        )}
-                      </div>
-                    </article>
-                  ))}
-                </div>
-              </section>
-            ))}
-          </div>
+          <ProjectGallery sections={portfolioSections} />
         </div>
       </section>
     </main>

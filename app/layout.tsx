@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import Script from "next/script";
 import { Geist, Geist_Mono } from "next/font/google";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
+import AnalyticsConsent from "./components/AnalyticsConsent";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -16,8 +16,10 @@ const geistMono = Geist_Mono({
 });
 
 const googleAnalyticsId = "G-9KQJMDZTE6";
+const siteUrl = "https://dcjoineryni.uk";
 
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   title: {
     default: "DC Joinery | Kitchen Fitting & Bespoke Kitchens Northern Ireland",
     template: "%s | DC Joinery",
@@ -54,10 +56,10 @@ export const metadata: Metadata = {
     siteName: "DC Joinery",
     images: [
       {
-        url: "https://dcjoineryni.uk/projects/kitchen25.jpeg",
+        url: "https://dcjoineryni.uk/projects/kitchen51.jpeg",
         width: 1200,
         height: 630,
-        alt: "DC Joinery kitchen project",
+        alt: "DC Joinery finished kitchen project",
       },
     ],
     locale: "en_GB",
@@ -80,19 +82,7 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        <Script
-          src={`https://www.googletagmanager.com/gtag/js?id=${googleAnalyticsId}`}
-          strategy="afterInteractive"
-        />
-
-        <Script id="google-analytics" strategy="afterInteractive">
-          {`
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', '${googleAnalyticsId}');
-          `}
-        </Script>
+        <AnalyticsConsent googleAnalyticsId={googleAnalyticsId} />
         <Header />
         {children}
         <Footer />

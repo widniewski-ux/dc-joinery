@@ -26,22 +26,22 @@ export default function Footer() {
         <div>
           <h3 className="text-white font-semibold mb-4">Quick links</h3>
           <div className="space-y-3 text-sm">
-            <Link href="/" className="block transition hover:text-white">
+            <Link href="/" data-analytics="footer_nav_click" data-analytics-label="Footer Home" className="block transition hover:text-white">
               Home
             </Link>
-            <Link href="/kitchen-fitting" className="block transition hover:text-white">
+            <Link href="/kitchen-fitting" data-analytics="footer_nav_click" data-analytics-label="Footer Kitchen Fitting" className="block transition hover:text-white">
               Kitchen Fitting
             </Link>
-            <Link href="/fit-and-supply" className="block transition hover:text-white">
+            <Link href="/fit-and-supply" data-analytics="footer_nav_click" data-analytics-label="Footer Fit & Supply" className="block transition hover:text-white">
               Fit & Supply
             </Link>
-            <Link href="/ai-kitchen-designer" className="block transition hover:text-white">
+            <Link href="/ai-kitchen-designer" data-analytics="footer_nav_click" data-analytics-label="Footer AI Kitchen Designer" className="block transition hover:text-white">
               AI Kitchen Designer
             </Link>
-            <Link href="/projects" className="block transition hover:text-white">
+            <Link href="/projects" data-analytics="footer_nav_click" data-analytics-label="Footer Projects" className="block transition hover:text-white">
               Projects
             </Link>
-            <Link href="/contact" className="block transition hover:text-white">
+            <Link href="/contact" data-analytics="footer_nav_click" data-analytics-label="Footer Contact" className="block transition hover:text-white">
               Contact
             </Link>
           </div>
@@ -50,8 +50,8 @@ export default function Footer() {
         <div>
           <h3 className="text-white font-semibold mb-4">Contact</h3>
           <div className="space-y-3 text-sm leading-relaxed">
-            <p>Phone: <a href="tel:+447500779126" className="text-white hover:text-amber-400">07500 779126</a></p>
-            <p>Email: <a href="mailto:info@dcjoinery.uk" className="text-white hover:text-amber-400">info@dcjoinery.uk</a></p>
+            <p>Phone: <a href="tel:+447500779126" data-analytics="phone_click" data-analytics-label="Footer phone CTA" className="text-white hover:text-amber-400">07500 779126</a></p>
+            <p>Email: <a href="mailto:info@dcjoinery.uk" data-analytics="email_click" data-analytics-label="Footer email CTA" className="text-white hover:text-amber-400">info@dcjoinery.uk</a></p>
             <p>Location: Northern Ireland</p>
             <p className="mt-3 text-neutral-500">
               Ready to discuss your kitchen or joinery project? Send a quick message on WhatsApp or use the contact form.

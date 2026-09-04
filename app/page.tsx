@@ -1,28 +1,44 @@
 import Image from "next/image";
 import Link from "next/link";
+import { buildCampaignUrl } from "@/lib/analytics";
 
 export const metadata = {
-  title: "DC Joinery | Kitchen Fitting & Bespoke Kitchens Northern Ireland",
-  description: "Professional kitchen fitting, kitchen supply and installation, fitted bedrooms and bespoke kitchens across Northern Ireland.",
+  alternates: {
+    canonical: "/",
+  },
 };
 
-const facebookUrl = "https://www.facebook.com/share/1Dfc738uhx/?mibextid=wwXIfr";
-const instagramUrl = "https://www.instagram.com/dawid_joinery__dc?igsh=dnZrZG5xcnpmZ3Bl&utm_source=qr";
-const whatsappUrl = "https://wa.me/447500779126";
+const facebookUrl = buildCampaignUrl("https://www.facebook.com/share/1Dfc738uhx/?mibextid=wwXIfr", {
+  source: "facebook",
+  medium: "social",
+  campaign: "dc_joinery_brand",
+  content: "homepage_social_facebook",
+});
+const instagramUrl = buildCampaignUrl("https://www.instagram.com/dawid_joinery__dc?igsh=dnZrZG5xcnpmZ3Bl&utm_source=qr", {
+  source: "instagram",
+  medium: "social",
+  campaign: "dc_joinery_brand",
+  content: "homepage_social_instagram",
+});
+const whatsappUrl = buildCampaignUrl("https://wa.me/447500779126", {
+  source: "whatsapp",
+  medium: "social",
+  campaign: "dc_joinery_brand",
+  content: "homepage_whatsapp_cta",
+});
 
 const heroImages = [
-  "/projects/kitchen25.jpeg",
-  "/projects/kitchen1.jpg",
-  "/projects/kitchen5.jpg",
-  "/projects/kitchen10.jpg",
-  "/projects/kitchen33.jpeg",
+  "/projects/kitchen46.JPG",
+  "/projects/kitchen51.jpeg",
+  "/projects/kitchen57.JPG",
+  "/projects/kitchen62.JPG",
 ];
 
 const recentProjects = [
-  "/projects/kitchen1.jpg",
-  "/projects/kitchen5.jpg",
-  "/projects/kitchen25.jpeg",
-  "/projects/kitchen33.jpeg",
+  "/projects/kitchen46.JPG",
+  "/projects/kitchen50.JPG",
+  "/projects/kitchen51.jpeg",
+  "/projects/kitchen63.JPG",
 ];
 
 const stats = [
@@ -69,6 +85,8 @@ export default function Home() {
         href={whatsappUrl}
         target="_blank"
         rel="noopener noreferrer"
+        data-analytics="whatsapp_cta_click"
+        data-analytics-label="Homepage floating WhatsApp"
         className="fixed bottom-5 right-5 z-50 flex items-center gap-3 bg-amber-400 text-black px-5 py-3 rounded-full font-bold shadow-2xl hover:bg-amber-300 transition"
       >
         <Image
@@ -90,6 +108,8 @@ export default function Home() {
               alt="DC Joinery kitchen project"
               fill
               priority={index === 0}
+              sizes="100vw"
+              quality={75}
               className={`object-cover hero-slide hero-slide-${index + 1}`}
             />
           ))}
@@ -123,15 +143,30 @@ export default function Home() {
             </div>
 
             <div className="flex flex-col sm:flex-row gap-5 mb-14">
-              <Link href="/kitchen-fitting" className="bg-amber-400 text-black px-8 py-4 rounded-full font-bold text-center hover:bg-amber-300 transition">
+              <Link
+                href="/kitchen-fitting"
+                data-analytics="hero_primary_cta"
+                data-analytics-label="Home hero kitchen quote"
+                className="bg-amber-400 text-black px-8 py-4 rounded-full font-bold text-center hover:bg-amber-300 transition"
+              >
                 Kitchen Fitting Quote
               </Link>
 
-              <Link href="/fit-and-supply" className="border border-white/40 px-8 py-4 rounded-full font-bold text-center hover:bg-white hover:text-black transition">
+              <Link
+                href="/fit-and-supply"
+                data-analytics="hero_secondary_cta"
+                data-analytics-label="Home hero fit and supply"
+                className="border border-white/40 px-8 py-4 rounded-full font-bold text-center hover:bg-white hover:text-black transition"
+              >
                 Fit & Supply
               </Link>
 
-              <Link href="/projects" className="border border-white/40 px-8 py-4 rounded-full font-bold text-center hover:bg-white hover:text-black transition">
+              <Link
+                href="/projects"
+                data-analytics="hero_tertiary_cta"
+                data-analytics-label="Home hero view projects"
+                className="border border-white/40 px-8 py-4 rounded-full font-bold text-center hover:bg-white hover:text-black transition"
+              >
                 View Projects
               </Link>
             </div>
@@ -141,7 +176,7 @@ export default function Home() {
                 Follow us
               </span>
 
-              <a href={facebookUrl} target="_blank" rel="noopener noreferrer">
+              <a href={facebookUrl} target="_blank" rel="noopener noreferrer" data-analytics="social_click" data-analytics-label="Facebook home CTA">
                 <Image
                   src="/logos/Facebook.png"
                   alt="Facebook"
@@ -151,7 +186,7 @@ export default function Home() {
                 />
               </a>
 
-              <a href={instagramUrl} target="_blank" rel="noopener noreferrer">
+              <a href={instagramUrl} target="_blank" rel="noopener noreferrer" data-analytics="social_click" data-analytics-label="Instagram home CTA">
                 <Image
                   src="/logos/Instagram.png"
                   alt="Instagram"
@@ -243,12 +278,16 @@ export default function Home() {
           <div className="flex flex-col sm:flex-row gap-4">
             <Link
               href="/ai-kitchen-designer"
+              data-analytics="ai_designer_cta"
+              data-analytics-label="Home AI kitchen designer CTA"
               className="rounded-full bg-amber-400 px-8 py-4 text-center font-bold text-black hover:bg-amber-300 transition"
             >
               Try AI Kitchen Designer
             </Link>
             <Link
               href="/contact"
+              data-analytics="classic_quote_cta"
+              data-analytics-label="Home classic quote CTA"
               className="rounded-full border border-white/30 px-8 py-4 text-center font-bold hover:bg-white hover:text-black transition"
             >
               Prefer a classic quote?
@@ -321,6 +360,7 @@ export default function Home() {
                     src={supplier.logo}
                     alt={`${supplier.name} logo`}
                     fill
+                    sizes="(max-width: 768px) 50vw, 20vw"
                     className="object-contain"
                   />
                 </div>
@@ -357,6 +397,8 @@ export default function Home() {
                   src={image}
                   alt="Recent DC Joinery project"
                   fill
+                  sizes="(max-width: 768px) 100vw, 25vw"
+                  quality={75}
                   className="object-cover group-hover:scale-110 transition duration-700"
                 />
                 <div className="absolute inset-0 bg-black/15 group-hover:bg-black/0 transition" />

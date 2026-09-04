@@ -1,9 +1,13 @@
 import Link from "next/link";
+import LeadCaptureForm from "../components/LeadCaptureForm";
 import { sendKitchenFittingForm } from "../actions";
 
 export const metadata = {
-  title: "Kitchen Fitting Quote | DC Joinery NI",
+  title: "Kitchen Fitting Quote",
   description: "Request a kitchen fitting quote from DC Joinery: UK kitchen install experience, supplier coordination and trusted trades.",
+  alternates: {
+    canonical: "/kitchen-fitting",
+  },
 };
 
 export default function KitchenFittingPage() {
@@ -66,8 +70,10 @@ export default function KitchenFittingPage() {
             </div>
           </div>
 
-          <form
-            action={sendKitchenFittingForm}
+          <LeadCaptureForm
+            formAction={sendKitchenFittingForm}
+            formName="kitchen_quote_form"
+            formType="quote"
             className="form-container rounded-[2rem] border border-white/10 bg-white/[0.04] p-6 text-white shadow-2xl md:p-10"
           >
             <input type="text" name="botField" autoComplete="off" className="hidden" />
@@ -187,7 +193,7 @@ export default function KitchenFittingPage() {
                 Your enquiry will be sent directly to DC Joinery.
               </p>
             </div>
-          </form>
+          </LeadCaptureForm>
         </div>
       </section>
     </main>

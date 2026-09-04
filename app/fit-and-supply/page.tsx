@@ -1,9 +1,13 @@
 import Link from "next/link";
+import LeadCaptureForm from "../components/LeadCaptureForm";
 import { sendFitAndSupplyForm } from "../actions";
 
 export const metadata = {
-  title: "Fit & Supply Consultation | DC Joinery",
+  title: "Fit & Supply Consultation",
   description: "Fit & Supply service for kitchens, bedrooms and bespoke kitchens with design, supply and installation coordination in Northern Ireland.",
+  alternates: {
+    canonical: "/fit-and-supply",
+  },
 };
 
 export default function FitAndSupplyPage() {
@@ -65,8 +69,10 @@ export default function FitAndSupplyPage() {
             </div>
           </div>
 
-          <form
-            action={sendFitAndSupplyForm}
+          <LeadCaptureForm
+            formAction={sendFitAndSupplyForm}
+            formName="fit_and_supply_form"
+            formType="quote"
             className="form-container rounded-[2rem] border border-white/10 bg-white/[0.04] p-6 text-white shadow-2xl md:p-10"
           >
             <input type="text" name="botField" autoComplete="off" className="hidden" />
@@ -176,7 +182,7 @@ export default function FitAndSupplyPage() {
                 Your enquiry will be sent directly to DC Joinery.
               </p>
             </div>
-          </form>
+          </LeadCaptureForm>
         </div>
       </section>
     </main>
