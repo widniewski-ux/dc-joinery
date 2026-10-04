@@ -1,9 +1,7 @@
+import { pageMetadata } from "@/lib/seo";
 import Link from "next/link";
 
-export const metadata = {
-  title: "Thank You | DC Joinery",
-  description: "Thank you for contacting DC Joinery. We will review your enquiry and reply shortly.",
-};
+export const metadata = { ...pageMetadata("Thank You", "Your DC Joinery enquiry has been sent.", "/thank-you"), robots: { index: false, follow: true } };
 
 export default function ThankYouPage() {
   return (

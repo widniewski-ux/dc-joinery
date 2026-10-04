@@ -1,5 +1,6 @@
+import { pageMetadata } from "@/lib/seo";
 import Link from "next/link";
-export const metadata = { title: "Privacy and cookies" };
+export const metadata = pageMetadata("Privacy and Cookies", "How DC Joinery handles enquiries, kitchen photographs, website cookies and privacy requests.", "/privacy");
 export default function PrivacyPage() {
   return <main className="mx-auto max-w-3xl space-y-7 px-6 py-16 text-neutral-200">
     <h1 className="text-4xl font-bold text-white">Privacy and cookies</h1>

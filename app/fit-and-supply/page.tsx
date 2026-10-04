@@ -1,12 +1,10 @@
+import ServiceOverview from "../components/ServiceOverview";
+import { pageMetadata } from "@/lib/seo";
 import EnquiryForm from "../components/EnquiryForm";
 import Link from "next/link";
 import { sendFitAndSupplyForm } from "../actions";
 
-export const metadata = {
-  alternates: { canonical: "/fit-and-supply" },
-  title: "Fit & Supply Consultation | DC Joinery",
-  description: "Fit & Supply service for kitchens, bedrooms and bespoke kitchens with design, supply and installation coordination in Northern Ireland.",
-};
+export const metadata = pageMetadata("Kitchen Supply & Installation in Northern Ireland", "Discuss kitchen design, supplier options, ordering and installation with DC Joinery in Northern Ireland.", "/fit-and-supply");
 
 export default function FitAndSupplyPage() {
   return (
@@ -29,7 +27,7 @@ export default function FitAndSupplyPage() {
             </p>
 
             <h1 className="text-5xl md:text-6xl font-bold mb-6 leading-tight">
-              Supply & Installation Consultation
+              Kitchen Supply & Installation in Northern Ireland
             </h1>
 
             <p className="text-neutral-300 text-lg mb-8 leading-relaxed">
@@ -182,6 +180,7 @@ export default function FitAndSupplyPage() {
           </EnquiryForm>
         </div>
       </section>
+    <ServiceOverview path="/fit-and-supply" />
     </main>
   );
 }

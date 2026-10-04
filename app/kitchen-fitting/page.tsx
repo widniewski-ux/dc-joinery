@@ -1,14 +1,10 @@
+import ServiceOverview from "../components/ServiceOverview";
+import { pageMetadata } from "@/lib/seo";
 import EnquiryForm from "../components/EnquiryForm";
 import Link from "next/link";
 import { sendKitchenFittingForm } from "../actions";
 
-export const metadata = {
-  title: "Kitchen Fitting Quote",
-  description: "Request a kitchen fitting quote from DC Joinery: UK kitchen install experience, supplier coordination and trusted trades.",
-  alternates: {
-    canonical: "/kitchen-fitting",
-  },
-};
+export const metadata = pageMetadata("Kitchen Fitting in Northern Ireland", "Kitchen installation, supplier plan review, finishing and agreed trade coordination across Northern Ireland.", "/kitchen-fitting");
 
 export default function KitchenFittingPage() {
   return (
@@ -31,7 +27,7 @@ export default function KitchenFittingPage() {
             </p>
 
             <h1 className="text-5xl md:text-6xl font-bold mb-6 leading-tight">
-              Kitchen Fitting Quote
+              Kitchen Fitting in Northern Ireland
             </h1>
 
             <p className="text-neutral-300 text-lg mb-8 leading-relaxed">
@@ -195,6 +191,7 @@ export default function KitchenFittingPage() {
           </EnquiryForm>
         </div>
       </section>
+    <ServiceOverview path="/kitchen-fitting" />
     </main>
   );
 }

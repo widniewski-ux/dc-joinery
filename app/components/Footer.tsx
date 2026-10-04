@@ -24,8 +24,11 @@ export default function Footer() {
         </div>
 
         <div>
-          <h3 className="text-white font-semibold mb-4">Quick links</h3>
+          <h2 className="text-white font-semibold mb-4">Quick links</h2>
           <div className="space-y-3 text-sm">
+            <Link href="/fitted-bedrooms" className="block hover:text-white">Fitted Bedrooms & Wardrobes</Link>
+            <Link href="/kitchen-renovations" className="block hover:text-white">Kitchen Renovations</Link>
+            <Link href="/bespoke-kitchens" className="block hover:text-white">Bespoke Kitchens</Link>
             <Link href="/privacy" className="block transition hover:text-white">Privacy and cookies</Link>
             <Link href="/" data-analytics="footer_nav_click" data-analytics-label="Footer Home" className="block transition hover:text-white">
               Home
@@ -49,19 +52,20 @@ export default function Footer() {
         </div>
 
         <div>
-          <h3 className="text-white font-semibold mb-4">Contact</h3>
+          <h2 className="text-white font-semibold mb-4">Contact</h2>
           <div className="space-y-3 text-sm leading-relaxed">
             <p>Phone: <a href="tel:+447500779126" data-analytics="phone_click" data-analytics-label="Footer phone CTA" className="text-white hover:text-amber-400">07500 779126</a></p>
             <p>Email: <a href="mailto:info@dcjoinery.uk" data-analytics="email_click" data-analytics-label="Footer email CTA" className="text-white hover:text-amber-400">info@dcjoinery.uk</a></p>
             <p>Location: Northern Ireland</p>
-            <p className="mt-3 text-neutral-500">
+            <a href="https://maps.app.goo.gl/UFXHWJasoNFPNtvM7" className="block text-amber-300 underline">Find DC Joinery on Google Maps</a>
+            <p className="mt-3 text-neutral-400">
               Ready to discuss your kitchen or joinery project? Send a quick message on WhatsApp or use the contact form.
             </p>
           </div>
         </div>
       </div>
 
-      <div className="border-t border-white/10 px-6 py-6 text-center text-sm text-neutral-500">
+      <div className="border-t border-white/10 px-6 py-6 text-center text-sm text-neutral-400">
         © {new Date().getFullYear()} DC Joinery (since 2025). Built for a professional customer experience.
       </div>
     </footer>
