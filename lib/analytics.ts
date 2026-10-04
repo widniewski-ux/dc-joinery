@@ -39,7 +39,7 @@ export function trackEvent(
   eventName: string,
   params?: Record<string, string | number | boolean | undefined>
 ): void {
-  if (typeof window === "undefined" || typeof window.gtag !== "function") {
+  if (typeof window === "undefined" || window.location.pathname.startsWith("/admin") || typeof window.gtag !== "function") {
     return;
   }
 

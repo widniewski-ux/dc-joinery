@@ -99,6 +99,8 @@ export default function Header() {
             type="button"
             onClick={() => setMenuOpen(!menuOpen)}
             className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white transition hover:bg-white/10"
+            aria-expanded={menuOpen}
+            aria-controls="mobile-menu"
             aria-label={menuOpen ? "Close menu" : "Open menu"}
           >
             <span className="relative block h-5 w-5">
@@ -116,7 +118,7 @@ export default function Header() {
         </div>
       </div>
 
-      <div className={`lg:hidden overflow-hidden transition-[max-height] duration-300 ${menuOpen ? "max-h-[400px]" : "max-h-0"}`}>
+      <div id="mobile-menu" inert={!menuOpen} aria-hidden={!menuOpen} className={`lg:hidden overflow-hidden transition-[max-height] duration-300 ${menuOpen ? "max-h-[400px]" : "max-h-0"}`}>
         <div className="px-6 pb-5">
           <div className="flex flex-col gap-4 pt-4">
             {links.map((link) => (

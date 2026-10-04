@@ -1,13 +1,11 @@
+import EnquiryForm from "../components/EnquiryForm";
 import Link from "next/link";
-import LeadCaptureForm from "../components/LeadCaptureForm";
 import { sendContactForm } from "../actions";
 
 export const metadata = {
-  title: "Free Quote for Kitchen Fitting in Northern Ireland",
+  alternates: { canonical: "/contact" },
+  title: "Contact DC Joinery | Free Quote for Kitchen Fitting in Northern Ireland",
   description: "Contact DC Joinery for kitchen fitting, kitchen supply and bespoke kitchen projects across Northern Ireland.",
-  alternates: {
-    canonical: "/contact",
-  },
 };
 
 export default function ContactPage() {
@@ -72,29 +70,27 @@ export default function ContactPage() {
             </div>
           </div>
 
-          <LeadCaptureForm
-            formAction={sendContactForm}
-            formName="contact_form"
-            formType="contact"
+          <EnquiryForm formName="contact_form" formType="contact"
+            action={sendContactForm}
             className="form-container grid gap-5 rounded-3xl border border-white/10 bg-white/[0.04] p-8 text-white md:p-10"
           >
             <input type="text" name="botField" autoComplete="off" className="hidden" />
             <input
-              name="name"
+              name="name" maxLength={100} aria-label="Full name"
               className="input"
               placeholder="Full name"
               required
             />
 
             <input
-              name="phone"
+              name="phone" type="tel" maxLength={30} aria-label="Phone number"
               className="input"
               placeholder="Phone number"
               required
             />
 
             <input
-              name="email"
+              name="email" maxLength={254} aria-label="Email address"
               className="input"
               placeholder="Email address"
               type="email"
@@ -102,7 +98,7 @@ export default function ContactPage() {
             />
 
             <textarea
-              name="message"
+              name="message" maxLength={2000} aria-label="Project details"
               className="input min-h-40"
               placeholder="Tell us about your project"
               required
@@ -111,7 +107,7 @@ export default function ContactPage() {
             <button className="rounded-xl bg-amber-400 py-4 font-semibold text-black transition hover:bg-amber-300">
               Send Message
             </button>
-          </LeadCaptureForm>
+          </EnquiryForm>
         </div>
       </section>
     </main>

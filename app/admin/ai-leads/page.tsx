@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
-import { headers } from "next/headers";
+import { redirect } from "next/navigation";
+import { isAdmin } from "@/lib/security";
+import { listRecentLeadJobs, signJobAssets } from "@/lib/ai-designer/supabase-rest";
+import Login from "./Login";
+import { logoutAdmin, retryLeadEmail } from "./actions";
 
-import { optionalEnv } from "@/lib/ai-designer/env";
 import type { KitchenDesignJob } from "@/lib/ai-designer/types";
 
 export const metadata: Metadata = {
@@ -19,63 +22,21 @@ interface Props {
   searchParams: Promise<{ token?: string }>;
 }
 
-async function fetchLeads(token: string, origin: string): Promise<KitchenDesignJob[]> {
-  const response = await fetch(
-    `${origin}/api/admin/ai-kitchen-designer/reports?limit=100`,
-    {
-      headers: {
-        "x-admin-token": token,
-      },
-      cache: "no-store",
-    }
-  );
-
-  if (!response.ok) {
-    const payload = (await response.json().catch(() => null)) as { error?: string } | null;
-    throw new Error(payload?.error || "Failed to load admin reports");
-  }
-
-  const payload = (await response.json()) as { jobs: KitchenDesignJob[] };
-  return payload.jobs;
-}
-
 export default async function AiLeadsAdminPage({ searchParams }: Props) {
-  const params = await searchParams;
-  const token = params.token || "";
-
-  if (!token) {
-    return (
-      <main className="min-h-screen bg-black text-white px-6 py-16">
-        <div className="max-w-3xl mx-auto rounded-2xl border border-white/10 bg-white/5 p-8">
-          <h1 className="text-3xl font-bold mb-4">AI Leads Admin</h1>
-          <p className="text-neutral-300">
-            Access denied. Provide <code>?token=...</code> in URL.
-          </p>
-        </div>
-      </main>
-    );
-  }
-
+  if ((await searchParams).token) redirect("/admin/ai-leads");
+  if (!await isAdmin()) return <main className="min-h-screen bg-black text-white px-6 py-16"><Login /></main>;
   let jobs: KitchenDesignJob[] = [];
   let errorMessage: string | null = null;
   try {
-    const requestHeaders = await headers();
-    const host = requestHeaders.get("host");
-    if (!host && !optionalEnv("NEXT_PUBLIC_SITE_URL")) {
-      throw new Error("Cannot resolve site origin for admin API request");
-    }
-    const protocol =
-      requestHeaders.get("x-forwarded-proto") ??
-      (host?.includes("localhost") ? "http" : "https");
-    const origin = optionalEnv("NEXT_PUBLIC_SITE_URL") ?? `${protocol}://${host}`;
-    jobs = await fetchLeads(token, origin);
-  } catch (error) {
-    errorMessage = error instanceof Error ? error.message : "Failed to load jobs";
+    jobs = await Promise.all((await listRecentLeadJobs(100)).map(signJobAssets));
+  } catch {
+    errorMessage = "Reports are temporarily unavailable. Please try again later.";
   }
 
   return (
     <main className="min-h-screen bg-black text-white px-6 py-16">
       <div className="max-w-7xl mx-auto">
+        <form action={logoutAdmin}><button className="mb-6 underline">Sign out</button></form>
         <h1 className="text-4xl font-bold mb-3">AI Kitchen Designer Leads</h1>
         <p className="text-neutral-300 mb-10">
           Internal report feed for follow-up calls and quotations.
@@ -119,6 +80,11 @@ export default async function AiLeadsAdminPage({ searchParams }: Props) {
                 {job.lead_message ?? "No additional message."}
               </p>
 
+              {!job.lead_email_sent_at && <form action={retryLeadEmail} className="mt-4">
+                <input type="hidden" name="jobId" value={job.id} />
+                <p className="text-amber-300">Enquiry saved; email notification not confirmed.</p>
+                <button className="underline">Retry notification (available after 5 minutes)</button>
+              </form>}
               <div className="flex flex-wrap gap-3 mt-5">
                 {job.generated_image_url && (
                   <a

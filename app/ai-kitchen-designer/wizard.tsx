@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { trackEvent } from "@/lib/analytics";
 import { SUPPLIER_CATALOG, type SupplierId } from "@/lib/ai-designer/supplier-catalog";
 
@@ -13,12 +13,12 @@ const EDIT_INTENSITY_OPTIONS = [
 
 const GENERATION_TARGET_SECONDS = 90;
 
-const MAX_IMAGE_SIZE_BYTES = 50 * 1024 * 1024;
+const MAX_IMAGE_SIZE_BYTES = 3 * 1024 * 1024;
 const ALLOWED_IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp", "image/avif"]);
 
 const STEP_LABELS = [
   "Add Photo",
-  "Photo Analysis",
+  "Photo Check",
   "Supplier",
   "Style",
   "Colors",
@@ -46,7 +46,6 @@ type Job = {
 };
 
 type WizardStep = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10;
-const WIZARD_BUILD = "2026-07-23-suppliers-v2";
 
 type KitchenDesignerWizardProps = {
   initialStep?: WizardStep;
@@ -87,8 +86,6 @@ export default function KitchenDesignerWizard({ initialStep = 1 }: KitchenDesign
   const [leadSuccess, setLeadSuccess] = useState(false);
   const [leadError, setLeadError] = useState<string | null>(null);
   const [infoMessage, setInfoMessage] = useState<string | null>(null);
-  const [isDemoResult, setIsDemoResult] = useState(false);
-  const [demoReason, setDemoReason] = useState<string | null>(null);
   const [activeJobId, setActiveJobId] = useState<string | null>(null);
   const [generationStartedAt, setGenerationStartedAt] = useState<number | null>(null);
   const [generationNow, setGenerationNow] = useState<number>(Date.now());
@@ -127,78 +124,6 @@ export default function KitchenDesignerWizard({ initialStep = 1 }: KitchenDesign
   const worktopOptions = selectedSupplier.worktops;
   const handleOptions = selectedSupplier.handles;
   const applianceOptions = selectedSupplier.appliances;
-  const createDemoJob = useCallback((): Job => {
-    return {
-      id: `demo-${Date.now()}`,
-      status: "report_ready",
-      style: `${selectedSupplier.label} - ${style}`,
-      color_palette: palette,
-      budget_min: 0,
-      budget_max: 0,
-      input_image_url: previewUrl ?? "",
-      generated_image_url: null,
-      project_description:
-        `Premium ${selectedSupplier.label} ${style} kitchen concept aligned with your chosen brochure options. ` +
-        `Palette: ${palette.join(", ")}. Worktop: ${worktop}. Handles: ${handles}. Appliances: ${appliances.join(", ")}. ` +
-        `Intensity: ${editIntensity}. Layout keeps your room geometry and improves storage zoning and workflow.`,
-      estimated_cost_min: null,
-      estimated_cost_max: null,
-      estimate_explanation: "Demo mode result.",
-      pdf_report_url: null,
-    };
-  }, [appliances, editIntensity, handles, palette, previewUrl, selectedSupplier.label, style, worktop]);
-
-  const isProviderRateLimitError = useCallback((message: string | null | undefined): boolean => {
-    if (!message) return false;
-    const text = message.toLowerCase();
-    return (
-      text.includes("rate limit") ||
-      text.includes("rate-limited") ||
-      text.includes("request was throttled") ||
-      text.includes("requests per minute") ||
-      text.includes("retry_after") ||
-      text.includes("resets in") ||
-      text.includes("less than $5.0") ||
-      text.includes("below $5.0")
-    );
-  }, []);
-
-  const isProviderCreditError = useCallback(
-    (message: string | null | undefined): boolean => {
-      if (!message) return false;
-      if (isProviderRateLimitError(message)) {
-        return false;
-      }
-      const text = message.toLowerCase();
-      return (
-        text.includes("insufficient_quota") ||
-        text.includes("exceeded your current quota") ||
-        text.includes("insufficient credit") ||
-        text.includes("replicate credit issue") ||
-        text.includes("replicate.com/account/billing") ||
-        text.includes("payment required") ||
-        (text.includes("status") && text.includes("402"))
-      );
-    },
-    [isProviderRateLimitError]
-  );
-
-  const getProviderIssueSummary = useCallback(
-    (message: string | null | undefined): string => {
-      if (!message) {
-        return "Live generation is temporarily unavailable.";
-      }
-      if (isProviderRateLimitError(message)) {
-        return "Live generation is temporarily rate-limited by the AI provider. Please retry shortly.";
-      }
-      if (isProviderCreditError(message)) {
-        return "Live generation is currently blocked by AI provider billing or quota settings.";
-      }
-      return "Live generation is currently unavailable.";
-    },
-    [isProviderCreditError, isProviderRateLimitError]
-  );
-
   useEffect(() => {
     if (!loading || step !== 8) return;
 
@@ -239,28 +164,6 @@ export default function KitchenDesignerWizard({ initialStep = 1 }: KitchenDesign
 
         if (payload.job.status === "failed") {
           const failureNote = payload.job.estimate_explanation ?? "Generation failed. Please try again.";
-          if (isProviderRateLimitError(failureNote)) {
-            setLoading(false);
-            setGenerationStartedAt(null);
-            setError(getProviderIssueSummary(failureNote));
-            setStep(7);
-            return;
-          }
-          if (isProviderCreditError(failureNote)) {
-            setLoading(false);
-            setGenerationStartedAt(null);
-            setIsDemoResult(true);
-            setDemoReason(getProviderIssueSummary(failureNote));
-            setActiveJobId(null);
-            setInfoMessage(
-              `${getProviderIssueSummary(
-                failureNote
-              )} Showing a local demo result so you can continue.`
-            );
-            setJob(createDemoJob());
-            setStep(9);
-            return;
-          }
           setLoading(false);
           setGenerationStartedAt(null);
           setError(failureNote);
@@ -290,10 +193,6 @@ export default function KitchenDesignerWizard({ initialStep = 1 }: KitchenDesign
     };
   }, [
     activeJobId,
-    createDemoJob,
-    getProviderIssueSummary,
-    isProviderCreditError,
-    isProviderRateLimitError,
     loading,
   ]);
 
@@ -356,12 +255,12 @@ export default function KitchenDesignerWizard({ initialStep = 1 }: KitchenDesign
   }
 
   function validateClientPhoto(file: File | null): File | null {
-    if (!file) {
+    if (!file || !file.size) {
       setError("Please upload a kitchen photo first.");
       return null;
     }
     if (file.size > MAX_IMAGE_SIZE_BYTES) {
-      setError("Image size must be 50MB or less.");
+      setError("Image size must be 3MB or less.");
       return null;
     }
     if (!ALLOWED_IMAGE_TYPES.has(file.type)) {
@@ -393,21 +292,20 @@ export default function KitchenDesignerWizard({ initialStep = 1 }: KitchenDesign
     setAnalysisDone(false);
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1800));
-
-      const ratio = photo.size / 1024 / 1024;
+      if (!validateClientPhoto(photo)) return false;
+      const bitmap = await createImageBitmap(photo);
       const generated = [
-        "Layout detected: U/L-shape workflow with potential triangle optimization.",
-        ratio > 4
-          ? "Image quality: high detail, suitable for premium concept rendering."
-          : "Image quality: good, suitable for concept generation.",
-        "Optimization opportunity: improved storage zoning and cleaner worktop lines.",
-        "Trade note: electrical, plumbing, and appliance coordination recommended.",
+        `Photo opened successfully: ${bitmap.width} × ${bitmap.height} pixels.`,
+        "Review the preview and choose your preferred finishes.",
+        "AI analysis runs when you select Generate; no layout has been inferred at this stage.",
       ];
-
+      bitmap.close();
       setAnalysisSummary(generated);
       setAnalysisDone(true);
       return true;
+    } catch {
+      setError("This photo could not be opened. Please choose another image.");
+      return false;
     } finally {
       setAnalysisRunning(false);
     }
@@ -426,7 +324,9 @@ export default function KitchenDesignerWizard({ initialStep = 1 }: KitchenDesign
   }
 
   async function handleGenerate() {
-    let createdJob: Job | null = null;
+    if (activeJobId && job && ["analyzing", "rendering", "describing", "estimating"].includes(job.status)) {
+      setLoading(true); setStep(8); setError(null); return;
+    }
     if (!photo) {
       setError("Please upload a kitchen photo first.");
       setStep(1);
@@ -454,8 +354,6 @@ export default function KitchenDesignerWizard({ initialStep = 1 }: KitchenDesign
       setError(null);
       setInfoMessage(null);
       setLeadSuccess(false);
-      setIsDemoResult(false);
-      setDemoReason(null);
       setStep(8);
       setActiveJobId(null);
       setGenerationStartedAt(Date.now());
@@ -469,6 +367,7 @@ export default function KitchenDesignerWizard({ initialStep = 1 }: KitchenDesign
       createForm.append("worktop", worktop);
       createForm.append("handles", handles);
       createForm.append("appliances", appliances.join(","));
+      if (notes.length > 1000) throw new Error("Please keep your notes under 1000 characters.");
       const fullNotes = [
         notes.trim(),
         `Preferred worktop: ${worktop}`,
@@ -490,7 +389,6 @@ export default function KitchenDesignerWizard({ initialStep = 1 }: KitchenDesign
       if (!createResponse.ok || !createPayload.job) {
         throw new Error(createPayload.error || "Failed to create AI design job");
       }
-      createdJob = createPayload.job;
       setJob(createPayload.job);
       setActiveJobId(createPayload.job.id);
 
@@ -519,32 +417,10 @@ export default function KitchenDesignerWizard({ initialStep = 1 }: KitchenDesign
     } catch (caughtError) {
       const message =
         caughtError instanceof Error ? caughtError.message : "Failed to generate concept";
-      if (isProviderRateLimitError(message)) {
-        setError(getProviderIssueSummary(message));
-        setStep(7);
-        setLoading(false);
-        setGenerationStartedAt(null);
-        return;
-      }
-      if (createdJob) {
-        setJob(createdJob);
-        setActiveJobId(createdJob.id);
-        setInfoMessage(
-          `Connection interrupted while starting live generation (${message}). We are checking your project status now.`
-        );
-        return;
-      }
-      setIsDemoResult(true);
-      setDemoReason(getProviderIssueSummary(message));
-      setActiveJobId(null);
-      const issueSummary = getProviderIssueSummary(message);
-      setInfoMessage(
-        `${issueSummary} Showing a local demo result so you can continue all steps.`
-      );
-      setJob(createDemoJob());
-      setStep(9);
+      setError(message);
       setLoading(false);
       setGenerationStartedAt(null);
+      setStep(7);
     }
   }
 
@@ -573,22 +449,8 @@ export default function KitchenDesignerWizard({ initialStep = 1 }: KitchenDesign
         setLeadError("Enter a valid email address.");
         return;
       }
-      if (!/^[\d\s()+-]{10,}$/.test(trimmedPhone)) {
+      if (trimmedPhone.length > 30 || !/^[\d\s()+-]+$/.test(trimmedPhone) || trimmedPhone.replace(/\D/g, "").length < 10 || trimmedPhone.replace(/\D/g, "").length > 15) {
         setLeadError("Enter a valid phone number.");
-        return;
-      }
-
-      trackEvent("ai_designer_lead_submit", {
-        job_id: job.id,
-        supplier_id: supplierId,
-        has_message: Boolean(leadMessage.trim()),
-      });
-
-      if (isDemoResult) {
-        setLeadSuccess(true);
-        setInfoMessage(
-          "Demo mode: enquiry saved locally in the current session view. Configure live API keys to send to backend."
-        );
         return;
       }
 
@@ -635,7 +497,7 @@ export default function KitchenDesignerWizard({ initialStep = 1 }: KitchenDesign
         return;
       }
       if (step === 2 && !analysisDone) {
-        setError("Please complete photo analysis before continuing.");
+        setError("Please complete photo check before continuing.");
         return;
       }
       if (step === 3 && !supplierId) {
@@ -681,14 +543,12 @@ export default function KitchenDesignerWizard({ initialStep = 1 }: KitchenDesign
 
   return (
     <section className="rounded-3xl border border-white/10 bg-black/50 p-6 md:p-8">
+      <p className="mb-4 text-sm text-neutral-400">Your photo and selections are processed to create an AI concept. <a href="/privacy" className="underline">How we use your information</a>.</p>
       <div className="mb-8">
         <p className="text-xs uppercase tracking-[0.3em] text-amber-300 mb-3">
           Premium Kitchen Configurator
         </p>
         <div className="mb-4 flex flex-wrap items-center gap-3 text-xs">
-          <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-neutral-300">
-            Build: {WIZARD_BUILD}
-          </span>
           <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-neutral-300">
             Step: {step}
           </span>
@@ -736,7 +596,7 @@ export default function KitchenDesignerWizard({ initialStep = 1 }: KitchenDesign
         <div className="space-y-5">
           <h2 className="text-2xl font-bold">Step 1: Add kitchen photo</h2>
           <p className="text-neutral-300">
-            Use a clear wide shot. JPG, PNG, WEBP or AVIF, max 50MB.
+            Use a clear wide shot. JPG, PNG, WEBP or AVIF, max 3MB. Avoid including people or private documents.
           </p>
           <input
             ref={fileInputRef}
@@ -762,13 +622,10 @@ export default function KitchenDesignerWizard({ initialStep = 1 }: KitchenDesign
           )}
           {previewUrl && (
             <div className="relative aspect-[16/10] w-full max-w-2xl overflow-hidden rounded-2xl border border-white/10">
-              <Image
+              <Image unoptimized width={1536} height={1024}
                 src={previewUrl}
                 alt="Kitchen preview"
-                fill
-                unoptimized
-                sizes="(max-width: 768px) 100vw, 700px"
-                className="cursor-zoom-in object-cover"
+                className="h-full w-full cursor-zoom-in object-cover"
                 onClick={() => openZoom(previewUrl, "Kitchen preview")}
               />
             </div>
@@ -786,16 +643,16 @@ export default function KitchenDesignerWizard({ initialStep = 1 }: KitchenDesign
             }}
             className="rounded-xl bg-amber-400 px-6 py-3 font-bold text-black disabled:opacity-60"
           >
-            Continue to analysis
+            Continue to photo check
           </button>
         </div>
       )}
 
       {step === 2 && (
         <div className="space-y-5">
-          <h2 className="text-2xl font-bold">Step 2: AI photo analysis</h2>
+          <h2 className="text-2xl font-bold">Step 2: Photo check</h2>
           <p className="text-neutral-300">
-            We review your current layout and technical constraints before styling, then align concepts with Howdens, Wren, B&Q and IKEA-inspired ranges.
+            Check that your photo opens correctly. AI reviews the room later, when you generate your selected design.
           </p>
           {!photo && (
             <div className="rounded-2xl border border-white/10 bg-white/5 p-4 space-y-3">
@@ -824,7 +681,7 @@ export default function KitchenDesignerWizard({ initialStep = 1 }: KitchenDesign
             disabled={analysisRunning}
             className="rounded-xl bg-amber-400 px-6 py-3 font-bold text-black disabled:opacity-60"
           >
-            {analysisRunning ? "Analyzing..." : "Run photo analysis"}
+            {analysisRunning ? "Checking photo..." : "Run photo check"}
           </button>
           {analysisSummary.length > 0 && (
             <div className="rounded-2xl border border-white/10 bg-white/5 p-5 space-y-3">
@@ -848,7 +705,7 @@ export default function KitchenDesignerWizard({ initialStep = 1 }: KitchenDesign
               onClick={continueFromAnalysis}
               className="rounded-xl bg-amber-400 px-6 py-3 font-bold text-black"
             >
-              {analysisDone ? "Continue" : "Run analysis and continue"}
+              {analysisDone ? "Continue" : "Check photo and continue"}
             </button>
           </div>
         </div>
@@ -1231,12 +1088,12 @@ export default function KitchenDesignerWizard({ initialStep = 1 }: KitchenDesign
               onClick={() => {
                 setLoading(false);
                 setGenerationStartedAt(null);
-                setError("Generation was stopped. You can try again.");
+                setError("You have left the progress view. Generation may still be running.");
                 setStep(7);
               }}
               className="rounded-xl border border-white/20 px-6 py-3 font-bold"
             >
-              Stop and go back
+              Back to selections
             </button>
           )}
         </div>
@@ -1245,12 +1102,6 @@ export default function KitchenDesignerWizard({ initialStep = 1 }: KitchenDesign
       {step === 9 && (
         <div className="space-y-8">
           <h2 className="text-2xl font-bold">Step 9: Your AI kitchen project</h2>
-          {isDemoResult && (
-            <div className="rounded-2xl border border-amber-400/40 bg-amber-400/10 p-3 text-sm text-amber-100">
-              {demoReason ?? "Demo result mode (local). Live generation is temporarily unavailable."}
-            </div>
-          )}
-
           {job && (
             <div className="space-y-6">
               <div className="rounded-3xl border border-white/10 bg-black/40 p-4 md:p-5">
@@ -1261,13 +1112,10 @@ export default function KitchenDesignerWizard({ initialStep = 1 }: KitchenDesign
                     </p>
                     {photo && previewUrl ? (
                       <div className="relative aspect-[16/10] overflow-hidden rounded-xl">
-                        <Image
+                        <Image unoptimized width={1536} height={1024}
                           src={previewUrl}
                           alt="Uploaded kitchen photo"
-                          fill
-                          unoptimized
-                          sizes="(max-width: 1024px) 100vw, 640px"
-                          className="cursor-zoom-in object-cover"
+                          className="h-full w-full cursor-zoom-in object-cover"
                           onClick={() => openZoom(previewUrl, "Uploaded kitchen photo")}
                         />
                       </div>
@@ -1281,13 +1129,10 @@ export default function KitchenDesignerWizard({ initialStep = 1 }: KitchenDesign
                     </p>
                     {job.generated_image_url ? (
                       <div className="relative aspect-[16/10] overflow-hidden rounded-xl">
-                        <Image
+                        <Image unoptimized width={1536} height={1024}
                           src={job.generated_image_url}
                           alt="Generated kitchen concept"
-                          fill
-                          unoptimized
-                          sizes="(max-width: 1024px) 100vw, 640px"
-                          className="cursor-zoom-in object-cover"
+                          className="h-full w-full cursor-zoom-in object-cover"
                           onClick={() =>
                             openZoom(job.generated_image_url ?? "", "Generated kitchen concept")
                           }
@@ -1467,12 +1312,9 @@ export default function KitchenDesignerWizard({ initialStep = 1 }: KitchenDesign
             </div>
             <div className="flex-1 overflow-auto rounded-2xl border border-white/10 bg-black/40">
               <div className="flex min-h-full min-w-full items-center justify-center p-4">
-                <Image
+                <Image unoptimized width={1536} height={1024}
                   src={zoomImage.src}
                   alt={zoomImage.alt}
-                  width={1600}
-                  height={1200}
-                  unoptimized
                   className="max-w-none"
                   style={{ transform: `scale(${zoomLevel})`, transformOrigin: "center center" }}
                 />

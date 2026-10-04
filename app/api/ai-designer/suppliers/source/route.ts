@@ -1,10 +1,11 @@
+import { signAssetUrl } from "@/lib/ai-designer/supabase-rest";
 import { readFile } from "fs/promises";
 import path from "path";
 
 import { getSupplierCatalogById } from "@/lib/ai-designer/supplier-catalog";
 import { requiredEnv } from "@/lib/ai-designer/env";
 
-const LOCAL_SUPPLIERS_DIR = "/Users/Dawid/Desktop/Suppliers ";
+const LOCAL_SUPPLIERS_DIR = process.env.SUPPLIER_SOURCE_DIR;
 
 function detectContentType(fileName: string): string {
   const lower = fileName.toLowerCase();
@@ -86,8 +87,9 @@ export async function GET(request: Request) {
     return Response.json({ error: "File is not in supplier catalog" }, { status: 403 });
   }
 
-  const safePath = path.join(LOCAL_SUPPLIERS_DIR, supplier.label, file);
   try {
+    if (!LOCAL_SUPPLIERS_DIR) throw new Error("Local sources not configured");
+    const safePath = path.join(LOCAL_SUPPLIERS_DIR, supplier.label, file);
     const content = await readFile(safePath);
     return new Response(content, {
       status: 200,
@@ -117,9 +119,9 @@ export async function GET(request: Request) {
           : referencedPages.length > 0
           ? Math.min(...referencedPages)
           : 1;
-      return Response.redirect(publicPdfPageStorageUrl(supplier.id, file, fallbackPage), 307);
+      try { return Response.redirect(await signAssetUrl(publicPdfPageStorageUrl(supplier.id, file, fallbackPage)), 307); } catch { return Response.json({ error: "Brochure temporarily unavailable" }, { status: 503 }); }
     }
 
-    return Response.redirect(publicImageStorageUrl(supplier.id, file), 307);
+    try { return Response.redirect(await signAssetUrl(publicImageStorageUrl(supplier.id, file)), 307); } catch { return Response.json({ error: "Brochure temporarily unavailable" }, { status: 503 }); }
   }
 }

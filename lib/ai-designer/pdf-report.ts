@@ -1,3 +1,4 @@
+import { providerFetch } from "./provider-fetch";
 import "server-only";
 
 import type { KitchenDesignJob } from "./types";
@@ -73,26 +74,26 @@ export async function generateKitchenPdfReport(job: KitchenDesignJob): Promise<A
     format: "A4",
   });
 
-  let response = await fetch("https://api.pdfshift.io/v3/convert/pdf", {
+  let response = await providerFetch("https://api.pdfshift.io/v3/convert/pdf", {
     method: "POST",
     headers: {
       "X-API-Key": apiKey,
       "Content-Type": "application/json",
     },
     body: requestBody,
-    cache: "no-store",
+    signal: AbortSignal.timeout(30_000), cache: "no-store",
   });
 
   if (response.status === 401) {
     const credentials = Buffer.from(`${apiKey}:`).toString("base64");
-    response = await fetch("https://api.pdfshift.io/v3/convert/pdf", {
+    response = await providerFetch("https://api.pdfshift.io/v3/convert/pdf", {
       method: "POST",
       headers: {
         Authorization: `Basic ${credentials}`,
         "Content-Type": "application/json",
       },
       body: requestBody,
-      cache: "no-store",
+      signal: AbortSignal.timeout(30_000), cache: "no-store",
     });
   }
 

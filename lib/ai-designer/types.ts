@@ -9,6 +9,9 @@ export type KitchenDesignStatus =
   | "failed";
 
 export interface KitchenDesignJob {
+  owner_hash: string | null;
+  lead_email_sent_at: string | null;
+  lead_email_claimed_at: string | null;
   id: string;
   status: KitchenDesignStatus;
   input_image_url: string;
@@ -33,6 +36,7 @@ export interface KitchenDesignJob {
 }
 
 export interface CreateKitchenDesignJobInput {
+  ownerHash: string;
   inputImageUrl: string;
   style: string;
   colorPalette: string[];

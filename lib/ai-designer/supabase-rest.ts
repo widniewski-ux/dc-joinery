@@ -5,7 +5,6 @@ import type {
   CreateKitchenDesignJobInput,
   KitchenDesignJob,
   KitchenDesignStatus,
-  LeadInput,
 } from "./types";
 
 const getSupabaseUrl = () => requiredEnv("SUPABASE_URL");
@@ -35,6 +34,7 @@ export async function createKitchenDesignJob(
   input: CreateKitchenDesignJobInput
 ): Promise<KitchenDesignJob> {
   const payload = {
+    owner_hash: input.ownerHash,
     status: "uploaded",
     input_image_url: input.inputImageUrl,
     style: input.style,
@@ -51,7 +51,7 @@ export async function createKitchenDesignJob(
       Prefer: "return=representation",
     },
     body: JSON.stringify(payload),
-    cache: "no-store",
+    cache: "no-store", signal: AbortSignal.timeout(15_000),
   });
 
   const rows = await parseResponse<KitchenDesignJob[]>(
@@ -70,7 +70,7 @@ export async function getKitchenDesignJob(jobId: string): Promise<KitchenDesignJ
 
   const response = await fetch(`${getRestBase()}/ai_design_jobs?${params.toString()}`, {
     headers: authHeaders(),
-    cache: "no-store",
+    cache: "no-store", signal: AbortSignal.timeout(15_000),
   });
 
   const rows = await parseResponse<KitchenDesignJob[]>(
@@ -96,7 +96,7 @@ export async function updateKitchenDesignJob(
       Prefer: "return=representation",
     },
     body: JSON.stringify(patch),
-    cache: "no-store",
+    cache: "no-store", signal: AbortSignal.timeout(15_000),
   });
 
   const rows = await parseResponse<KitchenDesignJob[]>(
@@ -117,16 +117,6 @@ export async function setKitchenDesignStatus(
   return updateKitchenDesignJob(jobId, { status });
 }
 
-export async function saveLead(jobId: string, lead: LeadInput): Promise<KitchenDesignJob> {
-  return updateKitchenDesignJob(jobId, {
-    status: "lead_submitted",
-    lead_name: lead.name,
-    lead_email: lead.email,
-    lead_phone: lead.phone,
-    lead_message: lead.message,
-  });
-}
-
 export async function listRecentLeadJobs(limit = 50): Promise<KitchenDesignJob[]> {
   const params = new URLSearchParams({
     status: "eq.lead_submitted",
@@ -137,10 +127,63 @@ export async function listRecentLeadJobs(limit = 50): Promise<KitchenDesignJob[]
 
   const response = await fetch(`${getRestBase()}/ai_design_jobs?${params.toString()}`, {
     headers: authHeaders(),
-    cache: "no-store",
+    cache: "no-store", signal: AbortSignal.timeout(15_000),
   });
 
   return parseResponse<KitchenDesignJob[]>(response, "Failed to list AI lead jobs");
+}
+
+// Compare-and-set prevents parallel requests from starting the same paid job twice.
+export async function claimJob(jobId: string, status: string[], patch: Partial<KitchenDesignJob>): Promise<KitchenDesignJob | null> {
+  const params = new URLSearchParams({ id: `eq.${jobId}`, status: `in.(${status.join(",")})`, select: "*" });
+  const response = await fetch(`${getRestBase()}/ai_design_jobs?${params}`, {
+    method: "PATCH", headers: { ...authHeaders("application/json"), Prefer: "return=representation" },
+    body: JSON.stringify(patch), cache: "no-store", signal: AbortSignal.timeout(15_000),
+  });
+  return (await parseResponse<KitchenDesignJob[]>(response, "Failed to claim job"))[0] ?? null;
+}
+
+export async function consumeRateLimit(key: string, limit: number, windowMs: number): Promise<boolean> {
+  const response = await fetch(`${getRestBase()}/rpc/consume_website_rate_limit`, {
+    method: "POST", headers: authHeaders("application/json"),
+    body: JSON.stringify({ p_key: key, p_limit: limit, p_window_ms: windowMs }),
+    cache: "no-store", signal: AbortSignal.timeout(10_000),
+  });
+  return parseResponse<boolean>(response, "Rate limit service unavailable");
+}
+
+export async function claimLeadEmail(jobId: string): Promise<boolean> {
+  const params = new URLSearchParams({ id: `eq.${jobId}`, lead_email_sent_at: "is.null",
+    or: `(lead_email_claimed_at.is.null,lead_email_claimed_at.lt.${new Date(Date.now() - 300_000).toISOString()})`, select: "id" });
+  const response = await fetch(`${getRestBase()}/ai_design_jobs?${params}`, {
+    method: "PATCH", headers: { ...authHeaders("application/json"), Prefer: "return=representation" },
+    body: JSON.stringify({ lead_email_claimed_at: new Date().toISOString() }),
+    cache: "no-store", signal: AbortSignal.timeout(15_000),
+  });
+  return (await parseResponse<{id: string}[]>(response, "Unable to claim notification")).length === 1;
+}
+
+export async function signAssetUrl(value: string): Promise<string> {
+  const base = getSupabaseUrl().replace(/\/+$/, "");
+  const url = new URL(value);
+  if (url.origin !== new URL(base).origin) throw new Error("Unexpected asset origin");
+  const match = url.pathname.match(/^\/storage\/v1\/object\/(?:public|sign)\/ai-designer\/(.+)$/);
+  if (!match || match[1].split("/").some(part => [".", ".."].includes(decodeURIComponent(part)))) throw new Error("Invalid asset path");
+  const response = await fetch(`${base}/storage/v1/object/sign/${DESIGN_BUCKET}/${match[1]}`, {
+    method: "POST", headers: authHeaders("application/json"), body: JSON.stringify({ expiresIn: 3600 }),
+    cache: "no-store", signal: AbortSignal.timeout(10_000),
+  });
+  const data = await parseResponse<{ signedURL: string }>(response, "Unable to open asset");
+  return `${base}/storage/v1${data.signedURL}`;
+}
+
+export async function signJobAssets(job: KitchenDesignJob): Promise<KitchenDesignJob> {
+  const [input, generated, pdf] = await Promise.all([
+    signAssetUrl(job.input_image_url),
+    job.generated_image_url ? signAssetUrl(job.generated_image_url) : null,
+    job.pdf_report_url ? signAssetUrl(job.pdf_report_url) : null,
+  ]);
+  return { ...job, input_image_url: input, generated_image_url: generated, pdf_report_url: pdf };
 }
 
 export async function uploadAssetToStorage(
@@ -157,6 +200,7 @@ export async function uploadAssetToStorage(
         "x-upsert": "false",
       },
       body: fileBuffer,
+      signal: AbortSignal.timeout(30_000),
     }
   );
 

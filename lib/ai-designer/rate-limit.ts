@@ -1,72 +1,28 @@
 import "server-only";
-
-type RateLimitEntry = {
-  count: number;
-  resetAt: number;
-};
-
-const RATE_LIMIT_STORE_KEY = "__dc_joinery_ai_rate_limit_store__";
-
-function getStore(): Map<string, RateLimitEntry> {
-  const globalWithStore = globalThis as typeof globalThis & {
-    [RATE_LIMIT_STORE_KEY]?: Map<string, RateLimitEntry>;
-  };
-
-  if (!globalWithStore[RATE_LIMIT_STORE_KEY]) {
-    globalWithStore[RATE_LIMIT_STORE_KEY] = new Map<string, RateLimitEntry>();
-  }
-
-  return globalWithStore[RATE_LIMIT_STORE_KEY];
+import { createHash } from "node:crypto";
+import { isIP } from "node:net";
+import { consumeRateLimit } from "./supabase-rest";
+import { RequestError } from "../security";
+export class RateLimitError extends RequestError {
+  constructor() { super("Too many requests. Please wait a few minutes and try again.", 429); }
 }
-
-export class RateLimitError extends Error {
-  constructor(message = "Rate limit exceeded. Please try again shortly.") {
-    super(message);
-    this.name = "RateLimitError";
-  }
+export function getRequestIdentifier(request: Pick<Request, "headers">): string {
+  // Only trust a header overwritten by the deployment ingress.
+  const header = process.env.VERCEL === "1" ? "x-vercel-forwarded-for" : process.env.TRUSTED_CLIENT_IP_HEADER;
+  const value = header ? request.headers.get(header)?.split(",")[0].trim() : null;
+  return value && isIP(value) ? value : "shared";
 }
-
-export function getRequestIdentifier(request: Request): string {
-  const forwardedFor = request.headers.get("x-forwarded-for");
-  if (forwardedFor) {
-    return forwardedFor.split(",")[0].trim();
-  }
-
-  const realIp = request.headers.get("x-real-ip");
-  if (realIp) {
-    return realIp.trim();
-  }
-
-  return "unknown";
-}
-
-export function assertRateLimit(
-  key: string,
-  limit: number,
-  windowMs: number
-): void {
-  const store = getStore();
-  const now = Date.now();
-
-  for (const [entryKey, entry] of store.entries()) {
-    if (entry.resetAt <= now) {
-      store.delete(entryKey);
-    }
-  }
-
-  const current = store.get(key);
-  if (!current || current.resetAt <= now) {
-    store.set(key, {
-      count: 1,
-      resetAt: now + windowMs,
-    });
+const local = new Map<string, { count: number; expiry: number }>();
+export async function assertRateLimit(key: string, limit: number, windowMs: number) {
+  const hash = createHash("sha256").update(key).digest("hex");
+  if (process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    if (!await consumeRateLimit(hash, limit, windowMs)) throw new RateLimitError();
     return;
   }
-
-  if (current.count >= limit) {
-    throw new RateLimitError();
-  }
-
-  current.count += 1;
-  store.set(key, current);
+  if (process.env.NODE_ENV === "production") throw new Error("Rate limit service unavailable");
+  const now = Date.now();
+  for (const [id, value] of local) if (value.expiry <= now) local.delete(id);
+  const value = local.get(hash) || { count: 0, expiry: now + windowMs };
+  if (++value.count > limit) throw new RateLimitError();
+  local.set(hash, value);
 }
