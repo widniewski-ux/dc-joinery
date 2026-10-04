@@ -30,7 +30,7 @@ export const metadata: Metadata = {
     "Professional kitchen fitting, kitchen supply and installation, fitted bedrooms, wardrobes and bespoke kitchens across Northern Ireland.",
 
   verification: {
-    google: "hyUv2x_MicAMsMar7uTGKXwRzHZrC8NulgJylGxhiQo",
+    google: ["hyUv2x_MicAMsMar7uTGKXwRzHZrC8NulgJylGxhiQo", "UKkoHIX5P0XDWXvoAEY3yqGA_tZfM9wT3HPaVDy0TSk"],
   },
 
   keywords: [
