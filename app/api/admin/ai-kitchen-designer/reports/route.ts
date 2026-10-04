@@ -1,42 +1,13 @@
-import { optionalEnv } from "@/lib/ai-designer/env";
-import {
-  assertRateLimit,
-  getRequestIdentifier,
-  RateLimitError,
-} from "@/lib/ai-designer/rate-limit";
-import { listRecentLeadJobs } from "@/lib/ai-designer/supabase-rest";
-
+import { apiError, isAdmin, privateHeaders, RequestError, validAdminToken } from "@/lib/security";
+import { listRecentLeadJobs, signJobAssets } from "@/lib/ai-designer/supabase-rest";
+import { assertRateLimit, getRequestIdentifier } from "@/lib/ai-designer/rate-limit";
 export const runtime = "nodejs";
-
 export async function GET(request: Request) {
   try {
-    const identifier = getRequestIdentifier(request);
-    assertRateLimit(`ai-designer:admin-reports:${identifier}`, 30, 60_000);
-
-    const configuredToken = optionalEnv("AI_DESIGNER_ADMIN_TOKEN");
-    if (!configuredToken) {
-      return Response.json(
-        { error: "AI_DESIGNER_ADMIN_TOKEN is not configured" },
-        { status: 500 }
-      );
-    }
-
-    const providedToken = request.headers.get("x-admin-token");
-    if (providedToken !== configuredToken) {
-      return Response.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    const url = new URL(request.url);
-    const limitParam = Number(url.searchParams.get("limit") || "25");
-    const limit = Number.isFinite(limitParam) ? Math.min(Math.max(limitParam, 1), 100) : 25;
-    const jobs = await listRecentLeadJobs(limit);
-
-    return Response.json({ jobs });
-  } catch (error) {
-    if (error instanceof RateLimitError) {
-      return Response.json({ error: error.message }, { status: 429 });
-    }
-    const message = error instanceof Error ? error.message : "Failed to list admin reports";
-    return Response.json({ error: message }, { status: 500 });
-  }
+    if (!await isAdmin() && !validAdminToken(request.headers.get("x-admin-token") || "")) throw new RequestError("Unauthorized", 401);
+    await assertRateLimit("admin-reports:" + getRequestIdentifier(request), 30, 60_000);
+    const raw = Number(new URL(request.url).searchParams.get("limit") || 25);
+    const jobs = await listRecentLeadJobs(Number.isFinite(raw) ? Math.min(100, Math.max(1, Math.trunc(raw))) : 25);
+    return Response.json({ jobs: await Promise.all(jobs.map(signJobAssets)) }, { headers: privateHeaders });
+  } catch (error) { return apiError(error); }
 }

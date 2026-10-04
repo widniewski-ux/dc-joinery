@@ -42,3 +42,8 @@ create trigger ai_design_jobs_updated_at_trigger
 before update on public.ai_design_jobs
 for each row
 execute function public.set_ai_design_jobs_updated_at();
+
+-- Apply db/security_migration.sql next, before exposing the website.
+alter table public.ai_design_jobs enable row level security;
+revoke all on public.ai_design_jobs from public, anon, authenticated;
+grant select, insert, update, delete on public.ai_design_jobs to service_role;

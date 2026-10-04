@@ -26,6 +26,7 @@ export default function Footer() {
         <div>
           <h3 className="text-white font-semibold mb-4">Quick links</h3>
           <div className="space-y-3 text-sm">
+            <Link href="/privacy" className="block transition hover:text-white">Privacy and cookies</Link>
             <Link href="/" className="block transition hover:text-white">
               Home
             </Link>

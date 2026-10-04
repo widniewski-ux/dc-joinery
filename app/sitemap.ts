@@ -2,6 +2,8 @@ import { MetadataRoute } from "next";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   return [
+    { url: "https://dcjoineryni.uk/privacy" },
+    { url: "https://dcjoineryni.uk/ai-kitchen-designer" },
     {
       url: "https://dcjoineryni.uk",
       lastModified: new Date(),

@@ -90,6 +90,8 @@ export default function Home() {
               alt="DC Joinery kitchen project"
               fill
               priority={index === 0}
+              loading={index === 0 ? "eager" : "lazy"}
+              sizes="100vw"
               className={`object-cover hero-slide hero-slide-${index + 1}`}
             />
           ))}

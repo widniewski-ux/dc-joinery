@@ -1,3 +1,4 @@
+import EnquiryForm from "../components/EnquiryForm";
 import Link from "next/link";
 import { sendKitchenFittingForm } from "../actions";
 
@@ -66,7 +67,7 @@ export default function KitchenFittingPage() {
             </div>
           </div>
 
-          <form
+          <EnquiryForm
             action={sendKitchenFittingForm}
             className="form-container rounded-[2rem] border border-white/10 bg-white/[0.04] p-6 text-white shadow-2xl md:p-10"
           >
@@ -88,10 +89,10 @@ export default function KitchenFittingPage() {
                 <h3 className="text-xl font-bold mb-4">Contact Details</h3>
 
                 <div className="grid gap-5">
-                  <input name="name" className="input" placeholder="Full name" required />
-                  <input name="address" className="input" placeholder="Full address / postcode" required />
-                  <input name="phone" className="input" placeholder="Phone number" required />
-                  <input name="email" className="input" placeholder="Email address" type="email" required />
+                  <input name="name" maxLength={100} aria-label="Full name" className="input" placeholder="Full name" required />
+                  <input name="address" maxLength={500} aria-label="Address" className="input" placeholder="Full address / postcode" required />
+                  <input name="phone" type="tel" maxLength={30} aria-label="Phone number" className="input" placeholder="Phone number" required />
+                  <input name="email" maxLength={254} aria-label="Email address" className="input" placeholder="Email address" type="email" required />
                 </div>
               </section>
 
@@ -159,9 +160,10 @@ export default function KitchenFittingPage() {
                 <input
                   name="documents"
                   className="block w-full rounded-xl border border-white/20 bg-white/5 p-4 text-sm text-neutral-200"
-                  type="file" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+                  type="file" accept=".pdf,.jpg,.jpeg,.png,.webp,.avif"
                   multiple
                 />
+                <p className="text-sm text-neutral-400">Up to 5 PDF or image files, 3MB combined. Export Word documents as PDF.</p>
 
                 <p className="mt-3 text-sm text-neutral-400">
                   PDF, JPG or PNG plans are best. Please include measurements where possible.
@@ -187,7 +189,7 @@ export default function KitchenFittingPage() {
                 Your enquiry will be sent directly to DC Joinery.
               </p>
             </div>
-          </form>
+          </EnquiryForm>
         </div>
       </section>
     </main>

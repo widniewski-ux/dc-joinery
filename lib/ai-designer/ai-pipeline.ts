@@ -1,3 +1,4 @@
+import { providerFetch, withinGenerationDeadline } from "./provider-fetch";
 import "server-only";
 
 import { Resend } from "resend";
@@ -5,6 +6,8 @@ import { optionalEnv, requiredEnv } from "./env";
 import { generateKitchenPdfReport } from "./pdf-report";
 import {
   getKitchenDesignJob,
+  signJobAssets,
+  signAssetUrl,
   setKitchenDesignStatus,
   updateKitchenDesignJob,
   uploadAssetToStorage,
@@ -155,7 +158,7 @@ function parseSelectionsFromNotes(job: KitchenDesignJob): ParsedSelections {
 }
 
 async function analyzeKitchenPhoto(job: KitchenDesignJob): Promise<VisionAnalysis> {
-  const response = await fetch("https://api.openai.com/v1/chat/completions", {
+  const response = await providerFetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
     headers: {
       Authorization: `Bearer ${openAiApiKey()}`,
@@ -193,7 +196,7 @@ Focus on practical renovation decisions and installation constraints.`,
       ],
       temperature: 0.3,
     }),
-    cache: "no-store",
+    signal: AbortSignal.timeout(90_000), cache: "no-store",
   });
 
   if (!response.ok) {
@@ -238,7 +241,7 @@ function generatedImageStoragePath(jobId: string): string {
 }
 
 async function downloadAndStoreImageFromUrl(imageUrl: string, jobId: string): Promise<string> {
-  const imageResponse = await fetch(imageUrl, { cache: "no-store" });
+  const imageResponse = await providerFetch(imageUrl, { signal: AbortSignal.timeout(90_000), cache: "no-store" });
   if (!imageResponse.ok) {
     const body = await imageResponse.text();
     throw new Error(`Generated image download failed: ${imageResponse.status} ${body}`);
@@ -253,7 +256,7 @@ async function generateKitchenRenderWithOpenAi(
   analysis: VisionAnalysis,
   strictnessNote: string
 ): Promise<string> {
-  const sourceImageResponse = await fetch(job.input_image_url, { cache: "no-store" });
+  const sourceImageResponse = await providerFetch(job.input_image_url, { signal: AbortSignal.timeout(90_000), cache: "no-store" });
   if (!sourceImageResponse.ok) {
     const body = await sourceImageResponse.text();
     throw new Error(`Failed to load source image for editing: ${sourceImageResponse.status} ${body}`);
@@ -281,13 +284,13 @@ ${strictnessNote}`
   formData.append("quality", "high");
   formData.append("image", imageBlob, "kitchen-source.png");
 
-  const response = await fetch("https://api.openai.com/v1/images/edits", {
+  const response = await providerFetch("https://api.openai.com/v1/images/edits", {
     method: "POST",
     headers: {
       Authorization: `Bearer ${openAiApiKey()}`,
     },
     body: formData,
-    cache: "no-store",
+    signal: AbortSignal.timeout(90_000), cache: "no-store",
   });
 
   if (!response.ok) {
@@ -342,14 +345,14 @@ ${strictnessNote}`;
 
   let prediction: { id: string; status: string } | null = null;
   for (let attempt = 0; attempt < 5; attempt += 1) {
-    const predictionResponse = await fetch(replicateRequest.url, {
+    const predictionResponse = await providerFetch(replicateRequest.url, {
       method: "POST",
       headers: {
         Authorization: `Token ${replicateToken()}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify(replicateRequest.body),
-      cache: "no-store",
+      signal: AbortSignal.timeout(90_000), cache: "no-store",
     });
 
     if (predictionResponse.ok) {
@@ -389,13 +392,13 @@ ${strictnessNote}`;
     }
 
     await new Promise((resolve) => setTimeout(resolve, 2000));
-    const pollResponse = await fetch(
+    const pollResponse = await providerFetch(
       `https://api.replicate.com/v1/predictions/${prediction.id}`,
       {
         headers: {
           Authorization: `Token ${replicateToken()}`,
         },
-        cache: "no-store",
+        signal: AbortSignal.timeout(90_000), cache: "no-store",
       }
     );
 
@@ -432,7 +435,7 @@ async function validateGeometryConsistency(
   originalImageUrl: string,
   generatedImageUrl: string
 ): Promise<{ ok: boolean; reason: string }> {
-  const response = await fetch("https://api.openai.com/v1/chat/completions", {
+  const response = await providerFetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
     headers: {
       Authorization: `Bearer ${openAiApiKey()}`,
@@ -461,7 +464,7 @@ async function validateGeometryConsistency(
       ],
       temperature: 0,
     }),
-    cache: "no-store",
+    signal: AbortSignal.timeout(90_000), cache: "no-store",
   });
 
   if (!response.ok) {
@@ -498,7 +501,7 @@ async function generateKitchenRender(job: KitchenDesignJob, analysis: VisionAnal
   try {
     for (const strictnessNote of strictnessNotes) {
       const imageUrl = await generateKitchenRenderWithOpenAi(job, analysis, strictnessNote);
-      const check = await validateGeometryConsistency(job.input_image_url, imageUrl);
+      const check = await validateGeometryConsistency(job.input_image_url, await signAssetUrl(imageUrl));
       if (check.ok) {
         return imageUrl;
       }
@@ -530,7 +533,7 @@ async function generateKitchenRender(job: KitchenDesignJob, analysis: VisionAnal
   let replicateFailureReason = "Replicate render did not preserve room geometry.";
   for (const strictnessNote of strictnessNotes) {
     const imageUrl = await generateKitchenRenderWithReplicate(job, analysis, strictnessNote);
-    const check = await validateGeometryConsistency(job.input_image_url, imageUrl);
+    const check = await validateGeometryConsistency(job.input_image_url, await signAssetUrl(imageUrl));
     if (check.ok) {
       return imageUrl;
     }
@@ -571,7 +574,7 @@ async function generateKitchenRender(job: KitchenDesignJob, analysis: VisionAnal
 }
 
 async function generateDescription(job: KitchenDesignJob, analysis: VisionAnalysis): Promise<string> {
-  const response = await fetch("https://api.openai.com/v1/chat/completions", {
+  const response = await providerFetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
     headers: {
       Authorization: `Bearer ${openAiApiKey()}`,
@@ -601,7 +604,7 @@ Room analysis: ${JSON.stringify(analysis)}`,
       ],
       temperature: 0.4,
     }),
-    cache: "no-store",
+    signal: AbortSignal.timeout(90_000), cache: "no-store",
   });
 
   if (!response.ok) {
@@ -623,7 +626,15 @@ Room analysis: ${JSON.stringify(analysis)}`,
 }
 
 export async function runKitchenDesignPipeline(jobId: string): Promise<KitchenDesignJob> {
-  const job = await getKitchenDesignJob(jobId);
+  try { return await withinGenerationDeadline(() => runPipeline(jobId)); }
+  catch (error) {
+    await updateKitchenDesignJob(jobId, { status: "failed", estimate_explanation: "Generation could not be completed. Please try again or contact us." });
+    throw error;
+  }
+}
+async function runPipeline(jobId: string): Promise<KitchenDesignJob> {
+  const storedJob = await getKitchenDesignJob(jobId);
+  const job = storedJob ? await signJobAssets(storedJob) : null;
   if (!job) {
     throw new Error("AI design job not found");
   }
@@ -681,12 +692,12 @@ export async function runKitchenDesignPipeline(jobId: string): Promise<KitchenDe
     let pdfUrl: string | null = null;
     let pdfErrorNote: string | null = null;
     try {
-      const pdfBuffer = await generateKitchenPdfReport(refreshed);
+      const pdfBuffer = await generateKitchenPdfReport(await signJobAssets(refreshed));
       const pdfPath = `${jobId}/report-${Date.now()}.pdf`;
       pdfUrl = await uploadAssetToStorage(pdfPath, pdfBuffer, "application/pdf");
-    } catch (error) {
+    } catch {
       pdfErrorNote =
-        error instanceof Error ? error.message : "PDF report could not be generated";
+        "PDF report is temporarily unavailable";
     }
 
     const combinedNote = [refreshed.estimate_explanation, pdfErrorNote ? `PDF note: ${pdfErrorNote}` : null]
@@ -702,7 +713,7 @@ export async function runKitchenDesignPipeline(jobId: string): Promise<KitchenDe
     await updateKitchenDesignJob(jobId, {
       status: "failed",
       estimate_explanation:
-        error instanceof Error ? error.message : "Unknown error while generating design",
+        "Generation could not be completed. Please try again or contact us.",
     });
     throw error;
   }
@@ -737,10 +748,10 @@ Style: ${job.style}
 Palette: ${job.color_palette.join(", ")}
 Selections: ${job.customer_notes ?? "N/A"}
 
-Generated image: ${job.generated_image_url ?? "N/A"}
-PDF report: ${job.pdf_report_url ?? "N/A"}
+Open the secure dashboard to view the image and PDF:
+${optionalEnv("NEXT_PUBLIC_SITE_URL") || "https://www.dcjoineryni.uk"}/admin/ai-leads
 `,
-  });
+  }, { idempotencyKey: `ai-lead-${job.id}` });
 
   if (result.error) {
     throw new Error(

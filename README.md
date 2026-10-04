@@ -46,7 +46,7 @@ npm run build
 - `GET /api/ai-designer/jobs/:jobId` - fetch job status/result
 - `POST /api/ai-designer/jobs/:jobId/lead` - submit lead + trigger admin report
 - `GET /api/admin/ai-kitchen-designer/reports` - admin feed (requires `x-admin-token`)
-- `GET /admin/ai-leads?token=...` - lightweight admin view
+- `GET /admin/ai-leads` - password form and expiring HttpOnly administrator session
 
 ### Required environment variables
 
@@ -70,7 +70,7 @@ AI_DESIGNER_ADMIN_EMAIL=info@dcjoinery.uk
 # Admin endpoint protection
 AI_DESIGNER_ADMIN_TOKEN=
 
-# Optional, for server-side admin page fetch
+# Canonical site origin, required on production for request validation
 NEXT_PUBLIC_SITE_URL=https://www.dcjoineryni.uk
 ```
 
@@ -80,11 +80,11 @@ Run the SQL in:
 
 `db/ai_designer_schema.sql`
 
-on your Supabase/Postgres project.
+on your Supabase/Postgres project, followed by `db/security_migration.sql`. Existing projects only need the security migration. See `SECURITY-ROLLOUT.md` before deployment.
 
 ### Storage setup
 
-Create a **public** Supabase storage bucket called:
+Create a **private** Supabase storage bucket called:
 
 `ai-designer`
 
@@ -99,64 +99,16 @@ It stores:
 
 ## Security Notes
 
-- Security headers configured in `next.config.ts`
+- Security headers in `next.config.ts`; per-request CSP nonce in `proxy.ts`
 - Form honeypot anti-spam in lead/contact flows
-- In-memory rate limiting on AI endpoints (create/generate/lead/admin reports)
+- Shared, atomic Supabase rate limits on form, AI and admin requests; production fails closed if unavailable
 - Strict server-side validation for file type, file count, and size
 - Secrets read only from server environment variables
+- Browser ownership cookie for designs; no customer contact details in customer API responses
+- Private media with one-hour signed access; seven-day browser ownership cookie
+- Image decode, metadata stripping and 3MB upload limits
+- Optional analytics requires opt-in
 
-## Project Cost Tracker (Excel)
+## Development dependency override
 
-- Workbook path: `ops/costs/dcjoineryni-cost-tracker.xlsx`
-- Audit snapshot path: `ops/costs/provider-audit.json`
-- Includes:
-  - full cost ledger (domains, email, hosting, AI/API, tools)
-  - automatic monthly rollups
-  - dashboard with category split and monthly trend charts
-  - verification columns (`VerificationStatus`, `Evidence`) so no assumed values are hidden
-
-Commands:
-
-```bash
-# one-time dependency
-pip3 install openpyxl
-
-# pull provider audit snapshot (real API checks, no guessed prices)
-# default window = last 28 days
-python3 scripts/cost_tracker.py audit --vercel-token <YOUR_VERCEL_TOKEN> --days 28
-
-# (re)create workbook from audit snapshot (fills verified + pending rows)
-python3 scripts/cost_tracker.py init
-
-# add a new cost entry (auto-updates formulas/charts in workbook)
-python3 scripts/cost_tracker.py add \
-  --vendor "Vercel" \
-  --service "Production hosting" \
-  --category Hosting \
-  --billing-cycle monthly \
-  --unit-cost-gbp 20 \
-  --qty 1 \
-  --verification-status verified \
-  --evidence "Invoice #1234" \
-  --notes "July invoice"
-```
-
-### Fully automatic refresh (no monthly manual edits)
-
-Workflow file: `.github/workflows/cost-sync.yml`
-
-- runs every 6 hours
-- refreshes `ops/costs/provider-audit.json`
-- rebuilds `ops/costs/dcjoineryni-cost-tracker.xlsx`
-- auto-commits updated artifacts
-
-Required GitHub Actions secrets:
-
-- `VERCEL_TOKEN`
-- `OPENAI_API_KEY`
-- `REPLICATE_API_TOKEN`
-- `RESEND_API_KEY`
-- `SUPABASE_URL`
-- `SUPABASE_SERVICE_ROLE_KEY`
-- `PDFSHIFT_API_KEY`
-- `DOMAIN_INVOICE_REFERENCE`
+The Next ESLint plugin uses `tools/eslint-glob` for directory lookup instead of the vulnerable fast-glob/micromatch/braces chain. All Next/React/TypeScript lint rules remain enabled. Review the scoped adapter when upgrading the Next ESLint plugin.
