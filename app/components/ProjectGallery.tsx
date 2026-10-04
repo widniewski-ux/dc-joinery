@@ -9,6 +9,7 @@ type Project = {
   details: string;
   images: string[];
   video?: string;
+  slug?: string;
 };
 
 type Section = {
@@ -130,6 +131,7 @@ export default function ProjectGallery({ sections }: ProjectGalleryProps) {
                       <p className="text-neutral-300 text-lg mb-8">
                         {project.details}
                       </p>
+                      {project.slug && <Link href={`/projects/${project.slug}`} className="inline-block mb-6 text-amber-300 underline">Read about this project</Link>}
 
                       <Link
                         href="/contact"

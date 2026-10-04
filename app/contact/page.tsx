@@ -1,12 +1,9 @@
+import { pageMetadata } from "@/lib/seo";
 import EnquiryForm from "../components/EnquiryForm";
 import Link from "next/link";
 import { sendContactForm } from "../actions";
 
-export const metadata = {
-  alternates: { canonical: "/contact" },
-  title: "Contact DC Joinery | Free Quote for Kitchen Fitting in Northern Ireland",
-  description: "Contact DC Joinery for kitchen fitting, kitchen supply and bespoke kitchen projects across Northern Ireland.",
-};
+export const metadata = pageMetadata("Contact & Free Kitchen Quote", "Contact DC Joinery for kitchen fitting, supply, renovation and fitted furniture enquiries across Northern Ireland.", "/contact");
 
 export default function ContactPage() {
   return (
@@ -28,7 +25,7 @@ export default function ContactPage() {
           </p>
 
           <h1 className="text-5xl md:text-6xl font-bold mb-6">
-            Get In Touch for a Free UK Quote
+            Discuss Your Northern Ireland Project
           </h1>
 
           <p className="text-neutral-300 text-lg mb-10">

@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { buildCampaignUrl } from "@/lib/analytics";
+import { services } from "@/lib/service-content";
 
 export const metadata = {
   alternates: {
@@ -91,7 +92,7 @@ export default function Home() {
       >
         <Image
           src="/logos/Whatsapp.png"
-          alt="WhatsApp"
+          alt=""
           width={26}
           height={26}
           className="h-6 w-6 object-contain"
@@ -125,9 +126,9 @@ export default function Home() {
             </p>
 
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold leading-[1] max-w-3xl mb-8">
-              KITCHENS.<br />
-              BEDROOMS.<br />
-              BESPOKE KITCHENS.
+              KITCHEN FITTING.<br />
+              FITTED JOINERY.<br />
+              NORTHERN IRELAND.
             </h1>
 
             <p className="text-neutral-100 text-lg md:text-xl max-w-2xl mb-10 leading-relaxed">
@@ -220,7 +221,7 @@ export default function Home() {
           {trustPoints.map(([title, text]) => (
             <div key={title} className="text-center border-r border-white/10 last:border-r-0 px-6">
               <div className="text-amber-400 text-3xl mb-5">◆</div>
-              <h3 className="uppercase text-lg font-semibold tracking-wide mb-4">{title}</h3>
+              <h2 className="uppercase text-lg font-semibold tracking-wide mb-4">{title}</h2>
               <p className="text-neutral-400">{text}</p>
             </div>
           ))}
@@ -439,7 +440,7 @@ export default function Home() {
                   “{review.text}”
                 </p>
                 <p className="font-bold">{review.name}</p>
-                <p className="text-sm text-neutral-500 mt-1">Facebook recommendation</p>
+                <p className="text-sm text-neutral-400 mt-1">Facebook recommendation</p>
               </div>
             ))}
           </div>
@@ -507,6 +508,7 @@ export default function Home() {
           </p>
         </div>
       </section>
+      <section className="px-6 py-16 border-t border-white/10"><div className="max-w-7xl mx-auto"><h2 className="text-3xl font-bold mb-8">Kitchen and fitted joinery services</h2><div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">{services.map(service => <Link key={service.path} href={service.path} className="rounded-xl border border-white/10 p-6 hover:border-amber-400"><h3 className="text-xl font-semibold text-amber-300 mb-3">{service.title.replace(" in Northern Ireland", "")}</h3><p className="text-neutral-300 leading-relaxed">{service.description}</p></Link>)}</div></div></section>
     </main>
   );
 }

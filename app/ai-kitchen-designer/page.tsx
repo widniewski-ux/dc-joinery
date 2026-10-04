@@ -1,14 +1,7 @@
-import type { Metadata } from "next";
+import { pageMetadata } from "@/lib/seo";
 import KitchenDesignerWizard from "./wizard";
 
-export const metadata: Metadata = {
-  title: "AI Kitchen Designer",
-  description:
-    "Upload your kitchen photo and build a brochure-aligned concept using supplier options from Howdens, Wren, IKEA and B&Q.",
-  alternates: {
-    canonical: "/ai-kitchen-designer",
-  },
-};
+export const metadata = pageMetadata("AI Kitchen Designer", "Upload a kitchen photo and explore an illustrative design concept with supplier options. Final plans require a measured survey.", "/ai-kitchen-designer");
 
 type PageProps = {
   searchParams?: Promise<{ step?: string }>;

@@ -5,6 +5,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import "./globals.css";
+import JsonLd from "./components/JsonLd";
+import { organization, SITE_URL } from "@/lib/seo";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -57,8 +59,6 @@ export const metadata: Metadata = {
     images: [
       {
         url: "https://www.dcjoineryni.uk/projects/kitchen51.jpeg",
-        width: 1200,
-        height: 630,
         alt: "DC Joinery finished kitchen project",
       },
     ],
@@ -68,6 +68,12 @@ export const metadata: Metadata = {
   robots: {
     index: true,
     follow: true,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "DC Joinery | Kitchen Fitting Northern Ireland",
+    description: "Kitchen fitting, supply, renovations and fitted furniture across Northern Ireland.",
+    images: ["/projects/kitchen51.jpeg"],
   },
 };
 
@@ -83,6 +89,7 @@ export default async function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
+        <JsonLd data={[organization, { "@context": "https://schema.org", "@type": "WebSite", "@id": `${SITE_URL}/#website`, url: SITE_URL, name: "DC Joinery", publisher: { "@id": organization["@id"] } }]} />
         <Header />
         {children}
         <Footer />
