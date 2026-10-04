@@ -5,23 +5,27 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: "https://dcjoineryni.uk/privacy" },
     { url: "https://dcjoineryni.uk/ai-kitchen-designer" },
     {
-      url: "https://dcjoineryni.uk",
+      url: "https://www.dcjoineryni.uk",
       lastModified: new Date(),
     },
     {
-      url: "https://dcjoineryni.uk/kitchen-fitting",
+      url: "https://www.dcjoineryni.uk/kitchen-fitting",
       lastModified: new Date(),
     },
     {
-      url: "https://dcjoineryni.uk/fit-and-supply",
+      url: "https://www.dcjoineryni.uk/fit-and-supply",
       lastModified: new Date(),
     },
     {
-      url: "https://dcjoineryni.uk/projects",
+      url: "https://www.dcjoineryni.uk/projects",
       lastModified: new Date(),
     },
     {
-      url: "https://dcjoineryni.uk/contact",
+      url: "https://www.dcjoineryni.uk/ai-kitchen-designer",
+      lastModified: new Date(),
+    },
+    {
+      url: "https://www.dcjoineryni.uk/contact",
       lastModified: new Date(),
     },
   ];

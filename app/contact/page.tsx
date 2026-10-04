@@ -3,6 +3,7 @@ import Link from "next/link";
 import { sendContactForm } from "../actions";
 
 export const metadata = {
+  alternates: { canonical: "/contact" },
   title: "Contact DC Joinery | Free Quote for Kitchen Fitting in Northern Ireland",
   description: "Contact DC Joinery for kitchen fitting, kitchen supply and bespoke kitchen projects across Northern Ireland.",
 };
@@ -69,7 +70,7 @@ export default function ContactPage() {
             </div>
           </div>
 
-          <EnquiryForm
+          <EnquiryForm formName="contact_form" formType="contact"
             action={sendContactForm}
             className="form-container grid gap-5 rounded-3xl border border-white/10 bg-white/[0.04] p-8 text-white md:p-10"
           >

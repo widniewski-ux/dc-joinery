@@ -3,8 +3,12 @@ import Link from "next/link";
 import { sendKitchenFittingForm } from "../actions";
 
 export const metadata = {
-  title: "Kitchen Fitting Quote | DC Joinery NI",
+  alternates: { canonical: "/kitchen-fitting" },
+  title: "Kitchen Fitting Quote",
   description: "Request a kitchen fitting quote from DC Joinery: UK kitchen install experience, supplier coordination and trusted trades.",
+  alternates: {
+    canonical: "/kitchen-fitting",
+  },
 };
 
 export default function KitchenFittingPage() {
@@ -67,7 +71,7 @@ export default function KitchenFittingPage() {
             </div>
           </div>
 
-          <EnquiryForm
+          <EnquiryForm formName="kitchen_fitting_form" formType="quote"
             action={sendKitchenFittingForm}
             className="form-container rounded-[2rem] border border-white/10 bg-white/[0.04] p-6 text-white shadow-2xl md:p-10"
           >

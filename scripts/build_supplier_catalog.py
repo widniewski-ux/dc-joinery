@@ -12,7 +12,7 @@ from pypdf import PdfReader
 
 
 ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_SUPPLIERS_DIR = Path("/Users/Dawid/Desktop/Suppliers ")
+
 OUTPUT_PATH = ROOT / "lib" / "ai-designer" / "supplier-catalog.generated.json"
 
 
@@ -213,7 +213,7 @@ def build_catalog(suppliers_dir: Path) -> dict[str, object]:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Build supplier brochure-based option catalog")
-    parser.add_argument("--suppliers-dir", default=str(DEFAULT_SUPPLIERS_DIR))
+    parser.add_argument("--suppliers-dir", required=True, help="Folder containing supplier brochures")
     parser.add_argument("--output", default=str(OUTPUT_PATH))
     args = parser.parse_args()
 

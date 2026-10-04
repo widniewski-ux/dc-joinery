@@ -3,6 +3,7 @@ import Link from "next/link";
 import { sendFitAndSupplyForm } from "../actions";
 
 export const metadata = {
+  alternates: { canonical: "/fit-and-supply" },
   title: "Fit & Supply Consultation | DC Joinery",
   description: "Fit & Supply service for kitchens, bedrooms and bespoke kitchens with design, supply and installation coordination in Northern Ireland.",
 };
@@ -66,7 +67,7 @@ export default function FitAndSupplyPage() {
             </div>
           </div>
 
-          <EnquiryForm
+          <EnquiryForm formName="fit_and_supply_form" formType="quote"
             action={sendFitAndSupplyForm}
             className="form-container rounded-[2rem] border border-white/10 bg-white/[0.04] p-6 text-white shadow-2xl md:p-10"
           >

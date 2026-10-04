@@ -6,6 +6,6 @@ export default function robots(): MetadataRoute.Robots {
       userAgent: "*",
       allow: "/",
     },
-    sitemap: "https://dcjoineryni.uk/sitemap.xml",
+    sitemap: "https://www.dcjoineryni.uk/sitemap.xml",
   };
 }

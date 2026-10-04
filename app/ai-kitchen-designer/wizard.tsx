@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { trackEvent } from "@/lib/analytics";
 import { SUPPLIER_CATALOG, type SupplierId } from "@/lib/ai-designer/supplier-catalog";
 
 const EDIT_INTENSITY_OPTIONS = [
@@ -331,6 +332,14 @@ export default function KitchenDesignerWizard({ initialStep = 1 }: KitchenDesign
       setStep(1);
       return;
     }
+
+    trackEvent("ai_designer_generation_start", {
+      supplier_id: supplierId,
+      style,
+      palette_count: palette.length,
+      worktop,
+      step: 8,
+    });
 
     if (!analysisDone) {
       const analysisSuccess = await runPhotoAnalysis();

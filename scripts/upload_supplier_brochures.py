@@ -13,7 +13,7 @@ from urllib.request import Request, urlopen
 from pypdf import PdfReader, PdfWriter
 
 
-DEFAULT_SUPPLIERS_DIR = Path("/Users/Dawid/Desktop/Suppliers ")
+
 DEFAULT_ENV_FILE = Path(".env.local")
 DEFAULT_CATALOG_FILE = Path("lib/ai-designer/supplier-catalog.generated.json")
 BUCKET = "ai-designer"
@@ -94,7 +94,7 @@ def extract_single_pdf_page(source_pdf: Path, page_number: int) -> bytes:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Upload supplier brochure assets to Supabase storage")
-    parser.add_argument("--suppliers-dir", default=str(DEFAULT_SUPPLIERS_DIR))
+    parser.add_argument("--suppliers-dir", required=True, help="Folder containing supplier brochures")
     parser.add_argument("--env-file", default=str(DEFAULT_ENV_FILE))
     parser.add_argument("--catalog-file", default=str(DEFAULT_CATALOG_FILE))
     args = parser.parse_args()

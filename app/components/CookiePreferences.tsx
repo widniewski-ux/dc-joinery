@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import Script from "next/script";
+import AnalyticsTracker from "./AnalyticsTracker";
 const preferenceKey = "dc-analytics-consent-v1";
 export default function CookiePreferences({ nonce }: { nonce: string }) {
   const [consent, setConsent] = useState<string | null>(null);
@@ -33,7 +34,8 @@ export default function CookiePreferences({ nonce }: { nonce: string }) {
   return <>
     {allowAnalytics && <>
       <Script nonce={nonce} src="https://www.googletagmanager.com/gtag/js?id=G-9KQJMDZTE6" strategy="afterInteractive" />
-      <Script nonce={nonce} id="google-analytics" strategy="afterInteractive">{`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-9KQJMDZTE6',{page_location:location.origin+location.pathname,allow_google_signals:false,allow_ad_personalization_signals:false});`}</Script>
+      <Script nonce={nonce} id="google-analytics" strategy="afterInteractive">{`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-9KQJMDZTE6',{page_location:location.origin+location.pathname,send_page_view:false,allow_google_signals:false,allow_ad_personalization_signals:false});`}</Script>
+      <AnalyticsTracker />
     </>}
     <button type="button" onClick={() => setOpen(true)} className="bg-neutral-950 py-3 text-sm text-neutral-300 underline">Cookie preferences</button>
     {open && <section aria-label="Cookie preferences" className="fixed bottom-0 left-0 right-0 z-[100] border-t border-white/20 bg-neutral-950 p-6 text-white shadow-2xl">

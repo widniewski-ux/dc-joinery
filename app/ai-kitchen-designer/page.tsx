@@ -5,6 +5,9 @@ export const metadata: Metadata = {
   title: "AI Kitchen Designer",
   description:
     "Upload your kitchen photo and build a brochure-aligned concept using supplier options from Howdens, Wren, IKEA and B&Q.",
+  alternates: {
+    canonical: "/ai-kitchen-designer",
+  },
 };
 
 type PageProps = {
