@@ -18,6 +18,8 @@ export default function AnalyticsTracker() {
     };
 
     trackPageView();
+    window.addEventListener("dc-analytics-ready", trackPageView);
+    return () => window.removeEventListener("dc-analytics-ready", trackPageView);
   }, [pathname]);
 
   useEffect(() => {

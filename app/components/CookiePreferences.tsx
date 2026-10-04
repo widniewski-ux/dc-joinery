@@ -34,7 +34,7 @@ export default function CookiePreferences({ nonce }: { nonce: string }) {
   return <>
     {allowAnalytics && <>
       <Script nonce={nonce} src="https://www.googletagmanager.com/gtag/js?id=G-9KQJMDZTE6" strategy="afterInteractive" />
-      <Script nonce={nonce} id="google-analytics" strategy="afterInteractive">{`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-9KQJMDZTE6',{page_location:location.origin+location.pathname,send_page_view:false,allow_google_signals:false,allow_ad_personalization_signals:false});`}</Script>
+      <Script nonce={nonce} id="google-analytics" strategy="afterInteractive" onReady={() => { window.dispatchEvent(new Event("dc-analytics-ready")); }}>{`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-9KQJMDZTE6',{page_location:location.origin+location.pathname,send_page_view:false,allow_google_signals:false,allow_ad_personalization_signals:false});`}</Script>
       <AnalyticsTracker />
     </>}
     <button type="button" onClick={() => setOpen(true)} className="bg-neutral-950 py-3 text-sm text-neutral-300 underline">Cookie preferences</button>

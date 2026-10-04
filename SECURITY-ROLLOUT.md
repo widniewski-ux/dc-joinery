@@ -2,6 +2,8 @@
 
 The code is prepared locally. No production database migration or deployment has been performed. Existing provider keys are reused; none were generated, changed or copied into source control.
 
+Vercel project `dc-joinery` deploys the public repository `widniewski-ux/dc-joinery` on `main`. This local checkout originally used the separate private repository `dc-joinery-main`. Production commit `c6d74ad` has been merged into the local fix branch so the latest gallery, photos, canonical URLs and consent-controlled event tracking are preserved. Publish to the connected public repository after resolving GitHub authentication and Supabase access.
+
 ## Deployment order
 
 1. Use a preview environment and a Supabase backup/snapshot. Verify that the configured Supabase project and Vercel project belong to this website.
@@ -37,4 +39,4 @@ Keep a pre-deployment code revision and database backup. The migration is additi
 - Next.js CSP/nonces: https://nextjs.org/docs/app/guides/content-security-policy
 - Supabase private media: https://supabase.com/docs/guides/storage/serving/downloads
 - Vercel ingress headers: https://vercel.com/docs/headers/request-headers
-- Remaining development advisory: https://github.com/advisories/GHSA-vfj7-8cjw-p6xm
+- Resolved development advisory: https://github.com/advisories/GHSA-vfj7-8cjw-p6xm
